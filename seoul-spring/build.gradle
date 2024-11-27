@@ -1,0 +1,40 @@
+plugins {
+	id 'java'
+	id 'org.springframework.boot' version '2.6.12'
+	id 'io.spring.dependency-management' version '1.1.6'
+}
+
+group = 'com.tech.seoul'
+version = '0.0.1-SNAPSHOT'
+
+java {
+	toolchain {
+		languageVersion = JavaLanguageVersion.of(11)
+	}
+}
+
+repositories {
+	mavenCentral()
+}
+
+dependencies {
+
+	implementation 'org.springframework.boot:spring-boot-starter-web'
+	testImplementation 'org.springframework.boot:spring-boot-starter-test'
+	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+	// Tomcat Server
+	implementation 'org.apache.tomcat:tomcat-jasper:9.0.65'
+	// Maria DB
+	implementation 'org.mariadb.jdbc:mariadb-java-client:3.0.6'
+	// Lombok
+	compileOnly 'org.projectlombok:lombok:1.18.24'
+	// Mybatis
+	implementation 'org.mybatis.spring.boot:mybatis-spring-boot-starter:2.2.2'
+	// Dotenv
+	implementation 'me.paulschwarz:spring-dotenv:4.0.0'
+	
+}
+
+tasks.named('test') {
+	useJUnitPlatform()
+}

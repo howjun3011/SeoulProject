@@ -1,0 +1,10 @@
+.flexCenter {display: flex; justify-content: center; align-items: center;}
+
+.mainFrame {display: flex;}
+.mainMenu {width: 120px; border-right: 1px solid #e2e2e2;}
+.menuLogo {position: absolute; top: 40px; cursor: pointer;}
+.mainMenuContainer {display: flex; flex-direction: column; align-items: center; gap: 40px;}
+.mainComponent {width: 80px; height: 70px; border-bottom: 1px solid #e2e2e2; cursor: pointer;}
+.componentFontSetting {font-size: 20px; font-weight: 600; letter-spacing: 0.1px; opacity: 0.6;}
+
+.mainCenter {background: transparent;}

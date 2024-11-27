@@ -1,1 +1,1 @@
-# Seoul
+# Seoul-related public data provision service

@@ -1,0 +1,7 @@
+.flexCenter {display: flex; justify-content: center; align-items: center;}
+
+.mainHeader {width: 100%-60px; height: 200px; margin: 0 30px; border-bottom: 1px solid #e2e2e2;}
+.headerFontSetting {font-size: 130px; font-weight: 600; letter-spacing: 0.1px; opacity: 0.6; user-select: none;}
+.mainCenter {display: flex; justify-content: space-around; align-items: center; width: 100%;}
+.mainComponent {width: 13%; height: 80%; border: 1px solid #e2e2e2; cursor: pointer;}
+.componentFontSetting {font-size: 50px; font-weight: 600; letter-spacing: 0.1px; opacity: 0.6;}
