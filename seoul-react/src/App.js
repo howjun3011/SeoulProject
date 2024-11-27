@@ -11,8 +11,8 @@ import MainLayout from "./components/main/MainLayout";
 import CultureMain from "./components/culture/CultureMain";
 
 function App() {
-  const menuNames = [ '육아', '문화', '체육', '강좌', '건강', '관광' ];
-  const addressNames = [ 'education', 'culture', 'exercise', 'lecture', 'health', 'tour' ];
+  const menuNames = [ '육아', '문화', '체육', '환경', '건강', '관광' ];
+  const addressNames = [ 'education', 'culture', 'exercise', 'environment', 'health', 'tour' ];
 
   return (
     <BrowserRouter>
