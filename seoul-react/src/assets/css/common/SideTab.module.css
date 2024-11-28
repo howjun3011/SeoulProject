@@ -1,0 +1,6 @@
+.flexCenter {display: flex; justify-content: center; align-items: center;}
+
+.cultureSideBtn {position: absolute; top: 50%; transform: translate(0%, -50%); z-index: 1000; width: 28px; height: 60px; border: 1.5px solid #e2e2e2; border-top-left-radius: 10px; border-bottom-left-radius: 10px; background-color: #fff; cursor: pointer; transition: right 0.5s ease;}
+.cultureArrow {width: 15px; height: 15px;}
+.cultureSideContainer {position: absolute; top: 50%; right: 10px; transform: translate(0%, -50%); z-index: 1000; width: 30%; height: 80%; border: 1px solid #e2e2e2; border-radius: 20px; background-color: #fff; transition: width 0.5s ease;}
+.cultureSideContainerClosed {width: 0; border: none; overflow: hidden;}

@@ -1,17 +1,20 @@
 import styles from '../../assets/css/culture/CultureMain.module.css';
-import { Map } from "react-kakao-maps-sdk";
 import UseFetch from '../../hooks/useFetch';
 
+// 컴포넌트 객체 생성
+import SideTab from '../common/SideTab';
+import CommonMap from '../common/CommonMap';
+
 function CultureMain() {
+    // 테스트를 위한 함수
     const test = UseFetch(`http://localhost:9002/seoul/culture/test`);
     console.log(test);
 
     return (
-        <Map
-            className={ styles.cultureMap }
-            center={{ lat: 37.5630, lng: 126.9793 }}
-            level={5}
-        />
+        <div className={ styles.cultureContainer }>
+            <CommonMap></CommonMap>
+            <SideTab></SideTab>
+        </div>
     );
 }
 
