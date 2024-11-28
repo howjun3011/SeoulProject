@@ -9,6 +9,7 @@ import MainLayout from "./components/main/MainLayout";
 
 // Culture Component
 import CultureMain from "./components/culture/CultureMain";
+import HealthMain from './components/health/HealthMain';
 
 function App() {
   const menuNames = [ '육아', '문화', '체육', '환경', '건강', '관광' ];
@@ -22,6 +23,7 @@ function App() {
             <Route path="/" element={<Navigate to="/seoul" />} />
             <Route path="/seoul" element={ <Home menuNames={ menuNames } addressNames={ addressNames } /> }></Route>
             <Route path="/seoul/culture" element={ <CultureMain /> }></Route>
+            <Route path="/seoul/health" element={ <HealthMain /> }></Route>
           </Routes>
         </MainLayout>
       </div>
