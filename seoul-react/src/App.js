@@ -12,7 +12,7 @@ import CultureMain from "./components/culture/CultureMain";
 import HealthMain from './components/health/HealthMain';
 
 function App() {
-  const menuNames = [ '육아', '문화', '체육', '환경', '건강', '관광' ];
+  const menuNames = [ '어린이', '문화', '체육', '환경', '건강', '관광' ];
   const addressNames = [ 'education', 'culture', 'exercise', 'environment', 'health', 'tour' ];
 
   return (

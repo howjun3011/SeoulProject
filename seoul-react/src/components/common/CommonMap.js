@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 
 function CommonMap(props) {
     // 맵 확대 및 축소 함수
-    const [level, setLevel] = useState(3);
+    const [level, setLevel] = useState(props.mapLevel);
 
     // 현재 위치 확인 함수
     const [location, setLoacation] = useState({

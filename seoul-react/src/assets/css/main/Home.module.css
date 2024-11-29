@@ -1,7 +1,13 @@
 .flexCenter {display: flex; justify-content: center; align-items: center;}
 
-.mainHeader {width: 100%-60px; height: 200px; margin: 0 30px; border-bottom: 1px solid #e2e2e2;}
-.headerFontSetting {font-size: 130px; font-weight: 600; letter-spacing: 0.1px; opacity: 0.6; user-select: none;}
-.mainCenter {display: flex; justify-content: space-around; align-items: center; width: 100%;}
-.mainComponent {width: 13%; height: 80%; border: 1px solid #e2e2e2; cursor: pointer;}
-.componentFontSetting {font-size: 50px; font-weight: 600; letter-spacing: 0.1px; opacity: 0.6;}
+.mainHeader {width: calc(100%-60px); height: 200px; margin: 0 30px; border-bottom: 1px solid #e2e2e2;}
+.headerFontSetting {height: 100%; font-size: 200px; font-weight: 600; letter-spacing: 1px; opacity: 0.6; user-select: none;}
+.mainCenter {position: relative; display: flex; justify-content: space-around; align-items: center; width: 100%;}
+.mainExplanation {position: absolute; top: 12px; right: 30px; font-size: 18px; font-weight: 400; letter-spacing: 0.1px; opacity: 0.6;}
+.mainComponent {display: flex; flex-direction: column; align-items: center; width: 13%; height: 70%; border-top: 1px solid #e2e2e2; cursor: pointer;}
+.componentFontSetting {width: 100%; height: 15%; padding: 14px 0 0 10px; font-size: 26px; font-weight: 600; letter-spacing: 0.1px; opacity: 0.6;}
+.componentFontSetting:hover {color: #000;}
+.componentEngFontSetting {margin-top: 5px; font-size: 17px;}
+.componentImgContainer {width: 100%; height: 85%; background-color: #f7f7f7;}
+.componentImgContainer:hover {background-color: #e2e2e2;}
+.componentImg {width: 95%; opacity: 0.8;}
