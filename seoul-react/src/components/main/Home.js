@@ -11,7 +11,7 @@ function Home(props) {
     
     function resize() {
         const windowHeight = window.innerHeight;
-        const menuHeight = document.querySelector(`.${ styles.mainHeader }`).scrollHeight;
+        const menuHeight = document.querySelector(`.${ styles.mainHeader }`).clientHeight;
 
         const centerElement = document.querySelector(`.${ styles.mainCenter }`);
 
@@ -33,11 +33,24 @@ function Home(props) {
                 <div className={ styles.headerFontSetting }>I ❤︎ SEOUL</div>
             </div>
             <div className={ styles.mainCenter }>
+                <div className={ styles.mainExplanation }>서울시 관련 공공 데이터 제공 서비스</div>
                 { props.menuNames.map((menuName, index) => {
                     return (
-                        <div key={ index } className={ `${styles.mainComponent} ${styles.flexCenter}` }
+                        <div key={ index } className={ `${styles.mainComponent}` }
                              onClick={() => { navigate(`${props.addressNames[index]}`); }}>
-                            <div className={ styles.componentFontSetting }>{ menuName }</div>
+                            <div className={ styles.componentFontSetting }>
+                                { menuName }
+                                <div className={ styles.componentEngFontSetting }>
+                                    { props.addressNames[index].charAt(0).toUpperCase() + props.addressNames[index].slice(1) }
+                                </div>
+                            </div>
+                            <div className={ `${styles.componentImgContainer} ${styles.flexCenter}` }>
+                                <img
+                                    className={ styles.componentImg }
+                                    src={ `/images/main/${props.addressNames[index]}.png` }
+                                    alt={ menuName }
+                                />
+                            </div>
                         </div>
                     );
                 }) }
