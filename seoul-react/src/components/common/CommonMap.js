@@ -1,5 +1,5 @@
 import commons from '../../assets/css/common/Common.module.css';
-import { Map, MapMarker, MapTypeId } from "react-kakao-maps-sdk";
+import { CustomOverlayMap, Map, MapMarker, MapTypeId } from "react-kakao-maps-sdk";
 import { useEffect, useState } from 'react';
 
 function CommonMap(props) {
@@ -11,6 +11,7 @@ function CommonMap(props) {
         latitude: 126.97209840,
         longitude: 37.55576761
     });
+    let [isChanged, setIsChanged] = useState(false);
 
     useEffect(() => {
 		navigator.geolocation.getCurrentPosition(successHandler, errorHandler);
@@ -19,6 +20,7 @@ function CommonMap(props) {
     const successHandler = (response) => {
 		const { latitude, longitude } = response.coords;
 		setLoacation({ latitude, longitude });
+        setIsChanged(true);
 	};
     const errorHandler = (error) => {
 		console.log(error);
@@ -33,9 +35,13 @@ function CommonMap(props) {
             center={{ lat: location.latitude, lng: location.longitude }}
             level={level}
             isPanto={true}
+            onCreate={isChanged ? props.setMap : ''}
         >
             {/* 마커 */}
             <MapMarker position={{ lat: location.latitude, lng: location.longitude }}></MapMarker>
+            <CustomOverlayMap position={{ lat: location.latitude, lng: location.longitude }}>
+                <div className={ `${commons.overlay} ${commons.flexCenter}` }>현재 위치</div>
+            </CustomOverlayMap>
             {/* 맵 타입 */}
             { mapTypeId && <MapTypeId type={mapTypeId} /> }
 
