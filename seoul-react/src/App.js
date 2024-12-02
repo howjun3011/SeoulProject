@@ -13,7 +13,7 @@ import HealthMain from './components/health/HealthMain';
 import InsertDB from './components/db/InsertDB';
 
 // Tour Component
-import TourInfo from './components/tour/TourInfo';
+import TourInfo from './components/tour/MapComponent';
 
 function App() {
   const menuNames = [ '어린이', '문화', '체육', '환경', '건강', '관광' ];
