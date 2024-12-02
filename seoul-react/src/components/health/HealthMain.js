@@ -1,5 +1,4 @@
 import styles from "../../assets/css/health/HealthMain.module.css";
-import { Map } from "react-kakao-maps-sdk";
 import GetFetch from "../../hooks/getFetch";
 
 import SideTab from "../common/SideTab";
@@ -8,62 +7,67 @@ import {useEffect, useState} from "react";
 import {CustomOverlayMap} from "react-kakao-maps-sdk";
 
 function HealthMain() {
-    const test = GetFetch(`http://localhost:9002/seoul/health/test`);
-    console.log(test);
-  
-    const [searchKeyword, setSearchKeyword] = useState(""); // 검색 키워드
-    const [hospitalList, setHospitalList] = useState([]); // 병원 목록 데이터
-    const [markers, setMarkers] = useState([]); // 지도에 표시할 마커 데이터
-    const [map, setMap] = useState(); // 카카오맵 객체
-    const { kakao } = window;
+    const [searchKeyword, setSearchKeyword] = useState("");
+    const [hospitalList, setHospitalList] = useState([]);
+    const [markers, setMarkers] = useState([]);
+    const [map, setMap] = useState();
 
-    // 병원 데이터 가져오기
-    const hospitalData = GetFetch('http://localhost:9002/seoul/health/test');
-    console.log(hospitalData);
+    const hospitalData = GetFetch(
+        "http://localhost:9002/seoul/health/getAllHospitalInfo"
+    );
 
     useEffect(() => {
-        if(searchKeyword === "") {
-            // 검색 키워드가 없으면 전체 데이터 표시
-            setHospitalList(hospitalData || []);
-            setMarkers(hospitalData.map(hospital => ({
-                position: {lat: hospital.lat, lng: hospital.lng},
-                name: hospital.name,
-            })));
+        console.log("hospitalData:", hospitalData); // 데이터 확인
+
+        const data = Array.isArray(hospitalData) ? hospitalData : [];
+        if (searchKeyword === "") {
+            setHospitalList(data);
+            setMarkers(
+                data.map((hospital) => ({
+                    position: { lat: hospital.hosp_lat, lng: hospital.hosp_lng },
+                    name: hospital.hosp_name,
+                }))
+            );
         } else {
-            // 키워드가 있으면 필터링
-            const filtered = hospitalData.filter(hospital =>
-                hospital.name.includes(searchKeyword)
+            const filtered = data.filter((hospital) =>
+                hospital.hosp_name.includes(searchKeyword)
             );
             setHospitalList(filtered);
-            setMarkers(filtered,map(hospital => ({
-                position: {lat: hospital.lat, lng: hospital.lng},
-                name: hospital.name,
-            })));
+            setMarkers(
+                filtered.map((hospital) => ({
+                    position: { lat: hospital.hosp_lat, lng: hospital.hosp_lng },
+                    name: hospital.hosp_name,
+                }))
+            );
         }
     }, [searchKeyword, hospitalData]);
 
     return (
-        <div className={ styles.healthContainer }>
-            <CommonMap setMap={ setMap } mapLevel={ 3 }>
+        <div className={styles.healthContainer}>
+            <CommonMap setMap={setMap} mapLevel={ 3 }>
                 {markers.map((marker, index) => (
-                    <CustomOverlayMap key={`marker-${marker.name}-${index}`} position={marker.position}>
-                        <div className={styles.marker}>
-                            {marker.name}
-                        </div>
+                    <CustomOverlayMap
+                        key={`marker-${marker.name}-${index}`}
+                        position={marker.position}
+                    >
+                        <div className={styles.marker}>{marker.name}</div>
                     </CustomOverlayMap>
                 ))}
             </CommonMap>
             <SideTab>
-                <div className={ styles.searchBarContainer }>
-                    {/* 검색창 */}
-                    <input  className={ styles.searchBar } type="text" placeholder="검색어를 입력하세요"
-                            value={searchKeyword} onChange={(e) => setSearchKeyword(e.target.value)}/>
+                <div className={styles.searchBarContainer}>
+                    <input
+                        className={styles.searchBar}
+                        type="text"
+                        placeholder="검색어를 입력하세요"
+                        value={searchKeyword}
+                        onChange={(e) => setSearchKeyword(e.target.value)}
+                    />
                 </div>
-                {/* 검색 결과 */}
                 <div className={styles.resultList}>
                     {hospitalList.map((hospital, index) => (
                         <div key={index} className={styles.resultItem}>
-                            {hospital.name}
+                            {hospital.hosp_name}
                         </div>
                     ))}
                 </div>

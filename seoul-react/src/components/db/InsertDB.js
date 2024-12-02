@@ -1,4 +1,3 @@
-// import db from '../../db/culture/bookUsed.json';
 import SendFetchPost from '../../db/sendFetchPost';
 
 function InsertDB() {
