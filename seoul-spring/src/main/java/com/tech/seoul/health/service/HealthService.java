@@ -13,8 +13,11 @@ public class HealthService {
     @Autowired
     private HealthDao healthDao;
 
-    // test
-    public List<HospitalDto> selectAllHospital() {
-        return healthDao.selectAllHospital();
+    public List<HospitalDto> searchHospitalsByLocationAndKeyword(double lat, double lon, double radius, String keyword) {
+        return healthDao.findHospitalWithRadius(lat, lon, radius, keyword);
+    }
+
+    public List<HospitalDto> searchHospitalsByKeyword(String keyword) {
+        return healthDao.findByKeyword(keyword);
     }
 }
