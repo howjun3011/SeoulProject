@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.tech.seoul.edu.models.EduDao">
+	<select id="KindergartenNormal" resultType="com.tech.seoul.edu.models.KindergartenDto">
+		SELECT * FROM kids_normal_now LIMIT 10
+	</select>
+</mapper>

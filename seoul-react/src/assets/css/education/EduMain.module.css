@@ -1,0 +1,75 @@
+.flexCenter {
+    display: flex; 
+    justify-content: center; 
+    align-items: center;
+}
+.educationContainer {
+    position: relative; 
+    width: 100%; 
+    height: 100%;
+}
+.educationFrame {
+    width: 100%; 
+    height: 100%;
+}
+.educationHeader {
+    display: flex; 
+    justify-content: space-around; 
+    align-items: center; 
+    width: 100%; 
+    height: 40px;
+}
+.educationHeaderCompontent {
+    width: 25%; 
+    height: 100%; 
+    border-right: 1px solid #fff; 
+    color: #111; font-size: 13px; 
+    letter-spacing: 0.1px; 
+    opacity: 0.9; 
+    cursor: pointer; 
+    user-select: none; 
+    overflow: hidden; 
+    white-space: nowrap; 
+    text-overflow: clip;
+}
+.educationHeader :first-child {
+    border-top-left-radius: 20px;
+}
+.educationHeader :last-child {
+    border-top-right-radius: 20px; 
+    border-right: none;
+}
+
+.overlaybox {
+    position: relative; 
+    display: flex; 
+    flex-direction: column; 
+    align-items: center; 
+    width: 100px; 
+    height: 120px; 
+    background: url('../../../../public/images/main/overLay.png'); 
+    background-repeat: no-repeat; 
+    background-size: 100px 120px; 
+    overflow: hidden;
+}
+.overlaybox .boxtitle {
+    width: 100%; 
+    padding: 10px 0 5px 0; 
+    color: #fff; 
+    font-size: 15px; 
+    font-weight: 400;
+}
+.overlaybox .overlayContent {
+    position: relative; 
+    width: 85%; 
+    height: 55%; 
+    padding: 5px; 
+    background: #666565;
+    border-radius: 3px; 
+    color: #fff; 
+    line-height: 1; 
+    font-size: 13px; 
+    line-height: 16px; 
+    white-space: normal; 
+    word-wrap: break-word;
+}
