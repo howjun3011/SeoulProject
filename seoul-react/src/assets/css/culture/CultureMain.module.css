@@ -10,3 +10,10 @@
 .overlaybox {position: relative; display: flex; flex-direction: column; align-items: center; width: 100px; height: 120px; background: url('../../../../public/images/main/overLay.png'); background-repeat: no-repeat; background-size: 100px 120px; overflow: hidden;}
 .overlaybox .boxtitle {width: 100%; padding: 10px 0 5px 0; color: #fff; font-size: 15px; font-weight: 400;}
 .overlaybox .overlayContent {position: relative; width: 85%; height: 55%; padding: 5px; background: #666565; border-radius: 3px; color: #fff; line-height: 1; font-size: 13px; line-height: 16px; white-space: normal; word-wrap: break-word;}
+
+.cultureBookStoreContainer {display: flex; justify-content: center; align-items: center; width: 100%; height: calc(100% - 40px);}
+.cultureBookStoreFrame {width: 90%; height: 85%; border: 1px solid #e2e2e2; border-radius: 12px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); user-select: none; color: #353535; font-size: 20px; font-weight: 500; letter-spacing: 0.1px; opacity: 0.9; overflow: hidden; white-space: nowrap; text-overflow: clip;}
+.cultureBookStoreHeader {display: flex; justify-content: center; padding: 30px 0; border-bottom: 1px solid #e2e2e2; background-color: #f0f0f0;}
+.cultureBookStoreName {display: flex; margin: 0 20px; padding: 30px 0 20px 5px; font-size: 18px; border-bottom: 1px solid #e2e2e2;}
+.cultureBookStoreCenter {padding: 15px 20px; font-size: 15px;}
+.cultureBookStoreInfo {line-height: 20px; white-space: normal; word-wrap: break-word;}
