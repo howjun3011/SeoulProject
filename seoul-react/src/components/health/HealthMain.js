@@ -1,5 +1,6 @@
 import styles from "../../assets/css/health/HealthMain.module.css";
-import UseFetch from "../../hooks/useFetch";
+import { Map } from "react-kakao-maps-sdk";
+import GetFetch from "../../hooks/getFetch";
 
 import SideTab from "../common/SideTab";
 import CommonMap from "../common/CommonMap";
@@ -7,6 +8,9 @@ import {useEffect, useState} from "react";
 import {CustomOverlayMap} from "react-kakao-maps-sdk";
 
 function HealthMain() {
+    const test = GetFetch(`http://localhost:9002/seoul/health/test`);
+    console.log(test);
+  
     const [searchKeyword, setSearchKeyword] = useState(""); // 검색 키워드
     const [hospitalList, setHospitalList] = useState([]); // 병원 목록 데이터
     const [markers, setMarkers] = useState([]); // 지도에 표시할 마커 데이터
@@ -14,7 +18,7 @@ function HealthMain() {
     const { kakao } = window;
 
     // 병원 데이터 가져오기
-    const hospitalData = UseFetch('http://localhost:9002/seoul/health/test');
+    const hospitalData = GetFetch('http://localhost:9002/seoul/health/test');
     console.log(hospitalData);
 
     useEffect(() => {

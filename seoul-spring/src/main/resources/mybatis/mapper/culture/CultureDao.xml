@@ -5,8 +5,32 @@
 
 <mapper namespace="com.tech.seoul.culture.models.CultureDao">
 	
-	<select id="selectTest" resultType="String">
-        SELECT hosp_name FROM hosp_info WHERE hosp_id = 'A1120414'
+	<select id="selectCultureBookPKCnt" resultType="Integer">
+        SELECT COUNT(*) FROM culture_book_store WHERE esntl_id = #{esntl_id}
     </select>
+
+    <select id="selectCultureBook" resultType="com.tech.seoul.culture.models.CultureBookDto">
+        SELECT
+            esntl_id, fclty_nm, lclas_nm, mlsfc_nm, zip_no, fclty_road_nm_addr, fclty_la, fclty_lo,
+            workday_opn_bsns_time, workday_clos_time, sat_opn_bsns_time, sat_clos_time, sun_opn_bsns_time,
+            sun_clos_time, rstde_opn_bsns_time, rstde_clos_time, rstde_guid_cn, tel_no, optn_dc, adit_dc
+        FROM
+            culture_book_store
+    </select>
+
+    <insert id="insertCultureBook" parameterType="com.tech.seoul.culture.models.CultureBookDto">
+        INSERT INTO culture_book_store
+            (
+                esntl_id, fclty_nm, lclas_nm, mlsfc_nm, zip_no, fclty_road_nm_addr, fclty_la, fclty_lo,
+                workday_opn_bsns_time, workday_clos_time, sat_opn_bsns_time, sat_clos_time, sun_opn_bsns_time,
+                sun_clos_time, rstde_opn_bsns_time, rstde_clos_time, rstde_guid_cn, tel_no, optn_dc, adit_dc
+            )
+        VALUE
+            (
+                #{esntl_id}, #{fclty_nm}, #{lclas_nm}, #{mlsfc_nm}, #{zip_no}, #{fclty_road_nm_addr}, #{fclty_la}, #{fclty_lo},
+                #{workday_opn_bsns_time}, #{workday_clos_time}, #{sat_opn_bsns_time}, #{sat_clos_time}, #{sun_opn_bsns_time},
+                #{sun_clos_time}, #{rstde_opn_bsns_time}, #{rstde_clos_time}, #{rstde_guid_cn}, #{tel_no}, #{optn_dc}, #{adit_dc}
+            )
+    </insert>
 	
 </mapper>
