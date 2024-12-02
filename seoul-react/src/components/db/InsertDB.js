@@ -1,4 +1,4 @@
-import db from '../../db/culture/bookUsed.json';
+// import db from '../../db/culture/bookUsed.json';
 import SendFetchPost from '../../db/sendFetchPost';
 
 function InsertDB() {
@@ -20,7 +20,7 @@ function InsertDB() {
                     cursor: 'pointer',
                 }}
                 onClick={() => {
-                    SendFetchPost(`http://localhost:9002/seoul/culture/insertDB`, db);
+                    SendFetchPost(`http://localhost:9002/seoul/culture/insertDB`);
                 }}
             >
                 Insert

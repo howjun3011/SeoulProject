@@ -11,7 +11,7 @@ public class TourService {
 
     public String getTourInfo(String keyword) {
         String url = BASE_URL
-                + "?numOfRows=10"
+                + "?numOfRows=1000"
                 + "&pageNo=1"
                 + "&MobileOS=ETC"
                 + "&MobileApp=AppTest"
