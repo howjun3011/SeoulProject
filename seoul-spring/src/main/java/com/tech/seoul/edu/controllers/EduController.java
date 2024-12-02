@@ -2,6 +2,9 @@ package com.tech.seoul.edu.controllers;
 
 import java.util.List;
 
+import javax.servlet.http.HttpServletRequest;
+
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -15,14 +18,16 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class EduController {
 	
-	private KindergartenService kindergartenService;
+	private final KindergartenService kindergartenService;
 	
 	
-	@RequestMapping("/eduTest")
-	public List<KindergartenDto> eduTest() {
-		
-		
-		
-		return kindergartenService.kindergartenInfo();
+	@GetMapping("/eduTest")
+	public List<KindergartenDto> eduTest(
+			HttpServletRequest request) {
+		System.out.println("swLat :" + request.getParameter("swLat"));
+		System.out.println("swLng :" + request.getParameter("swLng"));
+		System.out.println("neLat :" + request.getParameter("neLat"));
+		System.out.println("neLng :" + request.getParameter("neLng"));
+		return kindergartenService.kindergartenInfo(request);
 	}
 }

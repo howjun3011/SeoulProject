@@ -4,6 +4,14 @@
   "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.tech.seoul.edu.models.EduDao">
 	<select id="KindergartenNormal" resultType="com.tech.seoul.edu.models.KindergartenDto">
-		SELECT * FROM kids_normal_now LIMIT 10
+		SELECT 
+			kindergarten_name 
+		FROM 
+			kids_normal_now
+		WHERE 
+			x_coordinate &gt; ${swLng} 
+			AND x_coordinate &lt; ${neLng}
+			AND y_coordinate &gt; ${swLat} 
+			AND y_coordinate &lt; (${neLat}-((${neLat}-${neLat})/3) )
 	</select>
 </mapper>
