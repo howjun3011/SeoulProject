@@ -1,9 +1,9 @@
 import styles from "../../assets/css/health/HealthMain.module.css";
 import { Map } from "react-kakao-maps-sdk";
-import UseFetch from "../../hooks/useFetch";
+import GetFetch from "../../hooks/getFetch";
 
 function HealthMain() {
-    const test = UseFetch(`http://localhost:9002/seoul/health/test`);
+    const test = GetFetch(`http://localhost:9002/seoul/health/test`);
     console.log(test);
 
     return (

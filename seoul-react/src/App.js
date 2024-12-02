@@ -3,13 +3,14 @@ import './assets/css/main/App.css';
 // React Router Setting
 import { BrowserRouter, Navigate, Routes, Route } from 'react-router-dom';
 
-// Component
+// Common Component
 import Home from "./components/main/Home";
 import MainLayout from "./components/main/MainLayout";
 
-// Culture Component
+// Component
 import CultureMain from "./components/culture/CultureMain";
 import HealthMain from './components/health/HealthMain';
+import InsertDB from './components/db/InsertDB';
 
 function App() {
   const menuNames = [ '어린이', '문화', '체육', '환경', '건강', '관광' ];
@@ -24,6 +25,7 @@ function App() {
             <Route path="/seoul" element={ <Home menuNames={ menuNames } addressNames={ addressNames } /> }></Route>
             <Route path="/seoul/culture" element={ <CultureMain /> }></Route>
             <Route path="/seoul/health" element={ <HealthMain /> }></Route>
+            <Route path="/seoul/db" element={ <InsertDB /> }></Route>
           </Routes>
         </MainLayout>
       </div>
