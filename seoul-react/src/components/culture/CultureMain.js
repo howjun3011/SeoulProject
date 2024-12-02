@@ -2,31 +2,27 @@ import styles from '../../assets/css/culture/CultureMain.module.css';
 import GetFetch from '../../hooks/getFetch';
 
 // 카카오맵 마커 생성
-import { CustomOverlayMap } from "react-kakao-maps-sdk";
+import { CustomOverlayMap, MarkerClusterer } from "react-kakao-maps-sdk";
 
 // 컴포넌트 객체 생성
+import { useEffect, useState } from 'react';
+
 import SideTab from '../common/SideTab';
 import CommonMap from '../common/CommonMap';
-import { useEffect, useState } from 'react';
+import CultureBooKStore from './CultureBooKStore';
 
 function CultureMain() {
     // 책과 관련된 데이터를 획득하는 함수
     const bookDatas = GetFetch(`http://localhost:9002/seoul/culture/getBookData`);
     const [markers, setMarkers] = useState([]);
+    const [isClicked, setIsClicked] = useState(false);
+    const [bookContents, setBookContents] = useState();
 
     useEffect(() => {
         if (!bookDatas) return
 
         bookDatas.map((bookData, index) => {
-            markers.push({
-                bookSub: bookData.lclas_nm,
-                position: {
-                    lat: bookData.fclty_la,
-                    lng: bookData.fclty_lo,
-                },
-                content: bookData.fclty_nm,
-                address: bookData.fclty_road_nm_addr,
-            })
+            markers.push(bookData);
         });
 
         setMarkers([...markers]);
@@ -80,30 +76,41 @@ function CultureMain() {
     return (
         <div className={ styles.cultureContainer }>
             <CommonMap setMap={ setMap } mapLevel={ 4 }>
-                {markers.map((marker, index) => {
-                    // CustomOverlayMap z-index 설정
-                    let customOverlayMap = null;
+                <MarkerClusterer
+                    averageCenter={true}
+                    minLevel={6}
+                    gridSize={120}
+                >
+                    {markers.map((marker, index) => {
+                        // CustomOverlayMap z-index 설정
+                        let customOverlayMap = null;
 
-                    const handleOverlayIndex = (i, marker) => {
-                        customOverlayMap.setZIndex(i);
-                        setOverlayZIndex(i + 1);
-                        console.log(marker);
-                    };
+                        const handleOverlayIndex = (i) => {
+                            customOverlayMap.setZIndex(i);
+                            setOverlayZIndex(i + 1);
+                            setIsClicked(true);
+                            setBookContents(marker);
+                            console.log(bookContents);
+                        };
 
-                    return (
-                        <CustomOverlayMap
-                            key={`marker-${marker.content}-${marker.position.lat},${marker.position.lng}-${index}`}
-                            position={marker.position}
-                            zIndex={0}
-                            onCreate={(x) => {customOverlayMap = x;}}
-                        >
-                            <OverLay
-                                marker={marker}
-                                onClick={() => {handleOverlayIndex(overlayZIndex, marker)}}
-                            />
-                        </CustomOverlayMap>
-                    );
-                })}
+                        return (
+                            <CustomOverlayMap
+                                key={`marker-${marker.content}-${marker.fclty_la},${marker.fclty_lo}-${index}`}
+                                position={{
+                                    lat: marker.fclty_la,
+                                    lng: marker.fclty_lo,
+                                }}
+                                zIndex={0}
+                                onCreate={(x) => {customOverlayMap = x;}}
+                            >
+                                <OverLay
+                                    marker={marker}
+                                    onClick={() => {handleOverlayIndex(overlayZIndex)}}
+                                />
+                            </CustomOverlayMap>
+                        );
+                    })}
+                </MarkerClusterer>
             </CommonMap>
             <SideTab>
                 <div className={ styles.cultureFrame }>
@@ -130,6 +137,7 @@ function CultureMain() {
                             })
                         }
                     </div>
+                    { isClicked && <CultureBooKStore bookContents={bookContents} /> }
                 </div>
             </SideTab>
         </div>
@@ -141,12 +149,14 @@ function OverLay(props) {
         <div
             className={styles.overlaybox}
             style={{
-                filter: props.marker.bookSub === '독립 서점' ? 'invert(1)' : ''
+                filter: props.marker.lclas_nm === '독립서점' ? 'opacity(0.8) drop-shadow(0 0 0 #FF9473)' :
+                        props.marker.lclas_nm === '북카페' ? 'opacity(0.8) drop-shadow(0 0 0 #0064FF)' :
+                        props.marker.lclas_nm === '만화방' ? 'opacity(0.8) drop-shadow(0 0 0 #8AB78A)' : ''
             }}
             onClick={props.onClick}
         >
-            <div className={ `${styles.boxtitle} ${styles.flexCenter}` }>{props.marker.bookSub}</div>
-            <div className={ `${styles.overlayContent} ${styles.flexCenter}` }>{props.marker.content}</div>
+            <div className={ `${styles.boxtitle} ${styles.flexCenter}` }>{props.marker.lclas_nm}</div>
+            <div className={ `${styles.overlayContent} ${styles.flexCenter}` }>{props.marker.fclty_nm}</div>
         </div>
     );
 }
