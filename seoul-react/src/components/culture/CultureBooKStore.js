@@ -11,11 +11,11 @@ function CultureBooKStore(props) {
                     {`${props.bookContents.fclty_nm}`}
                 </div>
                 <div className={ `${styles.cultureBookStoreCenter}` }>
-                    <div style={{ fontSize: '17px', paddingBottom: '10px' }}>정보</div>
-                    <div className={ `${styles.cultureBookStoreInfo}` }>{`1. ${props.bookContents.optn_dc}`}</div>
+                    <div style={{ fontSize: '18px', paddingBottom: '12px' }}>정보</div>
+                    <div className={ `${styles.cultureBookStoreInfo}` } style={{ paddingLeft: '6px' }}>{`1. ${props.bookContents.optn_dc}`}</div>
                     <div
                         className={ `${styles.cultureBookStoreInfo}` }
-                        style={{ padding: '10px 0 20px 0' }}
+                        style={{ padding: '10px 0 25px 5px' }}
                     >
                         {`2. ${props.bookContents.adit_dc}`}
                     </div>
@@ -29,7 +29,7 @@ function CultureBooKStore(props) {
                         </svg>
                         {`${props.bookContents.fclty_road_nm_addr} `}<span style={{ fontWeight: '700' }}>{`(${props.bookContents.zip_no})`}</span>
                     </div>
-                    <div style={{ margin: '4px 0' }}>
+                    <div style={{ margin: '6px 0' }}>
                         <svg
                             viewBox="0 0 18 18"
                             aria-hidden="true"
@@ -39,7 +39,7 @@ function CultureBooKStore(props) {
                         </svg>
                         {`${props.bookContents.tel_no}`}
                     </div>
-                    <div style={{ marginTop: '16px' }}>
+                    <div style={{ marginTop: '20px' }}>
                         <svg
                             viewBox="0 0 18 18"
                             aria-hidden="true"
@@ -47,7 +47,7 @@ function CultureBooKStore(props) {
                         ><path d="M9 1.5C4.9 1.5 1.5 4.9 1.5 9s3.4 7.5 7.5 7.5 7.5-3.4 7.5-7.5S13.1 1.5 9 1.5zm2.7 10c-.2.3-.6.3-.9.1L8.4 9.9V5.8c0-.4.3-.6.6-.6s.6.3.6.6v3.4l1.9 1.4c.3.2.4.6.2.9z"
                         ></path>
                         </svg>
-                        <div>
+                        <div style={{ paddingLeft: '5px' }}>
                             <div>{`1. 평일 개점시간 : ${props.bookContents.workday_opn_bsns_time || '내용 없음'}`}</div>
                             <div>{`2. 평일 마감시간 : ${props.bookContents.workday_clos_time || '내용 없음'}`}</div>
                             <div>{`3. 토요일 개점시간 : ${props.bookContents.sat_opn_bsns_time || '휴무'}`}</div>
