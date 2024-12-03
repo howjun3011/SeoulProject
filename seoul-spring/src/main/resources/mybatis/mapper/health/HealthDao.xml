@@ -4,8 +4,12 @@
     "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
 <mapper namespace="com.tech.seoul.health.models.HealthDao">
-	<select id="selectTest" resultType="String">
-        SELECT hosp_name FROM hosp_info WHERE hosp_id = "A1106598";
+	<select id="selectAllHospital" resultType="com.tech.seoul.health.models.HospitalDto">
+        SELECT hosp_id, hosp_name, hosp_address, hosp_type_eng, hosp_type, hosp_pnumber, hosp_lunchtime, hosp_location,
+               hosp_post, hosp_lat, hosp_lon, hosp_sbj, hosp_mon_oc, hosp_tue_oc, hosp_wed_oc, hosp_thu_oc, hosp_fri_oc,
+               hosp_sat_oc, hosp_sun_oc, hosp_hol_oc
+        FROM hosp_info
+        LIMIT 10
     </select>
 
 </mapper>
