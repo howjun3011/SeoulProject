@@ -3,6 +3,7 @@ package com.tech.seoul.culture.service;
 import java.util.HashMap;
 import java.util.List;
 
+import com.tech.seoul.culture.models.CultureBestsellerDto;
 import com.tech.seoul.culture.models.CultureBookDto;
 import org.springframework.stereotype.Service;
 
@@ -16,7 +17,9 @@ public class CultureService {
 		this.cultureDao = cultureDao;
 	}
 
+	// DB 정보 획득
 	public List<CultureBookDto> selectCultureBookService() {return cultureDao.selectCultureBook();}
+	public List<CultureBestsellerDto> selectCultureBestsellerService() {return cultureDao.selectCultureBestseller();}
 
 	// DB Insert
 	public void insertCultureBookService(HashMap<String, Object>[] maps) {
@@ -51,6 +54,36 @@ public class CultureService {
 				cultureDao.insertCultureBook(cultureBookDto);
 
 				System.out.println("Complete Inserting Book Data");
+			}
+		}
+		System.out.println("Complete All");
+	}
+
+	public void insertCultureBestsellerService(HashMap<String, Object>[] maps) {
+		System.out.println("Start");
+		for (HashMap<String, Object> map : maps) {
+			Integer cnt = cultureDao.selectCultureBestsellerPKCnt(Integer.parseInt(map.get("SEQ_NO").toString()));
+
+			if (cnt == 0) {
+				CultureBestsellerDto cultureBestsellerDto = new CultureBestsellerDto();
+
+				cultureBestsellerDto.setSeq_no(Integer.parseInt(map.get("SEQ_NO").toString()));
+				cultureBestsellerDto.setRank_co(Integer.parseInt(map.get("RANK_CO").toString()));
+				cultureBestsellerDto.setInpt_de(map.get("INPT_DE").toString());
+				cultureBestsellerDto.setIsbn_ten_no(map.get("ISBN_TEN_NO").toString());
+				cultureBestsellerDto.setIsbn_thirteen_no(map.get("ISBN_THIRTEEN_NO").toString());
+				cultureBestsellerDto.setBook_title_nm(map.get("BOOK_TITLE_NM").toString());
+				cultureBestsellerDto.setAuthr_nm(map.get("AUTHR_NM").toString());
+				cultureBestsellerDto.setBook_intrcn_cn(map.get("BOOK_INTRCN_CN").toString());
+				cultureBestsellerDto.setPublisher_nm(map.get("PUBLISHER_NM").toString());
+				cultureBestsellerDto.setPblicte_de(map.get("PBLICTE_DE").toString());
+				cultureBestsellerDto.setBook_cvr_image_nm(map.get("BOOK_CVR_IMAGE_NM").toString());
+				cultureBestsellerDto.setBook_mastr_seq_no(map.get("BOOK_MASTR_SEQ_NO").toString());
+				cultureBestsellerDto.setKdc_nm(map.get("KDC_NM").toString());
+
+				cultureDao.insertCultureBestseller(cultureBestsellerDto);
+
+				System.out.println("Complete Inserting Bestseller Data");
 			}
 		}
 		System.out.println("Complete All");
