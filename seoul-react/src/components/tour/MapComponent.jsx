@@ -28,7 +28,10 @@ function MapComponent() {
   useEffect(() => {
     const loadGeoJSON = async () => {
       try {
-        const response = await fetch('/seoul_boundary_wgs84.geojson');
+        const response = await fetch('/seoulGeoJSON.geojson'); // public 폴더의 GeoJSON 파일 경로
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
         const data = await response.json();
         setSeoulGeoJSON(data);
       } catch (error) {
@@ -193,50 +196,15 @@ function MapComponent() {
     };
 
     loadMap();
-  }, [cat1]); // seoulGeoJSON는 폴리곤 생성 useEffect에서 처리
+  }, [cat1]); // seoulGeoJSON는 이제 코드 내에서 직접 사용
 
   // GeoJSON 데이터가 로드되면 폴리곤 생성
   useEffect(() => {
     if (seoulGeoJSON && mapRef.current) {
       createSeoulPolygon();
-      // 마스킹 폴리곤 생성 함수 호출 제거
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [seoulGeoJSON]);
-
-  // GeoJSON의 경계 상자 계산 함수 (이전 마스킹과 관련된 부분 제거)
-  const computeBoundingBox = (geojson) => {
-    let minLng = 180;
-    let minLat = 90;
-    let maxLng = -180;
-    let maxLat = -90;
-
-    geojson.features.forEach((feature) => {
-      const { geometry } = feature;
-      const { type, coordinates } = geometry;
-
-      if (type === 'Polygon') {
-        coordinates[0].forEach(([lng, lat]) => {
-          if (lat < minLat) minLat = lat;
-          if (lat > maxLat) maxLat = lat;
-          if (lng < minLng) minLng = lng;
-          if (lng > maxLng) maxLng = lng;
-        });
-      } else if (type === 'MultiPolygon') {
-        coordinates.forEach((polygon) => {
-          polygon[0].forEach(([lng, lat]) => {
-            if (lat < minLat) minLat = lat;
-            if (lat > maxLat) maxLat = lat;
-            if (lng < minLng) minLng = lng;
-            if (lng > maxLng) maxLng = lng;
-          });
-        });
-      }
-    });
-
-    console.log(`Bounding Box: minLat=${minLat}, minLng=${minLng}, maxLat=${maxLat}, maxLng=${maxLng}`);
-    return { minLat, minLng, maxLat, maxLng };
-  };
 
   // 서울 경계선 폴리곤 생성 함수
   const createSeoulPolygon = () => {
@@ -244,40 +212,47 @@ function MapComponent() {
     console.log('seoulGeoJSON:', seoulGeoJSON);
     const polygons = [];
 
+    // GeoJSON 파일이 제대로 로드되었는지 확인
+    if (!seoulGeoJSON || !seoulGeoJSON.features || seoulGeoJSON.features.length === 0) {
+      console.error('Invalid GeoJSON data');
+      return;
+    }
+
+    // GeoJSON의 각 피처를 순회하여 폴리곤 생성
     seoulGeoJSON.features.forEach((feature) => {
       const { geometry } = feature;
       const { type, coordinates } = geometry;
 
       if (type === 'Polygon') {
         const path = coordinates[0].map(
-          (coord) => new kakao.maps.LatLng(coord[1], coord[0])
+          (coord) => new kakao.maps.LatLng(coord[1], coord[0]) // [lat, lng]
         );
 
         const polygon = new kakao.maps.Polygon({
           map: mapRef.current,
           path: path,
-          strokeWeight: 3, // 굵은 경계선
-          strokeColor: '#FF0000', // 경계선 색상 (빨간색)
-          fillColor: 'rgba(255, 255, 255, 0)', // 채우기 없음
+          strokeWeight: 5, // 굵은 경계선
+          strokeColor: '#0000FF', // 경계선 색상 (파란색)
+          fillColor: 'rgba(0, 0, 255, 0.1)', // 약간의 채우기 (투명 파란색)
           strokeOpacity: 1,
-          zIndex: 10, // 마스킹 폴리곤과의 충돌 방지
+          zIndex: 10, // 다른 요소들 위에 표시
         });
 
         polygons.push(polygon);
       } else if (type === 'MultiPolygon') {
         coordinates.forEach((polygonCoords) => {
           const path = polygonCoords[0].map(
-            (coord) => new kakao.maps.LatLng(coord[1], coord[0])
+            (coord) => new kakao.maps.LatLng(coord[1], coord[0]) // [lat, lng]
           );
 
           const polygon = new kakao.maps.Polygon({
             map: mapRef.current,
             path: path,
-            strokeWeight: 3, // 굵은 경계선
-            strokeColor: '#FF0000', // 경계선 색상 (빨간색)
-            fillColor: 'rgba(255, 255, 255, 0)', // 채우기 없음
+            strokeWeight: 5, // 굵은 경계선
+            strokeColor: '#0000FF', // 경계선 색상 (파란색)
+            fillColor: 'rgba(0, 0, 255, 0.1)', // 약간의 채우기 (투명 파란색)
             strokeOpacity: 1,
-            zIndex: 10, // 마스킹 폴리곤과의 충돌 방지
+            zIndex: 10, // 다른 요소들 위에 표시
           });
 
           polygons.push(polygon);

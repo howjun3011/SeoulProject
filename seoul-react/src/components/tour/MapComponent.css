@@ -100,3 +100,6 @@
         transform: translateY(0);
     }
 }
+
+/* 마스킹 폴리곤 관련 CSS 제거 */
+/* .seoulPolygon { ... } */ /* 필요 시 주석 처리 또는 삭제 */
