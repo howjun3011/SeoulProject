@@ -15,7 +15,7 @@ function GetFetch(url) {
             .then((data) => {
                 setData(data);
             })
-    }, [url]);
+    }, []);
 
     return data;
 }

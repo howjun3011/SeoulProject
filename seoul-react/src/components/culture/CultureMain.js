@@ -9,10 +9,11 @@ import { useEffect, useState } from 'react';
 
 import SideTab from '../common/SideTab';
 import CommonMap from '../common/CommonMap';
+import CultureBookMain from './CultureBookMain';
 import CultureBooKStore from './CultureBooKStore';
 
 function CultureMain() {
-    // 책과 관련된 데이터를 획득하는 함수
+    // 서점과 관련된 데이터를 획득하는 함수
     const bookDatas = GetFetch(`http://localhost:9002/seoul/culture/getBookData`);
     const [markers, setMarkers] = useState([]);
     const [isClicked, setIsClicked] = useState(false);
@@ -36,7 +37,7 @@ function CultureMain() {
     const [overlayZIndex, setOverlayZIndex] = useState(1);
 
     /*
-    // 장소 검색 함수
+    // 키워드 검색 함수
     const [markers, setMarkers] = useState([]);
     const bookSub = ["독립 서점", "도서관"];
 
@@ -90,7 +91,6 @@ function CultureMain() {
                             setOverlayZIndex(i + 1);
                             setIsClicked(true);
                             setBookContents(marker);
-                            console.log(bookContents);
                         };
 
                         return (
@@ -137,6 +137,7 @@ function CultureMain() {
                             })
                         }
                     </div>
+                    { !isClicked && <CultureBookMain /> }
                     { isClicked && <CultureBooKStore bookContents={bookContents} /> }
                 </div>
             </SideTab>

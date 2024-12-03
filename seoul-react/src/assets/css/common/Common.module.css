@@ -5,6 +5,7 @@
 .overlay {position: absolute; top: 10px; left: 50%; transform: translate(-50%, 0%); padding: 10px 20px; border: 1px solid #1c80c3; border-radius: 5px; background-color: #19699e; color: #fff; font-size: 14px;}
 .mapCurrentBtnContainer {position: absolute; bottom: 139px; left: 18px; z-index: 1000; width: 40px; height: 40px; border: 2px solid #e2e2e2; border-radius: 4px; background-color: #fff; cursor: pointer;}
 .mapCurrentBtn {width: 40px; height: 40px; opacity: 0.8;}
+.mapSearchContainer {position: absolute; bottom: 139px; left: 68px; z-index: 1000; width: 40px; height: 40px; border: 2px solid #e2e2e2; border-radius: 4px; background-color: #fff; cursor: pointer;}
 .mapBtnContainer {position: absolute; bottom: 80px; left: 18px; z-index: 1000; display: flex; width: 120px; height: 45px; border: 2px solid #e2e2e2; border-radius: 10px; background-color: #fff;}
 .mapBtn {width: 60px; height: 45px; font-size: 32px; font-weight: 300; opacity: 0.9; cursor: pointer; user-select: none;}
 .mapBtn:hover, .mapCurrentBtnContainer:hover {opacity: 0.6;}
