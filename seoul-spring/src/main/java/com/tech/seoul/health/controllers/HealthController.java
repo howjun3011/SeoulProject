@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.Collections;
 import java.util.List;
 
 @RestController
@@ -25,9 +26,13 @@ public class HealthController {
         if(lat != null && lon != null && radius != null) {
             // 위치 기반 검색
             return healthService.searchHospitalsByLocationAndKeyword(lat, lon, radius, keyword);
-        } else {
+        } else if (keyword != null && !keyword.isEmpty()) {
             // 키워드 기반 전체 검색
             return healthService.searchHospitalsByKeyword(keyword);
+        } else {
+            // 검색어와 위치 정보가 모두 없을 때 빈 리스트 반환
+            return Collections.emptyList();
         }
     }
+
 }
