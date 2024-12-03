@@ -20,18 +20,14 @@ public class KindergartenService {
 	
 	public List<KindergartenDto> kindergartenInfo(
 			HttpServletRequest request) {
-//		double swLat = Double.parseDouble(request.getParameter("swLat"));
-//		double swLng = Double.parseDouble(request.getParameter("swLng"));
-//		double neLat = Double.parseDouble(request.getParameter("neLat"));
-//		double neLng = Double.parseDouble(request.getParameter("neLng"));
-		String swLat = request.getParameter("swLat");
-		String swLng = request.getParameter("swLng");
-		String neLat = request.getParameter("neLat");
-		String neLng = request.getParameter("neLng");
-		System.out.println("swLat: "+swLat);
-		System.out.println("swLng: "+swLng);
-		System.out.println("neLat: "+neLat);
-		System.out.println("neLng: "+neLng);
-		return eduDao.KindergartenNormal(swLat,swLng,neLat,neLng);
+		
+		String query = request.getParameter("query");
+		String areas = request.getParameter("areas");
+		String[] areas_array = areas.split(",");
+		for (String str : areas_array) {
+			System.out.println("서비스에서 데이터 받음 지역배열 : "+ str);
+		}
+		System.out.println("서비스에서 데이터 받음 쿼리 : "+ query);
+		return null;//eduDao.KindergartenNormal(swLat,swLng,neLat,neLng);
 	}
 }

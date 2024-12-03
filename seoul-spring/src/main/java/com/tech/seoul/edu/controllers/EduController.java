@@ -20,14 +20,9 @@ public class EduController {
 	
 	private final KindergartenService kindergartenService;
 	
-	
-	@GetMapping("/eduTest")
-	public List<KindergartenDto> eduTest(
-			HttpServletRequest request) {
-		System.out.println("swLat :" + request.getParameter("swLat"));
-		System.out.println("swLng :" + request.getParameter("swLng"));
-		System.out.println("neLat :" + request.getParameter("neLat"));
-		System.out.println("neLng :" + request.getParameter("neLng"));
+	@GetMapping("/eduGardenSearch")
+	public List<KindergartenDto> eduGardenSearch(
+			HttpServletRequest request){
 		return kindergartenService.kindergartenInfo(request);
 	}
 }

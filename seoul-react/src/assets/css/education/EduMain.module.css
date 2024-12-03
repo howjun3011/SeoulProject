@@ -73,3 +73,66 @@
     white-space: normal; 
     word-wrap: break-word;
 }
+.educationTab{
+    display: flex;
+    height: 40px;
+    border-radius: 20px 20px 0 0;
+    gap: 1px;
+    overflow: hidden;
+    align-items: center;
+    text-align: center;
+}
+.educationTab .tab{
+    display: flex;
+    height: 100%;
+    background-color: #b8b8b8;
+    flex: 1;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    cursor: pointer;
+}
+
+
+.searchBox{
+    height: 50px;
+    width:100%;
+    margin:10px 0;
+    padding: 0 5px;
+}
+.searchBox select,
+.searchBox input[type="text"] {
+    margin-right: 10px;
+    padding: 5px;
+}
+
+.selectedItems {
+    margin-top: 10px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+}
+
+.selectedItem {
+    background-color: #f0f0f0;
+    padding: 5px 10px;
+    border-radius: 15px;
+    display: flex;
+    align-items: center;
+    font-size: 14px;
+}
+
+.removeButton {
+    margin-left: 5px;
+    background: none;
+    border: none;
+    color: red;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+.error {
+    color: red;
+    margin-top: 10px;
+    font-size: 12px;
+}
