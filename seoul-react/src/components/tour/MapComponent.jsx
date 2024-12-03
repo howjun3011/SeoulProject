@@ -104,7 +104,6 @@ function MapComponent() {
                 markersRef.current = [];
 
                 response.data.forEach((tourInfo) => {
-                  console.log('Processing tourInfo:', tourInfo);
                   const position = new kakao.maps.LatLng(
                     tourInfo.mapY,
                     tourInfo.mapX

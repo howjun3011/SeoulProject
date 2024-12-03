@@ -14,6 +14,8 @@ function HealthMain() {
     const [userLocation, setUserLocation] = useState(null); // 사용자의 현재 위치 좌표
     const [currentCenter, setCurrentCenter] = useState(null); // 현재 지도 중심 좌표
     const [selectedMarker, setSelectedMarker] = useState(null); // 선택된 마커 정보
+    const [isManualSelection, setIsMenualSelection] = useState(false); // 병원 리스트에서 병원 선택 시 true
+    const [isFilterOpen, setIsFilterOpen] = useState(false); // 필터 열림 상태
 
     // 사용자 위치 가져오기(브라우저의 GeoLocation API 사용)
     useEffect(() => {
@@ -32,6 +34,30 @@ function HealthMain() {
             console.error("Geolocation is not supported by this browser.");
         }
     }, []);
+
+    // 요일 필드 이름 반환 함수
+    const getTodayFieldName = () => {
+        const days = ["sun", "mon", "tue", "wed", "thu", "fri", "sat"];
+        const todayIndex = new Date().getDay(); // 오늘 요일(0(일)~6)
+
+        return `hosp_${days[todayIndex]}_oc`;
+    }
+
+    // 운영 정보 계산 함수
+    const parseOpenCloseTime = (hospital) => {
+        const fieldName = getTodayFieldName(); // 오늘 요일에 해당하는 필드 이름 가져오기
+        const todayHours = hospital[fieldName];
+
+        if(todayHours === "00:00-00:00") {
+            return "휴무";
+        }
+        return todayHours;
+    }
+
+    // 필터 토글 핸들러
+    const toggleFilter = () => {
+        setIsFilterOpen((prev) => !prev);
+    };
 
     // userLocation 상태 변경 시 현재 좌표 출력(debug)
     useEffect(() => {
@@ -56,9 +82,13 @@ function HealthMain() {
 
     // 지도 중심 좌표(currentCenter)와 디바운스된 검색 키워드가 변경될 때 병원 데이터 가져오기
     useEffect(() => {
-        if (currentCenter) {
+        if (currentCenter && !isManualSelection) {
             console.log("Fetching hospitals for center:", currentCenter); // debug
             fetchHospitals(currentCenter, debouncedKeyword); // 병원 데이터 요청
+        }
+        // 수동 선택 후에는 다시 false로 설정
+        if(isManualSelection) {
+            setIsMenualSelection(false);
         }
     }, [currentCenter, debouncedKeyword]);
 
@@ -143,7 +173,6 @@ function HealthMain() {
         }
     };
 
-
     // 디바운스 처리: 사용자가 입력을 멈춘 후 0.3초 후에 키워드 업데이트
     // 디바운싱은 잦은 API 호출을 방지하기 위해 사용됨
     useEffect(() => {
@@ -165,16 +194,22 @@ function HealthMain() {
                     <React.Fragment key={`marker-${marker.name}-${index}`}>
                         <MapMarker
                             position={marker.position}
-                            onClick={() => setSelectedMarker(marker)} // 마커 클릭 시 선택된 마커 설정
+                            onClick={() => {
+                                setSelectedMarker(marker); // 마커 클릭 시 선택된 마커 설정
+                            }}
+                            zIndex={selectedMarker && selectedMarker.name === marker.name ? 10 : 1} // 선택된 마커의 z-index 높이기
                         />
                         {/* 선택된 마커가 현재 마커와 동일한 경우에만 오버레이 표시 */}
                         {selectedMarker && selectedMarker.name === marker.name && (
                             <CustomOverlayMap position={marker.position} // 마커와 동일한 위치에 오버레이 표시
                                               yAnchor={1.5} // 오버레이의 y축 기준점 조정
+                                              zIndex={1000} // 오버레이의 z-index 높게 설정
                             >
                                 {/* 오버레이에 표시될 정보 스타일 */}
                                 <div
                                     style={{
+                                        // 선택된 마커는 z-index를 높게 설정
+                                        zIndex: 1000, // 오버레이의 z-index도 가장 앞으로 설정
                                         backgroundColor: "#fff",
                                         border: "1px solid #ddd",
                                         borderRadius: "8px",
@@ -213,12 +248,65 @@ function HealthMain() {
                             value={searchKeyword}
                             onChange={(e) => setSearchKeyword(e.target.value)}
                         />
+                        <button className={styles.filterToggle} onClick={toggleFilter}>
+                            진료과목 ▼
+                        </button>
+
+                        {/* 필터 컨텐츠 */}
+                        {isFilterOpen && (
+                            <div className={styles.filterContainer}>
+                                <div className={styles.filterItem}>전체</div>
+                                <div className={styles.filterItem}>내과</div>
+                                <div className={styles.filterItem}>피부과</div>
+                                <div className={styles.filterItem}>소아과</div>
+                                <div className={styles.filterItem}>이비인후과</div>
+                                <div className={styles.filterItem}>안과</div>
+                                <div className={styles.filterItem}>치과</div>
+                                <div className={styles.filterItem}>정형외과</div>
+                                <div className={styles.filterItem}>산부인과</div>
+                                <div className={styles.filterItem}>흉부외과</div>
+                                <div className={styles.filterItem}>비뇨기과</div>
+                                <div className={styles.filterItem}>한의원</div>
+                                <div className={styles.filterItem}>외과</div>
+                                <div className={styles.filterItem}>성형외과</div>
+                                <div className={styles.filterItem}>신경외과</div>
+                                <div className={styles.filterItem}>가정의학과</div>
+                                <div className={styles.filterItem}>마취통증의학과</div>
+                                <div className={styles.filterItem}>영상의학과</div>
+                            </div>
+                        )}
                     </div>
+
                     {/* 검색 결과 목록 */}
                     <div className={styles.resultList}>
-                        {Array.isArray(hospitalList) &&
+                        {Array.isArray(hospitalList) && hospitalList.length > 0 ? (
                             hospitalList.map((hospital, index) => (
-                                <div key={index} className={styles.resultItem}>
+                                <div key={index}
+                                     className={styles.resultItem}
+                                     // 병원 리스트에서 병원 선택 시
+                                     onClick={() => {
+                                         const newCenter = { lat: hospital.hosp_lat, lng: hospital.hosp_lon }; // 병원 위치를 지도 중심으로 설정
+                                         setCurrentCenter(newCenter); // 지도 중심 상태 업데이트
+                                         map.setCenter(new window.kakao.maps.LatLng(newCenter.lat, newCenter.lng)); // 지도 중심 이동
+
+                                         setIsMenualSelection(true); // 병원 리스트에서 선택했음을 표시
+                                         
+                                         // 마커 데이터와 선택된 마커 업데이트
+                                         setMarkers([{
+                                             position: { lat: hospital.hosp_lat, lng: hospital.hosp_lon },
+                                             name: hospital.hosp_name,
+                                             phone: hospital.hosp_pnumber,
+                                             zIndex: 999, // zIndex 높게 설정
+                                         }]);
+
+                                         setSelectedMarker({
+                                             position: { lat: hospital.hosp_lat, lng: hospital.hosp_lon },
+                                             name: hospital.hosp_name,
+                                             phone: hospital.hosp_pnumber,
+                                         }); // 선택된 마커 업데이트
+                                     }}
+                                     style={{ cursor: "pointer"}}
+                                >
                                     <div className={styles.hospitalNameSbj}>
                                         <div className={styles.hospitalName}>
                                             {hospital.hosp_name}
@@ -227,11 +315,29 @@ function HealthMain() {
                                             {hospital.hosp_sbj_list[0]}
                                         </div>
                                     </div>
-                                    {hospital.hosp_simple_address}
-                                    <br/>
-                                    {hospital.hosp_pnumber}
+                                    <div className={styles.hospitalLocation}>
+                                        <img className={styles.hospitalLoationImg} src={`/images/health/location.png`} alt={"location"}/>
+                                        <div className={styles.hospitalSimpleAddress}>
+                                            {hospital.hosp_simple_address}
+                                        </div>
+                                    </div>
+                                    <div className={styles.hospitalHours}>
+                                        <img className={styles.hospitalHoursImg} src={`/images/health/hours.png`} alt="hours"/>
+                                        <div className={styles.hospitalTime}>
+                                            {parseOpenCloseTime(hospital)}
+                                        </div>
+                                    </div>
+                                    <div className={styles.hospitalCall}>
+                                        <img className={styles.hospitalCallImg} src={`/images/health/call.png`} alt={"call"}/>
+                                        <div className={styles.hospitalNumber}>
+                                            {hospital.hosp_pnumber}
+                                        </div>
+                                    </div>
                                 </div>
-                            ))}
+                            ))
+                        ) : (
+                            <div className={styles.noHospitalInfo}>병원 정보 없음</div>
+                        )}
                     </div>
                 </div>
             </SideTab>
