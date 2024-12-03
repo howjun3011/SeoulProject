@@ -4,32 +4,35 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
 <mapper namespace="com.tech.seoul.health.models.HealthDao">
-        <!-- 위치 기반 검색 쿼리 -->
+    <!-- 위치 기반 검색 쿼리 -->
     <select id="findHospitalWithRadius" resultType="com.tech.seoul.health.models.HospitalDto">
-            SELECT *
-            FROM hosp_info
-            WHERE (
-            6371 * acos(
-            cos(radians(#{lat})) *
-            cos(radians(hosp_lat)) *
-            cos(radians(hosp_lon) - radians(#{lon})) +
-            sin(radians(#{lat})) *
-            sin(radians(hosp_lat))
-            )
-            ) <![CDATA[<=]]> #{radius}
-            <if test="keyword != null and keyword != ''">
-                AND hosp_name LIKE CONCAT('%', #{keyword}, '%')
-            </if>
+        SELECT *
+        FROM hosp_info
+        WHERE (
+        6371 * acos(
+        cos(radians(#{lat})) *
+        cos(radians(hosp_lat)) *
+        cos(radians(hosp_lon) - radians(#{lon})) +
+        sin(radians(#{lat})) *
+        sin(radians(hosp_lat))
+        )
+        ) <![CDATA[<=]]> #{radius}
+        <if test="keyword != null and keyword != ''">
+            AND hosp_name LIKE CONCAT('%', #{keyword}, '%')
+        </if>
     </select>
 
-        <!--  기반 검색 쿼리 -->
+    <!-- 키워드 기반 검색 쿼리 -->
     <select id="findByKeyword" resultType="com.tech.seoul.health.models.HospitalDto">
-            SELECT *
-            FROM hosp_info
-            <where>
+        SELECT *
+        FROM hosp_info
+        <where>
             <if test="keyword != null and keyword != ''">
                 hosp_name LIKE CONCAT('%', #{keyword}, '%')
             </if>
-            </where>
+            <if test="keyword == null or keyword == ''">
+                1 = 0 <!-- 항상 거짓인 조건을 추가하여 결과 없음 -->
+            </if>
+        </where>
     </select>
 </mapper>

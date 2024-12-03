@@ -5,6 +5,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.List;
+
 @NoArgsConstructor
 @AllArgsConstructor
 @Setter
@@ -13,6 +15,7 @@ public class HospitalDto {
     private String hosp_id;
     private String hosp_name;
     private String hosp_address;
+    private String hosp_simple_address;
     private String hosp_type_eng;
     private String hosp_type;
     private String hosp_pnumber;
@@ -22,6 +25,7 @@ public class HospitalDto {
     private Double hosp_lat;
     private Double hosp_lon;
     private String hosp_sbj;
+    private List<String> hosp_sbj_list;
     private String hosp_mon_oc;
     private String hosp_tue_oc;
     private String hosp_wed_oc;

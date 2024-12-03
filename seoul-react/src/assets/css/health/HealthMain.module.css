@@ -18,7 +18,7 @@
     padding: 8px 12px;
     font-size: 14px;
     border: 1px solid cornflowerblue;
-    border-radius: 4px;
+    border-radius: 15px;
     outline: none;
     box-sizing: border-box;
 }
@@ -38,3 +38,20 @@
     word-break: break-word; /* 길이가 긴 텍스트를 줄 바꿈 */
 }
 
+.hospitalNameSbj {
+    display: flex;
+    justify-content: left;
+    align-items: center;
+}
+
+.hospitalName {
+    font-size: 19px;
+    font-weight: bold;
+}
+
+.hospitalSbj {
+    font-size: 15px;
+    color: lightgray;
+    font-weight: bold;
+    margin-left: 5px;
+}
