@@ -9,7 +9,7 @@ version = '0.0.1-SNAPSHOT'
 
 java {
 	toolchain {
-		languageVersion = JavaLanguageVersion.of(11)
+		languageVersion = JavaLanguageVersion.of(17)
 	}
 }
 
@@ -28,11 +28,22 @@ dependencies {
 	implementation 'org.mariadb.jdbc:mariadb-java-client:3.0.6'
 	// Lombok
 	compileOnly 'org.projectlombok:lombok:1.18.24'
+	implementation 'org.projectlombok:lombok:1.18.24'
+	annotationProcessor 'org.projectlombok:lombok:1.18.24'
 	// Mybatis
 	implementation 'org.mybatis.spring.boot:mybatis-spring-boot-starter:2.2.2'
 	// Dotenv
 	implementation 'me.paulschwarz:spring-dotenv:4.0.0'
-	
+
+	// MySQL JDBC 드라이버 추가
+	implementation 'mysql:mysql-connector-java:8.0.33'
+
+	// 다른 의존성들...
+	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+	implementation 'org.springframework.boot:spring-boot-starter-web'
+
+	implementation 'org.json:json:20210307'
+
 }
 
 tasks.named('test') {

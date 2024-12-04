@@ -1,1 +1,181 @@
-.healthMap {width: 100%; height: 100%};
+.healthContainer { position: relative; width: 100%; height: 100%; }
+
+.sideTabContainer {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    height: 100%; /* 부모 요소의 전체 높이를 차지 */
+    padding: 10px;
+    box-sizing: border-box;
+}
+
+.searchBarContainer {
+    position: relative;
+    width: 100%;
+    margin-bottom: 10px;
+}
+
+.searchBar {
+    width: 100%;
+    height: 50px;
+    padding-left: 10px;
+    font-size: 17px;
+    border: 3px solid cornflowerblue;
+    border-radius: 15px;
+    outline: none;
+    box-sizing: border-box;
+}
+
+.resultList {
+    flex: 1;
+    max-height: calc(100% - 60px); /* 검색창을 제외한 나머지 높이 */
+    overflow-y: auto; /* 스크롤 가능하도록 설정 */
+    padding: 0;
+    margin: 0;
+}
+
+.resultItem:hover {
+    background-color: #f9f9f9;
+}
+
+.resultItem {
+    padding: 8px;
+    border-bottom: 1px solid #ddd;
+    font-size: 14px;
+    cursor: pointer;
+    word-break: break-word; /* 길이가 긴 텍스트를 줄 바꿈 */
+}
+
+.hospitalNameSbj {
+    display: inline-block;
+    text-align: left;
+    word-break: break-word; /* 긴 텍스트 줄바꿈 처리 */
+    white-space: normal; /* 텍스트 자동으로 줄바꿈 되도록 처리 */
+}
+
+.hospitalName {
+    display: inline;
+    font-size: 19px;
+    font-weight: bold;
+    word-break: break-word;
+}
+
+.hospitalSbj {
+    display: inline;
+    font-size: 15px;
+    color: darkgrey;
+    font-weight: bold;
+    margin-left: 5px;
+    white-space: nowrap; /* 줄바꿈 X */
+}
+
+.hospitalLocation {
+    display: flex;
+    margin-top: 6px;
+    align-items: center;
+    margin-bottom: 6px;
+}
+
+.hospitalLoationImg {
+    width: 20px;
+    height: 20px;
+    margin-right: 3px;
+}
+
+.hospitalSimpleAddress {
+    display: flex;
+    font-size: 15px;
+}
+
+.hospitalHours {
+    display: flex;
+    align-items: center;
+    margin-bottom: 6px;
+}
+
+.hospitalHoursImg {
+    width: 20px;
+    height: 20px;
+    margin-right: 3px;
+}
+
+.hospitalTime {
+    display: flex;
+    font-size: 15px;
+}
+
+.hospitalCall {
+    display: flex;
+    align-items: center;
+}
+
+.hospitalCallImg {
+    width: 16px;
+    height: 16px;
+    margin-left: 1px;
+    margin-right: 6px;
+}
+
+.hospitalNumber {
+    display: flex;
+    font-size: 15px;
+}
+
+.noHospitalInfo {
+    display: flex;
+    font-weight: bold;
+    color: lightgray;
+    font-size: 19px;
+    margin-top: 5px;
+    margin-left: 10px;
+}
+
+.filterToggle {
+    margin-top: 10px;
+    padding: 10px 10px;
+    border: 2px solid #cccccc;
+    border-radius: 15px;
+    background-color: white;
+    cursor: pointer;
+    margin-right: 10px;
+}
+
+.filterToggle:hover {
+    background-color: #f9f9f9;
+}
+
+.filterContainer {
+    position: absolute;
+    top: 100%; /* 부모 요소의 아래에 위치 */
+    left: 0;
+    right: 0;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    background-color: white;
+    z-index: 10;
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+    max-height: 300px;
+    overflow-y: auto; /* 내용이 많을 경우 스크롤 가능하도록 */
+}
+
+.filterItem {
+    margin-bottom: 5px;
+    cursor: pointer;
+    color: #666565;
+    text-align: center;
+    background-color: white;
+    padding: 5px;
+    border: none;
+}
+
+.filterItem:hover {
+    background-color: #f9f9f9;
+    color: black;
+}
+
+.selectedFilterItem {
+    background-color: cornflowerblue;
+    color: white;
+}

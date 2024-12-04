@@ -5,8 +5,59 @@
 
 <mapper namespace="com.tech.seoul.culture.models.CultureDao">
 	
-	<select id="selectTest" resultType="String">
-        SELECT hosp_name FROM hosp_info WHERE hosp_id = 'A1120414'
+	<select id="selectCultureBookPKCnt" resultType="Integer">
+        SELECT COUNT(*) FROM culture_book_store WHERE esntl_id = #{esntl_id}
     </select>
+
+    <select id="selectCultureBestsellerPKCnt" resultType="Integer">
+        SELECT COUNT(*) FROM culture_book_bestseller WHERE seq_no = #{seq_no}
+    </select>
+
+    <select id="selectCultureBook" resultType="com.tech.seoul.culture.models.CultureBookDto">
+        SELECT
+            esntl_id, fclty_nm, lclas_nm, mlsfc_nm, zip_no, fclty_road_nm_addr, fclty_la, fclty_lo,
+            workday_opn_bsns_time, workday_clos_time, sat_opn_bsns_time, sat_clos_time, sun_opn_bsns_time,
+            sun_clos_time, rstde_opn_bsns_time, rstde_clos_time, rstde_guid_cn, tel_no, optn_dc, adit_dc
+        FROM
+            culture_book_store
+    </select>
+
+    <select id="selectCultureBestseller" resultType="com.tech.seoul.culture.models.CultureBestsellerDto">
+        SELECT
+            seq_no, rank_co, inpt_de, isbn_ten_no, isbn_thirteen_no, book_title_nm, authr_nm, book_intrcn_cn,
+            publisher_nm, pblicte_de, book_cvr_image_nm, book_mastr_seq_no, kdc_nm
+        FROM
+            culture_book_bestseller
+        ORDER BY
+            rank_co
+    </select>
+
+    <insert id="insertCultureBook" parameterType="com.tech.seoul.culture.models.CultureBookDto">
+        INSERT INTO culture_book_store
+            (
+                esntl_id, fclty_nm, lclas_nm, mlsfc_nm, zip_no, fclty_road_nm_addr, fclty_la, fclty_lo,
+                workday_opn_bsns_time, workday_clos_time, sat_opn_bsns_time, sat_clos_time, sun_opn_bsns_time,
+                sun_clos_time, rstde_opn_bsns_time, rstde_clos_time, rstde_guid_cn, tel_no, optn_dc, adit_dc
+            )
+        VALUE
+            (
+                #{esntl_id}, #{fclty_nm}, #{lclas_nm}, #{mlsfc_nm}, #{zip_no}, #{fclty_road_nm_addr}, #{fclty_la}, #{fclty_lo},
+                #{workday_opn_bsns_time}, #{workday_clos_time}, #{sat_opn_bsns_time}, #{sat_clos_time}, #{sun_opn_bsns_time},
+                #{sun_clos_time}, #{rstde_opn_bsns_time}, #{rstde_clos_time}, #{rstde_guid_cn}, #{tel_no}, #{optn_dc}, #{adit_dc}
+            )
+    </insert>
+
+    <insert id="insertCultureBestseller" parameterType="com.tech.seoul.culture.models.CultureBestsellerDto">
+        INSERT INTO culture_book_bestseller
+            (
+                seq_no, rank_co, inpt_de, isbn_ten_no, isbn_thirteen_no, book_title_nm, authr_nm, book_intrcn_cn,
+                publisher_nm, pblicte_de, book_cvr_image_nm, book_mastr_seq_no, kdc_nm
+            )
+        VALUE
+            (
+                #{seq_no}, #{rank_co}, #{inpt_de}, #{isbn_ten_no}, #{isbn_thirteen_no}, #{book_title_nm}, #{authr_nm}, #{book_intrcn_cn},
+                #{publisher_nm}, #{pblicte_de}, #{book_cvr_image_nm}, #{book_mastr_seq_no}, #{kdc_nm}
+            )
+    </insert>
 	
 </mapper>
