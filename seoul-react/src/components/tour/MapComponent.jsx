@@ -133,7 +133,7 @@ function MapComponent() {
 
         // 카테고리에 따른 마커 이미지 선택
         const markerImageSrc = markerImages[tourInfo.cat1] || markerImages.default; // 기본 마커 이미지 경로
-        const imageSize = new window.kakao.maps.Size(24, 35); // 마커 이미지 크기
+        const imageSize = new window.kakao.maps.Size(33, 44); // 마커 이미지 크기
         const markerImage = new window.kakao.maps.MarkerImage(markerImageSrc, imageSize);
 
         const marker = new window.kakao.maps.Marker({
@@ -320,9 +320,8 @@ function MapComponent() {
         const polygon = new kakao.maps.Polygon({
           map: mapRef.current,
           path: path,
-          strokeWeight: 1, // 경계선 굵기
-          strokeColor: '#FF0000', // 경계선 색상 (빨간색)
-          fillColor: 'rgba(255, 0, 0, 0.1)', // 채우기 색상 (투명 빨간색)
+          strokeWeight: 2, // 경계선 굵기
+          strokeColor: '#007bdf', // 경계선 색상 (파란색)
           strokeOpacity: 1, // 경계선 투명도
           zIndex: 10, // 다른 요소들 위에 표시
         });
@@ -344,9 +343,8 @@ function MapComponent() {
           const polygon = new kakao.maps.Polygon({
             map: mapRef.current,
             path: path,
-            strokeWeight: 1,
-            strokeColor: '#FF0000',
-            fillColor: 'rgba(255, 0, 0, 0.1)',
+            strokeWeight: 2,
+            strokeColor: '#007bdf',
             strokeOpacity: 1,
             zIndex: 10,
           });
@@ -399,8 +397,8 @@ function MapComponent() {
         const polygon = new kakao.maps.Polygon({
           map: mapRef.current,
           path: path,
-          strokeWeight: 2, // 경계선 굵기
-          strokeColor: '#0000FF', // 경계선 색상 (파란색)
+          strokeWeight: 3, // 경계선 굵기
+          strokeColor: '#000000', // 경계선 색상 (검은색)
           fillColor: 'rgba(0, 0, 255, 0.1)', // 채우기 색상 (투명 파란색)
           strokeOpacity: 1, // 경계선 투명도
           zIndex: 11, // 구 단위 경계선보다 위에 표시
@@ -423,9 +421,8 @@ function MapComponent() {
           const polygon = new kakao.maps.Polygon({
             map: mapRef.current,
             path: path,
-            strokeWeight: 2,
-            strokeColor: '#0000FF',
-            fillColor: 'rgba(0, 0, 255, 0.1)',
+            strokeWeight: 3,
+            strokeColor: '#000000',
             strokeOpacity: 1,
             zIndex: 11,
           });
@@ -509,6 +506,7 @@ function MapComponent() {
           const kakao = window.kakao;
           const newCenter = new kakao.maps.LatLng(lat, lng);
           mapRef.current.setCenter(newCenter);
+          setActiveOverlayKey(null); // 오버레이 닫기
         },
         function (error) {
           console.error('Error getting location:', error);

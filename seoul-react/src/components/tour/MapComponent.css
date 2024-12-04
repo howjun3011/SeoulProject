@@ -251,7 +251,6 @@
     white-space: nowrap;
     pointer-events: none;
     z-index: 100; /* 마커보다 위에 표시 */
-    width: 200px;
     min-width: 200px;
     height: 200px;
     min-height: 200px;
