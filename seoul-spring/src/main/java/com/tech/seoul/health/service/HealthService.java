@@ -14,16 +14,16 @@ public class HealthService {
     @Autowired
     private HealthDao healthDao;
 
-    public List<HospitalDto> searchHospitalsByLocationAndKeyword(double lat, double lon, double radius, String keyword, String subject) {
-        List<HospitalDto> hospitals = healthDao.findHospitalWithRadius(lat, lon, radius, keyword, subject);
+    public List<HospitalDto> searchHospitalsByLocationAndKeyword(double lat, double lon, double radius, String keyword, String subject, String week) {
+        List<HospitalDto> hospitals = healthDao.findHospitalWithRadius(lat, lon, radius, keyword, subject, week);
         processSubjects(hospitals); // 진료과목 리스트 반환
         processSimpleAddress(hospitals); // 간단 주소 생성
 
         return hospitals;
     }
 
-    public List<HospitalDto> searchHospitalsByKeyword(String keyword, String subject) {
-        List<HospitalDto> hospitals = healthDao.findByKeyword(keyword, subject);
+    public List<HospitalDto> searchHospitalsByKeyword(String keyword, String subject, String week) {
+        List<HospitalDto> hospitals = healthDao.findByKeyword(keyword, subject, week);
         processSubjects(hospitals); // 진료과목 리스트 반환
         processSimpleAddress(hospitals); // 간단 주소 생성
 

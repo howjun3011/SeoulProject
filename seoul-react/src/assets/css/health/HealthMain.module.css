@@ -137,6 +137,7 @@
     border-radius: 15px;
     background-color: white;
     cursor: pointer;
+    margin-right: 10px;
 }
 
 .filterToggle:hover {
