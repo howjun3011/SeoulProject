@@ -15,9 +15,12 @@ function HealthMain() {
     const [currentCenter, setCurrentCenter] = useState(null); // 현재 지도 중심 좌표
     const [selectedMarker, setSelectedMarker] = useState(null); // 선택된 마커 정보
     const [isManualSelection, setIsMenualSelection] = useState(false); // 병원 리스트에서 병원 선택 시 true
-    const [isFilterOpen, setIsFilterOpen] = useState(false); // 필터 열림 상태
-    const [selectedFilter, setSelectedFilter] = useState('전체'); // 선택된 필터 항목
-    const [filterButtonText, setFilterButtonText] = useState('진료과목'); // 필터 버튼 텍스트
+    const [isSbjFilterOpen, setIsSbjFilterOpen] = useState(false); // 진료과목 필터 열림 상태
+    const [isWeekFilterOpen, setIsWeekFilterOpen] = useState(false); // 주말/공휴일 필터 열림 상태
+    const [selectedSbjFilter, setSelectedSbjFilter] = useState('전체'); // 진료과목 선택된 필터 항목
+    const [sujFilterButtonText, setSujFilterButtonText] = useState('진료과목'); // 진료과목 필터 버튼 텍스트
+    const [selectedWeekFilter, setSelectedWeekFilter] = useState('전체'); // 주말/공휴일 선택된 필터 항목
+    const [weekFilterButtonText, setWeekFilterButtonText] = useState('주말/공휴일'); // 주말/공휴일 필터 버튼 텍스트
 
     // 사용자 위치 가져오기(브라우저의 GeoLocation API 사용)
     useEffect(() => {
@@ -56,9 +59,16 @@ function HealthMain() {
         return todayHours;
     }
 
-    // 필터 토글 핸들러
-    const toggleFilter = () => {
-        setIsFilterOpen((prev) => !prev);
+    // 진료과목 필터 토글 핸들러
+    const toggleSbjFilter = () => {
+        setIsSbjFilterOpen((prev) => !prev);
+        setIsWeekFilterOpen(false); // 다른 필터 닫기
+    };
+
+    // 주말/공휴일 필터 토글 핸들러
+    const toggleWeekFilter = () => {
+        setIsWeekFilterOpen((prev) => !prev);
+        setIsSbjFilterOpen(false); // 다른 필터 닫기
     };
 
     // userLocation 상태 변경 시 현재 좌표 출력(debug)
@@ -82,26 +92,49 @@ function HealthMain() {
         }
     }, [map]);
 
-    // 지도 중심 좌표(currentCenter)와 디바운스된 검색 키워드가 변경될 때 병원 데이터 가져오기
+    // 지도 중심 좌표 또는 필터 변경 시 데이터 가져오기
     useEffect(() => {
         if (currentCenter && !isManualSelection) {
             console.log("Fetching hospitals for center:", currentCenter); // debug
-            fetchHospitals(currentCenter, debouncedKeyword, selectedFilter === '전체' ? '' : selectedFilter); // 병원 데이터 요청
+            fetchHospitals(currentCenter, debouncedKeyword, selectedSbjFilter === '전체' ? '' : selectedSbjFilter, selectedWeekFilter === '전체' ? '' : selectedWeekFilter); // 병원 데이터 요청
         }
         // 수동 선택 후에는 다시 false로 설정
+        // 사용자가 병원 리스트에서 특정 병원을 선택했을 때, 지도 이동에 따른 데이터 재요청 방지
         if(isManualSelection) {
             setIsMenualSelection(false);
         }
-    }, [currentCenter, debouncedKeyword, selectedFilter]);
+    }, [currentCenter, debouncedKeyword, selectedSbjFilter, selectedWeekFilter]);
 
-    // 병원 데이터 Fetch 함수
-    const fetchHospitals = async (center, keyword, filter) => {
+    // 병원 데이터 Fetch 함수 수정
+    const fetchHospitals = async (center, keyword, sbjFilter, weekFilter) => {
         if (!center) return; // 중심 좌표 정보가 없을 경우 함수 종료
 
         try {
+            // URLSearchParams를 사용하여 URL 파라미터를 동적으로 구성
+            const params = new URLSearchParams();
+            params.append('lat', center.lat);
+            params.append('lon', center.lng);
+            params.append('radius', 0.4);
+
+            // 키워드가 있을 경우에만 추가
+            if (keyword && keyword.trim() !== '') {
+                params.append('keyword', keyword);
+            }
+
+            // 진료과목 필터가 있을 경우에만 추가
+            if (sbjFilter && sbjFilter.trim() !== '') {
+                params.append('subject', sbjFilter);
+            }
+
+            // 주말/공휴일 필터가 있을 경우에만 추가
+            if (weekFilter && weekFilter.trim() !== '') {
+                params.append('week', weekFilter);
+            }
+
             const response = await fetch(
-                `http://localhost:9002/seoul/health/search?lat=${center.lat}&lon=${center.lng}&radius=0.4&keyword=${keyword}&subject=${filter}`
+                `http://localhost:9002/seoul/health/search?${params.toString()}`
             );
+
             if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
@@ -123,30 +156,30 @@ function HealthMain() {
                 );
             } else {
                 // 현재 지도 범위 내 결과가 없을 경우
-                console.log("현재 지도 범위 내에 결과 없음."); // debug
+                console.log("현재 지도 범위 내에 결과 없음.");
 
                 // 검색어가 있는 경우에만 전체 검색 시도
                 if (keyword && keyword.trim() !== '') {
-                    console.log("전체 검색 시도"); // debug
+                    console.log("전체 검색 시도");
 
                     const responseAll = await fetch(
                         `http://localhost:9002/seoul/health/search?keyword=${keyword}`
                     );
-                    if(!responseAll.ok) {
+                    if (!responseAll.ok) {
                         throw new Error(`HTTP error! status: ${responseAll.status}`);
                     }
 
-                    const dataAll = await responseAll.json(); // JSON 변환
+                    const dataAll = await responseAll.json();
 
-                    if(Array.isArray(dataAll) && dataAll.length > 0) {
-                        setHospitalList(dataAll); // 병원 데이터 목록 상태로 설정
-                        const firstHospital = dataAll[0]; // 첫 번째 병원을 기준으로 지도 이동
+                    if (Array.isArray(dataAll) && dataAll.length > 0) {
+                        setHospitalList(dataAll);
+                        const firstHospital = dataAll[0];
                         const newCenter = {
                             lat: firstHospital.hosp_lat,
                             lng: firstHospital.hosp_lon,
                         };
-                        setCurrentCenter(newCenter); // 새로운 중심 좌표 설정
-                        map.setCenter(new window.kakao.maps.LatLng(newCenter.lat, newCenter.lng)); // 지도 중심 이동
+                        setCurrentCenter(newCenter);
+                        map.setCenter(new window.kakao.maps.LatLng(newCenter.lat, newCenter.lng));
 
                         // 마커 데이터 설정
                         setMarkers(
@@ -158,14 +191,14 @@ function HealthMain() {
                         );
                     } else {
                         // 전체 검색에서도 결과가 없을 경우
-                        console.log("검색 결과가 없습니다."); // debug
-                        setHospitalList([]); // 병원 목록 초기화
-                        setMarkers([]); // 마커 초기화
+                        console.log("검색 결과가 없습니다.");
+                        setHospitalList([]);
+                        setMarkers([]);
                     }
                 } else {
                     // 검색어가 없으면 병원 목록과 마커를 비웁니다.
-                    setHospitalList([]); // 병원 목록 초기화
-                    setMarkers([]); // 마커 초기화
+                    setHospitalList([]);
+                    setMarkers([]);
                 }
             }
         } catch (error) {
@@ -175,8 +208,9 @@ function HealthMain() {
         }
     };
 
+
     // 디바운스 처리: 사용자가 입력을 멈춘 후 0.3초 후에 키워드 업데이트
-    // 디바운싱은 잦은 API 호출을 방지하기 위해 사용됨
+    // 디바운싱은 불필요한 API 호출을 방지하기 위해 사용됨
     useEffect(() => {
         const handler = setTimeout(()=> {
             setDebouncedKeyword(searchKeyword);
@@ -187,15 +221,22 @@ function HealthMain() {
         };
     }, [searchKeyword]);
 
-    const handleFilterSelect = (item) => {
-        setSelectedFilter(item); // 선택된 필터 업데이트
-        setFilterButtonText(item === '전체' ? '진료과목' : item); // 버튼 텍스틍 업데이트
-        setIsFilterOpen(false); // 필터 컨테이너 닫기
-        // 필터 버튼에 선택된 아이템의 텍스트를 표시하기 위해 상태 업데이트
-        // 이미 selectedFilter에 저장되어 있으므로 추가 작업 불필요
+    const handleSbjFilterSelect = (item) => {
+        setSelectedSbjFilter(item); // 선택된 진료과목 필터 업데이트
+        setSujFilterButtonText(item === '전체' ? '진료과목' : item); // 진료과목 버튼 텍스트 업데이트
+        setIsSbjFilterOpen(false); // 진료과목 필터 컨테이너 닫기
 
         // 병원 데이터 요청
-        fetchHospitals(currentCenter, debouncedKeyword, item === '전체' ? '' : item);
+        fetchHospitals(currentCenter, debouncedKeyword, item === '전체' ? '' : item, selectedWeekFilter === '전체' ? '' : selectedWeekFilter);
+    };
+
+    const handleWeekFilterSelect = (item) => {
+        setSelectedWeekFilter(item); // 선택된 주말/공휴일 필터 업데이트
+        setWeekFilterButtonText(item === '전체' ? '주말/공휴일' : item); // 주말/공휴일 버튼 텍스트 업데이트
+        setIsWeekFilterOpen(false); // 진료과목 필터 컨테이너 닫기
+
+        // 병원 데이터 요청
+        fetchHospitals(currentCenter, debouncedKeyword, selectedSbjFilter === '전체' ? '' : selectedSbjFilter,item === '전체' ? '' : item);
     };
 
     const getHospitalSbjDisplay = (hospital) => {
@@ -210,13 +251,6 @@ function HealthMain() {
             return hospital.hosp_type;
         }
     }
-
-    useEffect(() => {
-        if(currentCenter) {
-            // 페이지 로드 시 전체 데이터 가져오기
-            fetchHospitals(currentCenter, '', '');
-        }
-    }, [currentCenter]);
 
     return (
         <div className={styles.healthContainer}>
@@ -281,18 +315,34 @@ function HealthMain() {
                             value={searchKeyword}
                             onChange={(e) => setSearchKeyword(e.target.value)}
                         />
-                        <button className={styles.filterToggle} onClick={toggleFilter}>
-                            {filterButtonText} ▼
+                        <button className={styles.filterToggle} onClick={toggleSbjFilter}>
+                            {sujFilterButtonText} ▼
                         </button>
-
-                        {/* 필터 컨텐츠 */}
-                        {isFilterOpen && (
+                        <button className={styles.filterToggle} onClick={toggleWeekFilter}>
+                            {weekFilterButtonText} ▼
+                        </button>
+                        {/* 진료과목 필터 컨텐츠 */}
+                        {isSbjFilterOpen && (
                             <div className={styles.filterContainer}>
                                 {['전체', '내과', '피부과', '소아과', '이비인후과', '안과', '치과', '정형외과', '산부인과', '흉부외과', '비뇨기과', '한의원', '외과', '성형외과', '신경외과', '가정의학과', '마취통증의학과', '영상의학과'].map((item) => (
                                     <button
                                         key={item}
-                                        className={`${styles.filterItem} ${selectedFilter === item ? styles.selectedFilterItem : ''}`}
-                                        onClick={() => handleFilterSelect(item)}
+                                        className={`${styles.filterItem} ${selectedSbjFilter === item ? styles.selectedFilterItem : ''}`}
+                                        onClick={() => handleSbjFilterSelect(item)}
+                                    >
+                                        {item}
+                                    </button>
+                                ))}
+                            </div>
+                        )}
+                        {/* 주말/공휴일 필터 컨텐츠 */}
+                        {isWeekFilterOpen && (
+                            <div className={styles.filterContainer}>
+                                {['전체', '토요일 진료', '일요일 진료', '공휴일 진료'].map((item) => (
+                                    <button
+                                        key={item}
+                                        className={`${styles.filterItem} ${selectedWeekFilter === item ? styles.selectedFilterItem : ''}`}
+                                        onClick={() => handleWeekFilterSelect(item)}
                                     >
                                         {item}
                                     </button>
