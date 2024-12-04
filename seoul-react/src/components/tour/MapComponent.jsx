@@ -6,7 +6,7 @@ import './MapComponent.css';
 function MapComponent() {
   // 상태 변수 선언
   const [cat1, setCat1] = useState(''); // 카테고리 선택 상태
-  const [modalData, setModalData] = useState(null); // 모달 데이터 상태
+  const [activeOverlayKey, setActiveOverlayKey] = useState(null); // 활성화된 오버레이의 고유 키
   const [seoulBoundary, setSeoulBoundary] = useState(null); // 서울 최외곽 GeoJSON 데이터
   const [seoulDistricts, setSeoulDistricts] = useState(null); // 서울 구 단위 GeoJSON 데이터
   const [isMapLoaded, setIsMapLoaded] = useState(false); // 지도 로드 상태
@@ -15,8 +15,9 @@ function MapComponent() {
   // useRef 훅을 사용하여 변수 관리
   const mapRef = useRef(null); // 지도 인스턴스 저장
   const overlayRef = useRef(null); // 오버레이 인스턴스 저장
-  const markersRef = useRef([]); // 마커 인스턴스 배열 저장
-  const seoulPolygonsRef = useRef([]); // 서울 구 단위 폴리곤 인스턴스 배열 저장
+  const markersRef = useRef(new Map()); // Map 객체로 변경
+  const seoulDistrictPolygonsRef = useRef([]); // 서울 구 단위 폴리곤 인스턴스 배열 저장
+  const seoulBoundaryPolygonsRef = useRef([]); // 서울 최외곽 폴리곤 인스턴스 배열 저장
   const idleListenerRef = useRef(null); // 'idle' 이벤트 리스너 저장
 
   // 카테고리 옵션 배열
@@ -30,15 +31,23 @@ function MapComponent() {
     // { code: 'C01', name: '추천코스' }, // 제거됨
   ];
 
-  // 카테고리별 마커 이미지 매핑
+  // 카테고리별 마커 이미지 매핑 (기본 이미지 추가)
   const markerImages = {
-    A01: '/markers/blue.png',   // 자연
-    A02: '/markers/orange.png',    // 인문(문화/예술/역사)
-    A03: '/markers/mint.png',  // 레포츠
-    A04: '/markers/burgundy.png',  // 쇼핑
-    A05: '/markers/pink.png',     // 음식
-    B02: '/markers/purple.png',  // 숙박
+    A01: '/markers/blue.png',        // 자연
+    A02: '/markers/orange.png',      // 인문(문화/예술/역사)
+    A03: '/markers/mint.png',        // 레포츠
+    A04: '/markers/burgundy.png',    // 쇼핑
+    A05: '/markers/pink.png',        // 음식
+    B02: '/markers/purple.png',      // 숙박
+    default: '/markers/default.png', // 기본 마커 이미지
   };
+
+  // cat1을 ref로 관리하여 최신 상태 유지
+  const cat1Ref = useRef(cat1);
+
+  useEffect(() => {
+    cat1Ref.current = cat1;
+  }, [cat1]);
 
   /**
    * GeoJSON 파일을 로드하여 상태 변수에 저장합니다.
@@ -85,64 +94,68 @@ function MapComponent() {
    */
   const fetchTourInfo = async (centerLat, centerLng) => {
     try {
+      console.log(`Fetching tour info for coordinates: (${centerLat}, ${centerLng}), Category: ${cat1Ref.current}`);
       const response = await axios.get('http://localhost:9002/seoul/tour/nearby', {
         params: {
           latitude: centerLat,
           longitude: centerLng,
           radius: 1, // 반경 (단위: km)
-          cat1: cat1 || null, // 선택된 카테고리
+          cat1: cat1Ref.current || null, // 선택된 카테고리
         },
       });
+
+      console.log('Tour info response:', response.data);
 
       // 기존 마커 제거
       markersRef.current.forEach((marker) => {
         marker.setMap(null);
       });
-      markersRef.current = [];
+      markersRef.current.clear(); // Map 객체 비우기
+
+      // 중복 제거: title과 좌표를 기준으로 중복된 항목 필터링
+      const uniqueTours = response.data.filter((tour, index, self) =>
+          index === self.findIndex((t) =>
+            t.title === tour.title && t.mapX === tour.mapX && t.mapY === tour.mapY
+          )
+      );
+
+      console.log('Unique tours:', uniqueTours);
+
+      // 고유한 키를 부여하여 관광지 정보를 업데이트
+      const uniqueToursWithKeys = uniqueTours.map((tour, index) => ({
+        ...tour,
+        uniqueKey: tour.id || `${tour.mapX}-${tour.mapY}-${index}`, // 고유 키 생성
+      }));
 
       // 새로운 마커 추가
-      response.data.forEach((tourInfo) => {
+      uniqueToursWithKeys.forEach((tourInfo) => {
         const position = new window.kakao.maps.LatLng(tourInfo.mapY, tourInfo.mapX);
+
         // 카테고리에 따른 마커 이미지 선택
-
         const markerImageSrc = markerImages[tourInfo.cat1] || markerImages.default; // 기본 마커 이미지 경로
-
         const imageSize = new window.kakao.maps.Size(24, 35); // 마커 이미지 크기
-
         const markerImage = new window.kakao.maps.MarkerImage(markerImageSrc, imageSize);
+
         const marker = new window.kakao.maps.Marker({
           position: position,
           image: markerImage, // 마커 이미지 설정
           map: mapRef.current,
-          zIndex: 2,
+          zIndex: 3, // 마커의 zIndex 설정
         });
 
-        markersRef.current.push(marker);
-
-        // 마커에 마우스 오버 이벤트 등록
-        window.kakao.maps.event.addListener(marker, 'mouseover', () => {
-          const content = `<div class="customoverlay">${tourInfo.title}</div>`;
-          overlayRef.current.setContent(content);
-          overlayRef.current.setPosition(marker.getPosition());
-          overlayRef.current.setZIndex(1);
-          overlayRef.current.setMap(mapRef.current);
-        });
-
-        // 마커에 마우스 아웃 이벤트 등록
-        window.kakao.maps.event.addListener(marker, 'mouseout', () => {
-          overlayRef.current.setMap(null);
-        });
+        // 마커를 Map에 저장
+        const markerKey = tourInfo.uniqueKey;
+        markersRef.current.set(markerKey, marker);
 
         // 마커 클릭 이벤트 등록
         window.kakao.maps.event.addListener(marker, 'click', () => {
-          console.log('Modal data:', tourInfo);
-          setModalData(tourInfo);
-          overlayRef.current.setMap(null);
+          // 활성화된 오버레이 키 설정
+          setActiveOverlayKey(markerKey);
         });
       });
 
       // 관광지 정보를 상태에 저장
-      setTourInfos(response.data);
+      setTourInfos(uniqueToursWithKeys);
     } catch (error) {
       console.error('Error fetching tour info:', error);
     }
@@ -223,7 +236,7 @@ function MapComponent() {
       const markerPosition = new kakao.maps.LatLng(lat, lng);
       const userMarker = new kakao.maps.Marker({
         position: markerPosition,
-        zIndex: 3,
+        zIndex: 4, // 사용자 마커의 zIndex 설정
       });
       userMarker.setMap(mapRef.current);
 
@@ -235,13 +248,13 @@ function MapComponent() {
         map: mapRef.current,
         position: userMarker.getPosition(),
         yAnchor: 1,
-        zIndex: 3,
+        zIndex: 4, // 사용자 오버레이의 zIndex 설정
       });
 
       // 전역 오버레이 생성 (관광지 정보 표시용)
       overlayRef.current = new kakao.maps.CustomOverlay({
         yAnchor: 1,
-        zIndex: 1,
+        zIndex: 100, // 오버레이의 zIndex를 높게 설정
       });
       overlayRef.current.setMap(null); // 초기에는 숨김
 
@@ -288,14 +301,19 @@ function MapComponent() {
     }
 
     // GeoJSON의 각 피처를 순회하여 폴리곤 생성
-    seoulDistricts.features.forEach((feature) => {
+    seoulDistricts.features.forEach((feature, featureIndex) => {
       const { geometry } = feature;
       const { type, coordinates } = geometry;
 
       if (type === 'Polygon') {
         // 각 좌표를 Kakao Maps의 LatLng 객체로 변환
         const path = coordinates[0].map(
-          (coord) => new kakao.maps.LatLng(coord[1], coord[0]) // [lat, lng]
+          (coord, coordIndex) => {
+            const latLng = new kakao.maps.LatLng(coord[1], coord[0]); // [lat, lng]
+            // 디버깅을 위해 각 좌표의 lat과 lng를 로그로 출력
+            console.log(`Polygon [Feature ${featureIndex}]: Coord ${coordIndex}: ${latLng.getLat()}, ${latLng.getLng()}`);
+            return latLng;
+          }
         );
 
         // 폴리곤 생성
@@ -310,31 +328,38 @@ function MapComponent() {
         });
 
         polygons.push(polygon);
+        console.log(`Polygon [Feature ${featureIndex}] created.`);
       } else if (type === 'MultiPolygon') {
         // 다중 폴리곤인 경우 각 폴리곤을 별도로 생성
-        coordinates.forEach((polygonCoords) => {
+        coordinates.forEach((polygonCoords, polygonIndex) => {
           const path = polygonCoords[0].map(
-            (coord) => new kakao.maps.LatLng(coord[1], coord[0]) // [lat, lng]
+            (coord, coordIndex) => {
+              const latLng = new kakao.maps.LatLng(coord[1], coord[0]); // [lat, lng]
+              // 디버깅을 위해 각 좌표의 lat과 lng를 로그로 출력
+              console.log(`MultiPolygon [Feature ${featureIndex} - Polygon ${polygonIndex}]: Coord ${coordIndex}: ${latLng.getLat()}, ${latLng.getLng()}`);
+              return latLng;
+            }
           );
 
           const polygon = new kakao.maps.Polygon({
             map: mapRef.current,
             path: path,
-            strokeWeight: 2,
-            strokeColor: '#007bdf',
+            strokeWeight: 1,
+            strokeColor: '#FF0000',
             fillColor: 'rgba(255, 0, 0, 0.1)',
             strokeOpacity: 1,
             zIndex: 10,
           });
 
           polygons.push(polygon);
+          console.log(`MultiPolygon [Feature ${featureIndex} - Polygon ${polygonIndex}] created.`);
         });
       }
     });
 
-    // 기존 서울 구 단위 폴리곤 제거 (필요 시)
-    seoulPolygonsRef.current.forEach((polygon) => polygon.setMap(null));
-    seoulPolygonsRef.current = polygons;
+    // 기존 서울 구 단위 폴리곤 제거
+    seoulDistrictPolygonsRef.current.forEach((polygon) => polygon.setMap(null));
+    seoulDistrictPolygonsRef.current = polygons;
     console.log('서울 구 단위 경계선 폴리곤 생성 완료');
   };
 
@@ -355,14 +380,19 @@ function MapComponent() {
     }
 
     // GeoJSON의 각 피처를 순회하여 폴리곤 생성
-    seoulBoundary.features.forEach((feature) => {
+    seoulBoundary.features.forEach((feature, featureIndex) => {
       const { geometry } = feature;
       const { type, coordinates } = geometry;
 
       if (type === 'Polygon') {
         // 각 좌표를 Kakao Maps의 LatLng 객체로 변환
         const path = coordinates[0].map(
-          (coord) => new kakao.maps.LatLng(coord[1], coord[0]) // [lat, lng]
+          (coord, coordIndex) => {
+            const latLng = new kakao.maps.LatLng(coord[1], coord[0]); // [lat, lng]
+            // 디버깅을 위해 각 좌표의 lat과 lng를 로그로 출력
+            console.log(`Boundary Polygon [Feature ${featureIndex}]: Coord ${coordIndex}: ${latLng.getLat()}, ${latLng.getLng()}`);
+            return latLng;
+          }
         );
 
         // 폴리곤 생성
@@ -377,29 +407,38 @@ function MapComponent() {
         });
 
         polygons.push(polygon);
+        console.log(`Boundary Polygon [Feature ${featureIndex}] created.`);
       } else if (type === 'MultiPolygon') {
         // 다중 폴리곤인 경우 각 폴리곤을 별도로 생성
-        coordinates.forEach((polygonCoords) => {
+        coordinates.forEach((polygonCoords, polygonIndex) => {
           const path = polygonCoords[0].map(
-            (coord) => new kakao.maps.LatLng(coord[1], coord[0]) // [lat, lng]
+            (coord, coordIndex) => {
+              const latLng = new kakao.maps.LatLng(coord[1], coord[0]); // [lat, lng]
+              // 디버깅을 위해 각 좌표의 lat과 lng를 로그로 출력
+              console.log(`Boundary MultiPolygon [Feature ${featureIndex} - Polygon ${polygonIndex}]: Coord ${coordIndex}: ${latLng.getLat()}, ${latLng.getLng()}`);
+              return latLng;
+            }
           );
 
           const polygon = new kakao.maps.Polygon({
             map: mapRef.current,
             path: path,
-            strokeWeight: 3,
-            strokeColor: '#000000',
+            strokeWeight: 2,
+            strokeColor: '#0000FF',
             fillColor: 'rgba(0, 0, 255, 0.1)',
             strokeOpacity: 1,
             zIndex: 11,
           });
 
           polygons.push(polygon);
+          console.log(`Boundary MultiPolygon [Feature ${featureIndex} - Polygon ${polygonIndex}] created.`);
         });
       }
     });
 
-    // 저장할 필요 없으므로 생략
+    // 기존 서울 최외곽 폴리곤 제거
+    seoulBoundaryPolygonsRef.current.forEach((polygon) => polygon.setMap(null));
+    seoulBoundaryPolygonsRef.current = polygons;
     console.log('서울 최외곽 경계선 폴리곤 생성 완료');
   };
 
@@ -419,6 +458,7 @@ function MapComponent() {
         const center = mapRef.current.getCenter(); // 현재 지도 중심 좌표
         const centerLat = center.getLat();
         const centerLng = center.getLng();
+        console.log(`Idle event triggered. New center: (${centerLat}, ${centerLng}), Category: ${cat1Ref.current}`);
         fetchTourInfo(centerLat, centerLng); // 관광지 정보 업데이트
       });
 
@@ -438,7 +478,7 @@ function MapComponent() {
         idleListenerRef.current = null;
       }
     };
-  }, [cat1, isMapLoaded]); // cat1 변경 시에도 리스너가 제대로 동작하도록 의존성 설정
+  }, [isMapLoaded]); // cat1 제거하여 중복 리스너 방지
 
   /**
    * 카테고리 변경 시 관광지 정보를 업데이트합니다.
@@ -456,17 +496,6 @@ function MapComponent() {
     // 관광지 정보 가져오기
     fetchTourInfo(centerLat, centerLng);
   }, [cat1, isMapLoaded]); // cat1 변경 시 관광지 정보 업데이트
-
-  /**
-   * 모달 닫기 함수
-   */
-  const closeModal = () => {
-    setModalData(null);
-    // 오버레이 숨기기
-    if (overlayRef.current) {
-      overlayRef.current.setMap(null);
-    }
-  };
 
   /**
    * 현재 위치로 돌아가는 함수
@@ -490,6 +519,45 @@ function MapComponent() {
       alert('GPS를 지원하지 않습니다');
     }
   };
+
+  /**
+   * 상시 관광지 정보 모달에서 카테고리 필터링
+   */
+  const filteredTourInfos = cat1
+    ? tourInfos.filter((tour) => tour.cat1 === cat1)
+    : tourInfos;
+
+  /**
+   * 활성화된 오버레이를 업데이트할 때 호출되는 useEffect
+   */
+  useEffect(() => {
+    const kakao = window.kakao;
+
+    if (activeOverlayKey) {
+      const marker = markersRef.current.get(activeOverlayKey);
+      if (marker) {
+        const position = marker.getPosition();
+        const tourInfo = tourInfos.find(t => t.uniqueKey === activeOverlayKey);
+        if (tourInfo) {
+          const content = `
+            <div class="customoverlay-content">
+              <h4>${tourInfo.title}</h4>
+              ${tourInfo.imageUrl ? `<img src="${tourInfo.imageUrl}" alt="${tourInfo.title}" onerror="this.src='/markers/default.png'" />` : `<p>이미지가 없습니다.</p>`}
+            </div>
+          `;
+          overlayRef.current.setContent(content);
+          overlayRef.current.setPosition(position);
+          overlayRef.current.setZIndex(100); // CustomOverlay의 zIndex를 높게 설정
+          overlayRef.current.setMap(mapRef.current);
+        }
+      }
+    } else {
+      // 오버레이 숨기기
+      if (overlayRef.current) {
+        overlayRef.current.setMap(null);
+      }
+    }
+  }, [activeOverlayKey, tourInfos]);
 
   return (
     <div style={{ position: 'relative' }}>
@@ -520,68 +588,59 @@ function MapComponent() {
       {/* 지도 표시 */}
       <div
         id="map"
-        style={{ width: '100%', height: '100vh'}}
+        style={{ width: '100%', height: '100vh' }}
       ></div>
 
-      {/* 상세 모달 컴포넌트 */}
-      {modalData && (
-        <div className="modal" onClick={closeModal}>
-          <div
-            className="modal-content"
-            onClick={(e) => e.stopPropagation()} // 모달 내부 클릭 시 닫히지 않도록 이벤트 전파 방지
-          >
-            <span className="close" onClick={closeModal}>
-              &times;
-            </span>
-            <h2>{modalData.title}</h2>
-            {modalData.imageUrl ? (
-              <img
-                src={modalData.imageUrl}
-                alt={modalData.title}
-                className="modal-image"
-                onError={(e) => {
-                  e.target.onerror = null;
-                  e.target.src = 'path/to/default-image.jpg'; // 대체 이미지 경로
-                }}
-              />
-            ) : (
-              <div className="no-image">
-                <p>이미지가 없습니다.</p>
-              </div>
-            )}
-            {/* 추가 정보 표시 가능 */}
-          </div>
-        </div>
-      )}
+      {/* 지도 중앙에 항상 표시될 타겟 아이콘 */}
+      <img src="/markers/aim.png" alt="Center Marker" className="map-center-icon" />
 
       {/* 상시 관광지 정보 모달창 */}
       <div className="persistent-modal">
         <h3>관광지 목록</h3>
-        {tourInfos.length > 0 ? (
-          tourInfos.map((tourInfo) => (
-            <div
-              key={tourInfo.id} // assuming each tourInfo has a unique 'id'
-              className="tour-item"
-              onClick={() => setModalData(tourInfo)}
-            >
-              {tourInfo.imageUrl ? (
-                <img
-                  src={tourInfo.imageUrl}
-                  alt={tourInfo.title}
-                  className="tour-item-image"
-                  onError={(e) => {
-                    e.target.onerror = null;
-                    e.target.src = 'path/to/default-image.jpg'; // 대체 이미지 경로
-                  }}
-                />
-              ) : (
-                <div className="no-image">
-                  이미지 없음
-                </div>
-              )}
-              <span className="tour-item-title">{tourInfo.title}</span>
-            </div>
-          ))
+        {filteredTourInfos.length > 0 ? (
+          filteredTourInfos.map((tourInfo, index) => {
+            // 고유한 키 생성
+            const key = tourInfo.uniqueKey;
+
+            const handleClick = () => {
+              // 지도 중심 이동
+              const marker = markersRef.current.get(key);
+              if (marker) {
+                const position = marker.getPosition();
+                mapRef.current.panTo(position); // 지도 중심 이동
+
+                // 활성화된 오버레이 설정
+                setActiveOverlayKey(key);
+              } else {
+                console.warn(`Marker not found for key: ${key}`);
+              }
+            };
+
+            return (
+              <div
+                key={key}
+                className="tour-item"
+                onClick={handleClick} // 수정된 클릭 핸들러
+              >
+                {tourInfo.imageUrl ? (
+                  <img
+                    src={tourInfo.imageUrl}
+                    alt={tourInfo.title}
+                    className="tour-item-image"
+                    onError={(e) => {
+                      e.target.onerror = null;
+                      e.target.src = '/markers/default.png'; // 대체 이미지 경로
+                    }}
+                  />
+                ) : (
+                  <div className="no-image">
+                    이미지 없음
+                  </div>
+                )}
+                <span className="tour-item-title">{tourInfo.title}</span>
+              </div>
+            );
+          })
         ) : (
           <p className="no-tours">관광지가 없습니다.</p>
         )}
