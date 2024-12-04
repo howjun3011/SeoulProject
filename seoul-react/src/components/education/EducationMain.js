@@ -1,92 +1,162 @@
 import styles from '../../assets/css/education/EduMain.module.css';
 import { useEffect, useState, useRef } from 'react';
-import { MapMarker } from "react-kakao-maps-sdk";
+import { MapMarker } from "react-kakao-maps-sdk"; // CustomOverlayMap 제거
 import SideTab from '../common/SideTab';
 import CommonMap from '../common/CommonMap';
 import axios from 'axios';
 
-function EduSearchBox(){
-    const [selectedItems, setSelectedItems] = useState([]);
-    const [error,setError] = useState("");
-    const [loading, setLoading] = useState(false);
-    const [results, setResults] =useState([]);
+// Pagination 컴포넌트 (변경 없음)
+const Pagination = ({ currentPage, totalPages, onPageChange }) => {
+    if (totalPages <= 1) return null;
 
-    const options =[
-        "강남구","강동구","강북구","강서구","관악구","광진구","구로구",
-        "금천구","노원구","도봉구","동대문구","동작구","마포구","서대문구",
-        "서초구","성동구","성북구","송파구","양천구","영등포구","용산구",
-        "은평구","종로구","중구","중랑구",
-    ];
+    // 페이지 그룹 관련 변수 설정
+    const pageSize = 5;
+    const totalGroups = Math.ceil(totalPages / pageSize);
+    const currentGroup = Math.ceil(currentPage / pageSize);
+    const startPage = (currentGroup - 1) * pageSize + 1;
+    const endPage = Math.min(startPage + pageSize - 1, totalPages);
 
-    // select버튼 누르면 서버에 데이터 전송
-    const handleSelect = async (event) => {
-        const value = event.target.value;
-        const query = document.getElementById("searchQuery").value;
-
-        if(selectedItems.includes(value)) {
-            setError("이미 선택된 항목입니다.");
-            return
-        } else if (selectedItems.length >= 4){
-            setError("최대 4개 까지만 선택할 수 있습니다.")
-            return
-        }else {
-            setError("")
-            const updatedItems = [...selectedItems, value];
-            setSelectedItems(updatedItems);
-            try{
-                const response = await axios.get(
-                    'http://localhost:9002/seoul/education/eduGardenSearch', {
-                    params: { 
-                        areas: updatedItems.join(","),
-                        query: query,
-                    },
-                });
-                setResults(response.data);
-            }catch (err) {
-                console.error("셀렉트 서버 전송 오류 :", err);
-                setError("서버 오류")
-            }
-        }
-    };
-    
-    const handleRemove = (item) => {
-        setSelectedItems(selectedItems.filter((selected) => selected !== item));
+    // 페이지 번호 버튼 렌더링
+    const pageButtons = [];
+    for (let i = startPage; i <= endPage; i++) {
+        pageButtons.push(
+            <button
+                key={i}
+                className={`${styles.pageButton} ${currentPage === i ? styles.activePage : ''}`}
+                onClick={() => onPageChange(i)}
+                disabled={currentPage === i}
+            >
+                {i}
+            </button>
+        );
     }
-    const handleSubmit = async (event) => {
-        event.preventDefault();
-        if(setSelectedItems.length ===0 ){
-            setError("최소 한 개 이상의 항목을 선택해주세요.")
-        } else{
-            setError("")
-            try {
-                setLoading(true);
-                const response = await axios.get(
-                    'http://localhost:9002/seoul/education/eduGardenSearch',{
-                    params: {
-                        areas: selectedItems.join(","),
-                        query: event.target.searchQuery.value,
-                    },
-                });
-                setResults(response.data)
-            } catch (err){
-                setError("검색 중 오류 발생");
-            } finally{
-                setLoading(false);
-            }
-        }
-    };
-
 
     return (
-        // 검색줄
+        <div className={styles.pagination}>
+            {/* 이전 그룹으로 이동 */}
+            {currentGroup > 1 && (
+                <button
+                    className={styles.pageButton}
+                    onClick={() => onPageChange((currentGroup - 2) * pageSize + 1)}
+                >
+                    &lt;&lt;
+                </button>
+            )}
+            {/* 이전 페이지로 이동 */}
+            <button
+                className={styles.pageButton}
+                onClick={() => onPageChange(currentPage - 1)}
+                disabled={currentPage === 1}
+            >
+                &lt;
+            </button>
+            {/* 페이지 번호 버튼 */}
+            {pageButtons}
+            {/* 다음 페이지로 이동 */}
+            <button
+                className={styles.pageButton}
+                onClick={() => onPageChange(currentPage + 1)}
+                disabled={currentPage === totalPages}
+            >
+                &gt;
+            </button>
+            {/* 다음 그룹으로 이동 */}
+            {currentGroup < totalGroups && (
+                <button
+                    className={styles.pageButton}
+                    onClick={() => onPageChange(currentGroup * pageSize + 1)}
+                >
+                    &gt;&gt;
+                </button>
+            )}
+        </div>
+    );
+};
+
+// KindergartenList 컴포넌트 (변경 없음)
+function KindergartenList({ results, error, page, setPage, totalPages }) {
+
+    // 페이지 변경 핸들러
+    const handlePageChange = (newPage) => {
+        setPage(newPage);
+    };
+
+    return (
+        <div className={styles.kinderResultListBox}>
+            <h3>조회 결과 : {results.total || 0}건</h3>
+            {error && <div className={styles.error}>{error}</div>}
+            {results.items && results.items.length > 0 ? (
+                <div className={styles.kinderResultPageing}>
+                    <ul className={styles.kinderResultList}>
+                        {results.items.map((item, index) => (
+                            <li key={index} className={styles.resultItem}>
+                                <h4>{item.kindergarten_name}</h4>
+                                <p>{item.address}</p>
+                            </li>
+                        ))}
+                    </ul>
+                    <div className={styles.footPage}>
+                        <Pagination
+                            currentPage={page}
+                            totalPages={totalPages}
+                            onPageChange={handlePageChange}
+                        />
+                    </div>
+                </div>
+            ) : (
+                <p>조회 결과가 없습니다.</p>
+            )}
+        </div>
+    );
+}
+
+// EduSearchBox 컴포넌트 (변경 없음)
+function EduSearchBox({ onSearch, selectedItems, setSelectedItems, error, query, setQuery }){
+
+    const options = [
+        "강남구", "강동구", "강북구", "강서구", "관악구", "광진구", "구로구",
+        "금천구", "노원구", "도봉구", "동대문구", "동작구", "마포구", "서대문구",
+        "서초구", "성동구", "성북구", "송파구", "양천구", "영등포구", "용산구",
+        "은평구", "종로구", "중구", "중랑구",
+    ];
+
+    const handleSelect = (event) => {
+        const value = event.target.value;
+        if (selectedItems.includes(value)) {
+            alert("이미 선택된 항목입니다.");
+            return;
+        }
+        if (selectedItems.length >= 4) {
+            alert("최대 4개까지 선택할 수 있습니다.");
+            return;
+        }
+        const updatedItems = [...selectedItems, value];
+        setSelectedItems(updatedItems);
+        onSearch(query, updatedItems);
+    };
+
+    const handleRemove = (item) => {
+        const updatedItems = selectedItems.filter((selected) => selected !== item);
+        setSelectedItems(updatedItems);
+        onSearch(query, updatedItems); // 선택된 지역이 변경되었으므로 검색 결과 갱신
+    };
+    
+    const handleSubmit = (event) => {
+        event.preventDefault();
+        onSearch(query, selectedItems); // handleSearch에서 페이지를 1로 초기화함
+    };
+    
+    const handleQueryChange = (event) => {
+        setQuery(event.target.value);
+    };
+
+    return (
         <div className={styles.searchBox}>
-            <form action="/eduGardenSearch" method="get" onSubmit={handleSubmit} >
-                <select onChange={handleSelect} defaultValue="" >
-                    <option value="" disabled >지역선택</option>
+            <form onSubmit={handleSubmit}>
+                <select onChange={handleSelect} defaultValue="">
+                    <option value="" disabled>지역선택</option>
                     {options.map((option) => (
-                        <option key={option} value={option}>
-                            {option}
-                        </option>
+                        <option key={option} value={option}>{option}</option>
                     ))}
                 </select>
                 <input
@@ -94,12 +164,12 @@ function EduSearchBox(){
                     className={styles.searchInput}
                     name="searchQuery"
                     id="searchQuery"
-                    placeholder="검색어를 입력하세요"
+                    placeholder="유치원 검색"
+                    value={query}
+                    onChange={handleQueryChange}
                 />
-                <input type="hidden" name="selectedAreas" value={selectedItems.join(",")} />
                 <input type="submit" value="검색" />
             </form>
-                    {/* 선택항목 박스*/}
             <div className={styles.selectedItems}>
                 {selectedItems.map((item, index) => (
                     <div key={index} className={styles.selectedItem}>
@@ -114,22 +184,9 @@ function EduSearchBox(){
                     </div>
                 ))}
             </div>
-            {/* 검색 결과 */}
-            {loading && <div className={styles.loading}>검색 중...</div>}
-            {results.length > 0 && (
-                <div className={styles.results}>
-                    <h3>검색결과:</h3>
-                    <ul>
-                        {results.map((result,index) => (
-                            <li key={index}>{result.name}</li>
-                        ))}
-                    </ul>
-                </div>
-            )}
-
-            {error && <div className={styles.error} >{error}</div>}
+            {error && <div className={styles.error}>{error}</div>}
         </div>
-    )
+    );
 }
 
 function EducationMain() {
@@ -138,40 +195,85 @@ function EducationMain() {
     const educationCategories = ["유치원", "키즈카페", "유원시설"];
     const [currentTabType, setCurrentTabType] = useState([true, false, false]);
 
-    // map 객체가 설정된 후에 실행되는 useEffect 훅
-    useEffect(() => {
-        if (mapRef.current) {
-            const map = mapRef.current;
-
-            // 지도 경계(bounds) 가져오기
-            const bounds = map.getBounds();
-            const swLatLng = bounds.getSouthWest();
-            const neLatLng = bounds.getNorthEast();
-
-            console.log('swLatLng', swLatLng);
-            console.log('neLatLng', neLatLng);
-
-            // 필요에 따라 여기에서 추가 작업 수행 (예: 서버에 좌표 전달)
+    const [query, setQuery] = useState("");
+    const [areas, setAreas] = useState([]);
+    const [results, setResults] = useState({
+        items: [],
+        total: 0,
+        searchVO: {
+            totPage: 1
         }
-    }, [mapRef.current]); // mapRef.current가 변경될 때마다 실행
+    });
+    const [error, setError] = useState("");
+    const [page, setPage] = useState(1);
+    // selectedMarkerIndex 상태 제거
+
+    const fetchData = async (query, areas, page = 1) => {
+        try {
+            const response = await axios.get('http://localhost:9002/seoul/education/eduGardenSearch', {
+                params: {
+                    query,
+                    areas: areas.join(","),
+                    page,
+                },
+            });
+            setResults(response.data);
+            
+            // 마커 생성
+            const multiMarker = response.data.items
+            .filter(item => item.x_coordinate && item.y_coordinate)
+            .map((item, index) => ({
+                position: {
+                    lat: parseFloat(item.y_coordinate),
+                    lng: parseFloat(item.x_coordinate)
+                },
+                content: item.kindergarten_name || "오류",
+                category: item.address || "오류",
+                index: index
+            }));
+            setMarkers(multiMarker);
+            setError("");
+        } catch (err) {
+            console.error("데이터 로드 오류:", err);
+            setError("데이터 불러오기 중 오류 발생");
+        }
+    };
+
+    const handleSearch = (searchQuery, selectedAreas) => {
+        setQuery(searchQuery);
+        setAreas(selectedAreas);
+        setPage(1);
+        fetchData(searchQuery, selectedAreas, 1);
+    };
+
+    useEffect(() => {
+        if (areas.length > 0 || query) {
+            fetchData(query, areas, page);
+        }
+    }, [query, areas, page]);
 
     return (
         <div className={styles.educationContainer}>
-            <CommonMap setMap={(map) => { mapRef.current = map; }} mapLevel={4} />
-            {markers.map((marker, index) => (
-                <MapMarker
-                    key={`marker-${index}`}
-                    position={marker.position}
-                    clickable={true}
-                    title={marker.content}
-                    map={mapRef.current}
-                >
-                    <div className={styles.overlay}>
-                        <div>{marker.category}</div>
-                        <div>{marker.content}</div>
-                    </div>
-                </MapMarker>
-            ))}
+            <CommonMap 
+                setMap={(map) => { mapRef.current = map; }} 
+                mapLevel={4}
+                // onClick 제거 (오버레이 관련)
+            >
+                {markers.map((marker, index) => (
+                    <MapMarker
+                        key={`marker-${index}`}
+                        position={marker.position}
+                        clickable={true}
+                        // onClick 제거 (오버레이 관련)
+                    >
+                        {/* 필요시 툴팁이나 간단한 정보 표시를 위해 MapMarker 내부에 내용 추가 가능 */}
+                        <div className={styles.markerInfo}>
+                            <h4>{marker.content}</h4>
+                            <p>{marker.category}</p>
+                        </div>
+                    </MapMarker>
+                ))}
+            </CommonMap>
             <SideTab>
                 <div className={styles.educationTab}>
                     {educationCategories.map((category, index) => (
@@ -189,7 +291,20 @@ function EducationMain() {
                     ))}
                 </div>
                 <div className={styles.searchBox}>
-                    <EduSearchBox></EduSearchBox>
+                    <EduSearchBox
+                        onSearch={handleSearch}
+                        selectedItems={areas}
+                        setSelectedItems={setAreas}
+                        query={query}
+                        setQuery={setQuery}
+                    /><br/>
+                    <KindergartenList 
+                        results={results} 
+                        error={error} 
+                        page={page}
+                        setPage={setPage}
+                        totalPages={results.searchVO.totPage}
+                    />
                 </div>
             </SideTab>
         </div>

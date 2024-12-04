@@ -7,9 +7,12 @@ import org.apache.ibatis.annotations.Param;
 
 @Mapper
 public interface EduDao {
-	public List<KindergartenDto> KindergartenNormal(
-			@Param("swLat") String swLat,
-			@Param("swLng") String swLng,
-			@Param("neLat") String neLat,
-			@Param("neLng") String neLng);
+	public int KindergartenNameCnt(
+			@Param("query") String query,
+			@Param("areas") String[] areas );
+	public List<KindergartenNameDto> KindergartenName(
+			@Param("query") String query,
+			@Param("areas") String[] areas,
+			@Param("start") int start,
+			@Param("end") int end);
 }

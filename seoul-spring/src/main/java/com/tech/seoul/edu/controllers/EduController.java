@@ -9,7 +9,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.tech.seoul.edu.models.KindergartenDto;
+import com.tech.seoul.edu.models.KindergartenNameDto;
+import com.tech.seoul.edu.models.PageInfoDto;
 import com.tech.seoul.edu.service.KindergartenService;
+import com.tech.seoul.edu.util.EduSearchVO;
 
 import lombok.RequiredArgsConstructor;
 
@@ -21,8 +24,9 @@ public class EduController {
 	private final KindergartenService kindergartenService;
 	
 	@GetMapping("/eduGardenSearch")
-	public List<KindergartenDto> eduGardenSearch(
-			HttpServletRequest request){
-		return kindergartenService.kindergartenInfo(request);
+	public PageInfoDto<KindergartenNameDto> eduGardenSearch(
+			HttpServletRequest request,
+			EduSearchVO searchVO){
+		return kindergartenService.kindergartenInfo(request,searchVO);
 	}
 }

@@ -136,3 +136,42 @@
     margin-top: 10px;
     font-size: 12px;
 }
+
+.kinderResultListBox{
+    padding: 0 0 10px 0;
+}
+
+.resultItem{
+    cursor: pointer;
+    margin: 10px 0 0 10px;
+    list-style-type: none;
+}
+.footPage {
+    display: flex; /* 수평 정렬 */
+    justify-content: center; /* 중앙 정렬 */
+    align-items: center; /* 세로 정렬 */
+    margin-top: 20px; /* 버튼과 다른 콘텐츠 간 간격 */
+}
+
+.pagination {
+    margin-top: 2rem;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+  
+    > * {
+      cursor: pointer;
+    }
+  }
+  
+  .pagination__link {
+    transition: all 0.25s;
+    padding: 0.2rem 0.6rem;
+    border-radius: 0.3rem;
+  }
+  
+  .pagination__link__active {
+    background-color: #bbb;
+    color: #fefefe;
+  }
