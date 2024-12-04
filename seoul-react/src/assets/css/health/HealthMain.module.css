@@ -47,21 +47,26 @@
 }
 
 .hospitalNameSbj {
-    display: flex;
-    justify-content: left;
-    align-items: center;
+    display: inline-block;
+    text-align: left;
+    word-break: break-word; /* 긴 텍스트 줄바꿈 처리 */
+    white-space: normal; /* 텍스트 자동으로 줄바꿈 되도록 처리 */
 }
 
 .hospitalName {
+    display: inline;
     font-size: 19px;
     font-weight: bold;
+    word-break: break-word;
 }
 
 .hospitalSbj {
+    display: inline;
     font-size: 15px;
     color: darkgrey;
     font-weight: bold;
     margin-left: 5px;
+    white-space: nowrap; /* 줄바꿈 X */
 }
 
 .hospitalLocation {
@@ -145,13 +150,12 @@
     right: 0;
     display: grid;
     grid-template-columns: repeat(3, 1fr);
-    gap: 3px;
     background-color: white;
     z-index: 10;
     border: 1px solid #ddd;
     border-radius: 10px;
     box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
-    max-height: 300px; /* 필요에 따라 최대 높이 지정 */
+    max-height: 300px;
     overflow-y: auto; /* 내용이 많을 경우 스크롤 가능하도록 */
 }
 
@@ -160,10 +164,17 @@
     cursor: pointer;
     color: #666565;
     text-align: center;
+    background-color: white;
     padding: 5px;
-    border-bottom: 1px solid #eee;
+    border: none;
 }
 
 .filterItem:hover {
     background-color: #f9f9f9;
+    color: black;
+}
+
+.selectedFilterItem {
+    background-color: cornflowerblue;
+    color: white;
 }

@@ -16,6 +16,8 @@ function HealthMain() {
     const [selectedMarker, setSelectedMarker] = useState(null); // 선택된 마커 정보
     const [isManualSelection, setIsMenualSelection] = useState(false); // 병원 리스트에서 병원 선택 시 true
     const [isFilterOpen, setIsFilterOpen] = useState(false); // 필터 열림 상태
+    const [selectedFilter, setSelectedFilter] = useState('전체'); // 선택된 필터 항목
+    const [filterButtonText, setFilterButtonText] = useState('진료과목'); // 필터 버튼 텍스트
 
     // 사용자 위치 가져오기(브라우저의 GeoLocation API 사용)
     useEffect(() => {
@@ -84,21 +86,21 @@ function HealthMain() {
     useEffect(() => {
         if (currentCenter && !isManualSelection) {
             console.log("Fetching hospitals for center:", currentCenter); // debug
-            fetchHospitals(currentCenter, debouncedKeyword); // 병원 데이터 요청
+            fetchHospitals(currentCenter, debouncedKeyword, selectedFilter === '전체' ? '' : selectedFilter); // 병원 데이터 요청
         }
         // 수동 선택 후에는 다시 false로 설정
         if(isManualSelection) {
             setIsMenualSelection(false);
         }
-    }, [currentCenter, debouncedKeyword]);
+    }, [currentCenter, debouncedKeyword, selectedFilter]);
 
     // 병원 데이터 Fetch 함수
-    const fetchHospitals = async (center, keyword) => {
+    const fetchHospitals = async (center, keyword, filter) => {
         if (!center) return; // 중심 좌표 정보가 없을 경우 함수 종료
 
         try {
             const response = await fetch(
-                `http://localhost:9002/seoul/health/search?lat=${center.lat}&lon=${center.lng}&radius=0.3&keyword=${keyword}`
+                `http://localhost:9002/seoul/health/search?lat=${center.lat}&lon=${center.lng}&radius=0.4&keyword=${keyword}&subject=${filter}`
             );
             if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status}`);
@@ -185,6 +187,37 @@ function HealthMain() {
         };
     }, [searchKeyword]);
 
+    const handleFilterSelect = (item) => {
+        setSelectedFilter(item); // 선택된 필터 업데이트
+        setFilterButtonText(item === '전체' ? '진료과목' : item); // 버튼 텍스틍 업데이트
+        setIsFilterOpen(false); // 필터 컨테이너 닫기
+        // 필터 버튼에 선택된 아이템의 텍스트를 표시하기 위해 상태 업데이트
+        // 이미 selectedFilter에 저장되어 있으므로 추가 작업 불필요
+
+        // 병원 데이터 요청
+        fetchHospitals(currentCenter, debouncedKeyword, item === '전체' ? '' : item);
+    };
+
+    const getHospitalSbjDisplay = (hospital) => {
+        if(hospital.hosp_type_eng === 'B' || hospital.hosp_type_eng === 'C') {
+            // hosp_type_eng가 B(병원), C(의원)인 경우, hosp_sbj_list의 첫 번째 요소 반환
+            if(hospital.hosp_sbj_list && hospital.hosp_sbj_list.length > 0) {
+                return hospital.hosp_sbj_list[0];
+            } else {
+                return '';
+            }
+        } else {
+            return hospital.hosp_type;
+        }
+    }
+
+    useEffect(() => {
+        if(currentCenter) {
+            // 페이지 로드 시 전체 데이터 가져오기
+            fetchHospitals(currentCenter, '', '');
+        }
+    }, [currentCenter]);
+
     return (
         <div className={styles.healthContainer}>
             <CommonMap setMap={ setMap } mapLevel={ 3 }>
@@ -217,7 +250,7 @@ function HealthMain() {
                                         boxShadow: "0 2px 6px rgba(0,0,0,0.15)",
                                         fontSize: "14px",
                                         lineHeight: "1.6",
-                                        maxWidth: "300px",
+                                        maxWidth: "400px",
                                         textAlign: "center",
                                         wordBreak: "break-word",
                                     }}
@@ -249,30 +282,21 @@ function HealthMain() {
                             onChange={(e) => setSearchKeyword(e.target.value)}
                         />
                         <button className={styles.filterToggle} onClick={toggleFilter}>
-                            진료과목 ▼
+                            {filterButtonText} ▼
                         </button>
 
                         {/* 필터 컨텐츠 */}
                         {isFilterOpen && (
                             <div className={styles.filterContainer}>
-                                <div className={styles.filterItem}>전체</div>
-                                <div className={styles.filterItem}>내과</div>
-                                <div className={styles.filterItem}>피부과</div>
-                                <div className={styles.filterItem}>소아과</div>
-                                <div className={styles.filterItem}>이비인후과</div>
-                                <div className={styles.filterItem}>안과</div>
-                                <div className={styles.filterItem}>치과</div>
-                                <div className={styles.filterItem}>정형외과</div>
-                                <div className={styles.filterItem}>산부인과</div>
-                                <div className={styles.filterItem}>흉부외과</div>
-                                <div className={styles.filterItem}>비뇨기과</div>
-                                <div className={styles.filterItem}>한의원</div>
-                                <div className={styles.filterItem}>외과</div>
-                                <div className={styles.filterItem}>성형외과</div>
-                                <div className={styles.filterItem}>신경외과</div>
-                                <div className={styles.filterItem}>가정의학과</div>
-                                <div className={styles.filterItem}>마취통증의학과</div>
-                                <div className={styles.filterItem}>영상의학과</div>
+                                {['전체', '내과', '피부과', '소아과', '이비인후과', '안과', '치과', '정형외과', '산부인과', '흉부외과', '비뇨기과', '한의원', '외과', '성형외과', '신경외과', '가정의학과', '마취통증의학과', '영상의학과'].map((item) => (
+                                    <button
+                                        key={item}
+                                        className={`${styles.filterItem} ${selectedFilter === item ? styles.selectedFilterItem : ''}`}
+                                        onClick={() => handleFilterSelect(item)}
+                                    >
+                                        {item}
+                                    </button>
+                                ))}
                             </div>
                         )}
                     </div>
@@ -310,9 +334,9 @@ function HealthMain() {
                                     <div className={styles.hospitalNameSbj}>
                                         <div className={styles.hospitalName}>
                                             {hospital.hosp_name}
-                                        </div>
-                                        <div className={styles.hospitalSbj}>
-                                            {hospital.hosp_sbj_list[0]}
+                                            <div className={styles.hospitalSbj}>
+                                                {getHospitalSbjDisplay(hospital)}
+                                            </div>
                                         </div>
                                     </div>
                                     <div className={styles.hospitalLocation}>

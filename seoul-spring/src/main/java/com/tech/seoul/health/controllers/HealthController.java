@@ -21,14 +21,15 @@ public class HealthController {
     public List<HospitalDto> searchHospitals(@RequestParam(required = false) Double lat,
                                              @RequestParam(required = false) Double lon,
                                              @RequestParam(required = false) Double radius,
-                                             @RequestParam(required = false) String keyword) {
+                                             @RequestParam(required = false) String keyword,
+                                             @RequestParam(required = false) String subject) {
 
         if(lat != null && lon != null && radius != null) {
             // 위치 기반 검색
-            return healthService.searchHospitalsByLocationAndKeyword(lat, lon, radius, keyword);
+            return healthService.searchHospitalsByLocationAndKeyword(lat, lon, radius, keyword, subject);
         } else if (keyword != null && !keyword.isEmpty()) {
             // 키워드 기반 전체 검색
-            return healthService.searchHospitalsByKeyword(keyword);
+            return healthService.searchHospitalsByKeyword(keyword, subject);
         } else {
             // 검색어와 위치 정보가 모두 없을 때 빈 리스트 반환
             return Collections.emptyList();
