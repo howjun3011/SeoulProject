@@ -8,7 +8,7 @@ import java.sql.PreparedStatement;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-public class ApiExplorerTour {
+public class ApiExplorerTourInfo {
     public static void main(String[] args) {
         Connection con = null;
         PreparedStatement pstmt = null;

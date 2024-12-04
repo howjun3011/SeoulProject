@@ -1,5 +1,5 @@
 // TourInfoDTO.java
-package com.tech.seoul.tour;
+package com.tech.seoul.tour.tourInfo;
 
 import lombok.Getter;
 import lombok.Setter;
