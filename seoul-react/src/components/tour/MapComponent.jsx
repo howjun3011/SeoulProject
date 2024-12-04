@@ -320,8 +320,8 @@ function MapComponent() {
           const polygon = new kakao.maps.Polygon({
             map: mapRef.current,
             path: path,
-            strokeWeight: 1,
-            strokeColor: '#FF0000',
+            strokeWeight: 2,
+            strokeColor: '#007bdf',
             fillColor: 'rgba(255, 0, 0, 0.1)',
             strokeOpacity: 1,
             zIndex: 10,
@@ -387,8 +387,8 @@ function MapComponent() {
           const polygon = new kakao.maps.Polygon({
             map: mapRef.current,
             path: path,
-            strokeWeight: 2,
-            strokeColor: '#0000FF',
+            strokeWeight: 3,
+            strokeColor: '#000000',
             fillColor: 'rgba(0, 0, 255, 0.1)',
             strokeOpacity: 1,
             zIndex: 11,
