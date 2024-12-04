@@ -1,4 +1,4 @@
-/* MapComponent.css */
+/* src/components/tour/MapComponent.css */
 
 /* 관광지 마커 오버레이 스타일 */
 .customoverlay {
@@ -57,39 +57,74 @@
     pointer-events: none;
 }
 
-/* 모달 스타일 */
+/* 모달 배경 */
 .modal {
     position: fixed;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
-    background-color: rgba(0, 0, 0, 0.5);
+    background-color: rgba(0, 0, 0, 0.5); /* 반투명 검은색 */
     display: flex;
     justify-content: center;
     align-items: center;
-    z-index: 999;
-}
-
-.modal-content {
-    background-color: white;
-    padding: 20px;
-    width: 80%;
-    max-width: 500px;
-    border-radius: 8px;
-    position: relative;
+    z-index: 2000; /* 지도와 커버링 폴리곤보다 위에 표시 */
     animation: slide-down 0.3s ease-out;
 }
 
-.close {
-    position: absolute;
-    top: 15px;
-    right: 20px;
-    font-size: 28px;
-    font-weight: bold;
-    cursor: pointer;
+/* 모달 콘텐츠 */
+.modal-content {
+    background-color: #fff; /* 흰색 배경 */
+    padding: 20px;
+    border-radius: 8px;
+    width: 90%;
+    max-width: 500px;
+    position: relative;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+    animation: slide-down 0.3s ease-out;
 }
 
+/* 모달 이미지 */
+.modal-image {
+    width: 100%;
+    max-height: 300px;
+    object-fit: cover;
+    border-radius: 8px;
+    margin-top: 10px;
+}
+
+/* 이미지 없을 때 */
+.no-image {
+    width: 100%;
+    height: 300px;
+    background-color: #f0f0f0;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #888;
+    font-size: 16px; /* 텍스트 크기 조정 */
+    margin-top: 10px;
+    text-align: center;
+}
+
+/* 닫기 버튼 */
+.close {
+    position: absolute;
+    top: 10px;
+    right: 15px;
+    font-size: 24px;
+    font-weight: bold;
+    color: #aaa;
+    cursor: pointer;
+    transition: color 0.3s;
+}
+
+.close:hover {
+    color: #000;
+}
+
+/* 애니메이션 */
 @keyframes slide-down {
     from {
         opacity: 0;
@@ -101,5 +136,136 @@
     }
 }
 
-/* 마스킹 폴리곤 관련 CSS 제거 */
-/* .seoulPolygon { ... } */ /* 필요 시 주석 처리 또는 삭제 */
+/* 카테고리 필터 컨테이너 */
+.category-filter {
+    display: flex;
+    justify-content: center;
+}
+
+/* 카테고리 선택 드롭다운 스타일링 */
+.category-select {
+    width: 200px;
+    padding: 10px 15px;
+    border: 1px solid #ccc;
+    border-radius: 25px;
+    appearance: none; /* 기본 드롭다운 화살표 제거 */
+    background-color: #fff;
+    background-image: url('data:image/svg+xml;charset=UTF-8,<svg fill="%23888" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><path d="M7 10l5 5 5-5z"/></svg>');
+    background-repeat: no-repeat;
+    background-position: right 15px center;
+    background-size: 16px 16px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: border-color 0.3s;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+    position: absolute;
+    top: 10px;
+    right: 20px;
+    z-index: 10;
+}
+
+.category-select:focus {
+    border-color: #66afe9;
+    outline: none;
+}
+
+/* 현재 위치로 돌아가는 버튼 스타일링 */
+.current-location-button {
+    position: absolute;
+    top: 60px;
+    right: 20px;
+    padding: 10px 15px;
+    background-color: #fff;
+    border: 1px solid #ccc;
+    border-radius: 25px;
+    cursor: pointer;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+    z-index: 1000;
+    font-size: 14px;
+    transition: background-color 0.3s, border-color 0.3s;
+}
+
+.current-location-button:hover {
+    background-color: #f0f0f0;
+    border-color: #999;
+}
+
+/* 상시 관광지 정보 모달창 스타일링 */
+.persistent-modal {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    width: 300px;
+    max-height: 400px;
+    overflow-y: auto;
+    background-color: #fff;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+    padding: 10px;
+    z-index: 1000;
+}
+
+.persistent-modal h3 {
+    text-align: center;
+    margin-top: 0;
+    margin-bottom: 10px;
+}
+
+.tour-item {
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+    padding: 5px;
+    border-radius: 5px;
+}
+
+.tour-item:hover {
+    background-color: #f9f9f9;
+}
+
+.tour-item-image {
+    width: 50px;
+    height: 50px;
+    object-fit: cover;
+    border-radius: 4px;
+    margin-right: 10px;
+}
+
+.persistent-modal .no-image {
+    width: 50px;
+    height: 50px;
+    background-color: #f0f0f0;
+    border-radius: 4px;
+    margin-right: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #888;
+    font-size: 12px;
+    margin-top: 0;
+}
+
+.tour-item-title {
+    font-size: 14px;
+    color: #333;
+}
+
+.no-tours {
+    text-align: center;
+    color: #888;
+}
+
+/* Responsive Design (선택 사항) */
+@media (max-width: 600px) {
+    .persistent-modal {
+        width: 90%;
+        right: 5%;
+    }
+
+    .category-select {
+        width: 90%;
+    }
+}
