@@ -2,15 +2,15 @@ import styles from '../../assets/css/culture/CultureMain.module.css';
 import GetFetch from '../../hooks/getFetch';
 
 function CultureBooKMain(props) {
+    // 국립중앙도서관 사서 추천 도서 정보를 획득하는 함수
+    const nationalLibraryData = GetFetch(`http://localhost:9002/seoul/culture/getNationalLibrary`);
+    
     // 사서의 책장 정보 획득하는 함수
     const randomPage = Math.floor(Math.random()*5943)+1;
     const recommendationData = GetFetch(`http://api.kcisa.kr/openapi/service/rest/convergence2018/conver6?serviceKey=${encodeURIComponent(process.env.REACT_APP_RECOMMENDATION_LIBRARY_KEY)}&numOfRows=10&pageNo=${randomPage}`);
     
     // 베스트 셀러 정보 획득하는 함수
     const bestsellerDatas = GetFetch(`http://localhost:9002/seoul/culture/getBestsellerData`);
-
-    // 국립중앙도서관 사서 추천 도서 정보를 획득하는 함수
-    const nationalLibraryData = GetFetch(`http://localhost:9002/seoul/culture/getNationalLibrary`);
 
     return (
         <div className={styles.cultureBookMain}>
@@ -87,7 +87,7 @@ function CultureBooKMain(props) {
                                             {data.rights}
                                         </div>&nbsp;| { data.issuedDate !== null && new Date(data.issuedDate.replace('KST ','')).getFullYear() }년 { data.issuedDate !== null && String(new Date(data.issuedDate.replace('KST ','')).getMonth()).padStart(2,'0') }월
                                     </div>
-                                    <div className={styles.bestsellerFrameInfoDetail}>{ ( data.description !== undefined || data.description !== null) && data.description.replace(/<[^>]*>/g, '').replace(/&[^;\s]+;/g, '') }</div>
+                                    <div className={styles.bestsellerFrameInfoDetail}>{ ( data.description !== undefined && data.description !== null) && data.description.replace(/<[^>]*>/g, '').replace(/&[^;\s]+;/g, '') }</div>
                                 </div>
                             </div>
                         );

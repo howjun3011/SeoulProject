@@ -1,5 +1,5 @@
 import SendFetchPost from '../../db/sendFetchPost';
-import db from '../../db/culture/BestSeller_202112.json';
+import db from '../../db/culture/example.json';
 
 function InsertDB() {
     return (

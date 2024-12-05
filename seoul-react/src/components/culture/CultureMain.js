@@ -1,5 +1,4 @@
 import styles from '../../assets/css/culture/CultureMain.module.css';
-import GetFetch from '../../hooks/getFetch';
 
 // 카카오맵 마커 생성
 import { CustomOverlayMap, MarkerClusterer } from "react-kakao-maps-sdk";
@@ -14,6 +13,9 @@ import CultureBooKStore from './CultureBooKStore';
 import CultureBookLibrary from './CultureBookLibrary';
 import CultureBookSearch from './CultureBookSearch';
 
+import CultureMuseumInfo from './CultureMuseumInfo';
+import CultureArtMuseumInfo from './CultureArtMuseumInfo';
+
 function CultureMain() {
     // 카카오 맵 기본 설정
     const { kakao } = window;
@@ -25,40 +27,26 @@ function CultureMain() {
 
     // 탭 클릭 이벤트 처리
     const tabNames = ['책', '박물관', '문화재', '공연'];
+    const [detailContents, setDetailContents] = useState();
     const [currentTabType, setCurrentTabType] = useState([true, false, false, false]);
     const [isClicked, setIsClicked] = useState(false);
 
-    // 책 클릭 이벤트 처리
-    const [currentBookTabType, setCurrentBookTabType] = useState([true, false]);
+    // 서브탭 클릭 이벤트 처리
+    const [currentSubTabType, setCurrentSubTabType] = useState([true, false]);
     const [isSearched, setIsSearched] = useState(false);
 
     // 마커 처리 함수
     async function clickMarkerBtn(url) {
         const x = await getData(url);
 
-        if (x !== undefined) {
-            x.map((data, index) => {
-                markers.push(data);
-            });
-
-            setMarkers([...markers]);
-        }
+        if (x !== undefined) {setMarkers(x);}
     }
 
 
     // 서점과 관련된 데이터를 획득하는 함수
-    const bookDatas = GetFetch(`http://localhost:9002/seoul/culture/getBookData`);
-    const [bookContents, setBookContents] = useState();
-
     useEffect(() => {
-        if (!bookDatas) return
-
-        bookDatas.map((bookData, index) => {
-            markers.push(bookData);
-        });
-
-        setMarkers([...markers]);
-    }, [bookDatas]);
+        clickMarkerBtn(`http://localhost:9002/seoul/culture/getBookData`);
+    }, []);
 
     // 책 검색 기능
     const [bookSearchPlaceholder, setBookSearchPlaceholder] = useState('국립중앙도서관 소장자료를 검색해보세요.');
@@ -68,7 +56,7 @@ function CultureMain() {
     async function goSearch(url) {
         setIsSearched(true);
         const x = await getData(url);
-        setBookContents(x.result.item);
+        setDetailContents(x.result.item);
         setIsClicked(false);
     }
 
@@ -79,7 +67,8 @@ function CultureMain() {
                     key={markers.length}
                     averageCenter={true}
                     minLevel={6}
-                    gridSize={180}
+                    gridSize={120}
+                    minClusterSize={1}
                 >
                     {markers.map((marker, index) => {
                         // CustomOverlayMap z-index 설정
@@ -89,10 +78,10 @@ function CultureMain() {
                             customOverlayMap.setZIndex(i);
                             setOverlayZIndex(i + 1);
                             setIsClicked(true);
-                            setBookContents(marker);
+                            setDetailContents(marker);
                         };
 
-                        if (currentTabType[0] && currentBookTabType[0]) {
+                        if (currentTabType[0] && currentSubTabType[0]) {
                             return (
                                 <CustomOverlayMap
                                     key={`marker-${marker.content}-${marker.fclty_la},${marker.fclty_lo}-${index}`}
@@ -109,13 +98,47 @@ function CultureMain() {
                                     />
                                 </CustomOverlayMap>
                             );
-                        } else if (currentTabType[0] && currentBookTabType[1]) {
+                        } else if (currentTabType[0] && currentSubTabType[1]) {
                             return (
                                 <CustomOverlayMap
                                     key={`marker-${marker.lbrry_no}-${index}`}
                                     position={{
                                         lat: marker.lbrry_la,
                                         lng: marker.lbrry_lo,
+                                    }}
+                                    zIndex={0}
+                                    onCreate={(x) => {customOverlayMap = x;}}
+                                >
+                                    <OverLay
+                                        marker={marker}
+                                        onClick={() => {handleOverlayIndex(overlayZIndex)}}
+                                    />
+                                </CustomOverlayMap>
+                            );
+                        } else if (currentTabType[1] && currentSubTabType[0]) {
+                            return (
+                                <CustomOverlayMap
+                                    key={`marker-${marker.id}-${index}`}
+                                    position={{
+                                        lat: marker.fclty_la,
+                                        lng: marker.fclty_lo,
+                                    }}
+                                    zIndex={0}
+                                    onCreate={(x) => {customOverlayMap = x;}}
+                                >
+                                    <OverLay
+                                        marker={marker}
+                                        onClick={() => {handleOverlayIndex(overlayZIndex)}}
+                                    />
+                                </CustomOverlayMap>
+                            );
+                        } else if (currentTabType[1] && currentSubTabType[1]) {
+                            return (
+                                <CustomOverlayMap
+                                    key={`marker-${marker.id}-${index}`}
+                                    position={{
+                                        lat: marker.fclty_la,
+                                        lng: marker.fclty_lo,
                                     }}
                                     zIndex={0}
                                     onCreate={(x) => {customOverlayMap = x;}}
@@ -144,10 +167,22 @@ function CultureMain() {
                                             fontWeight: currentTabType[index] ? '600' : '400'
                                         }}
                                         onClick={() => {
+                                            // 상위 탭 변경
                                             let temp = [false, false, false, false];
                                             temp[index] = true;
                                             setCurrentTabType(temp);
+
+                                            // 공통 초기화
                                             setIsClicked(false);
+                                            // 책 초기화
+                                            setIsSearched(false);
+                                            setCurrentSubTabType([true,false]);
+
+                                            // 각각의 탭에 따라 마커 설정
+                                            if (index === 0) {clickMarkerBtn(`http://localhost:9002/seoul/culture/getBookData`);}
+                                            else if (index === 1) {clickMarkerBtn(`http://localhost:9002/seoul/culture/getMuseumInfo`);}
+                                            else if (index === 2) {setMarkers([]);}
+                                            else if (index === 3) {setMarkers([]);}
                                         }}
                                     >
                                         {tabName}
@@ -188,10 +223,10 @@ function CultureMain() {
                                 className={`${ styles.cultureBookHeaderBtn } ${ styles.flexCenter }`}
                                 style={{
                                     marginRight: '20px',
-                                    backgroundColor: currentBookTabType[1] ? '#e2e2e2' : '',
+                                    backgroundColor: currentSubTabType[1] ? '#e2e2e2' : '',
                                 }}
                                 onClick={() => {
-                                    setCurrentBookTabType([false,true]);
+                                    setCurrentSubTabType([false,true]);
                                     setIsClicked(false);
                                     clickMarkerBtn(`http://localhost:9002/seoul/culture/getBookLibrary`);
                                 }}
@@ -201,10 +236,10 @@ function CultureMain() {
                             <div
                                 className={`${ styles.cultureBookHeaderBtn } ${ styles.flexCenter }`}
                                 style={{
-                                    backgroundColor: currentBookTabType[0] ? '#e2e2e2' : '',
+                                    backgroundColor: currentSubTabType[0] ? '#e2e2e2' : '',
                                 }}
                                 onClick={() => {
-                                    setCurrentBookTabType([true,false]);
+                                    setCurrentSubTabType([true,false]);
                                     setIsClicked(false);
                                     clickMarkerBtn(`http://localhost:9002/seoul/culture/getBookData`);
                                 }}
@@ -215,9 +250,64 @@ function CultureMain() {
                         </div>
                     }
                     { currentTabType[0] && !isClicked && !isSearched && <CultureBookMain /> }
-                    { currentTabType[0] && !isClicked && isSearched && <CultureBookSearch bookContents={bookContents} /> }
-                    { currentTabType[0] && isClicked && currentBookTabType[0] && <CultureBooKStore bookContents={bookContents} /> }
-                    { currentTabType[0] && isClicked && currentBookTabType[1] && <CultureBookLibrary bookContents={bookContents} /> }
+                    { currentTabType[0] && !isClicked && isSearched && <CultureBookSearch bookContents={detailContents} /> }
+                    { currentTabType[0] && isClicked && currentSubTabType[0] && <CultureBooKStore bookContents={detailContents} /> }
+                    { currentTabType[0] && isClicked && currentSubTabType[1] && <CultureBookLibrary bookContents={detailContents} /> }
+                    {
+                        currentTabType[1] && <div className={ styles.cultureBookHeader }>
+                            <div className={`${styles.cultureBookSearch} ${styles.flexCenter}`}>
+                                <button
+                                    className={styles.searchBtn}
+                                >
+                                    <img src="/images/culture/searchBtn.png"
+                                        alt="Search Button" height="14px" />
+                                </button>
+                                <input
+                                    className={styles.headerInput}
+                                    placeholder={bookSearchPlaceholder}
+                                    onClick={() => {
+                                        setBookSearchPlaceholder('');
+                                    }}
+                                    onBlur={() => {setBookSearchPlaceholder('국립중앙도서관 소장자료를 검색해보세요.');}}
+                                    value={searchValue}
+                                    onChange={saveSearchValue}
+                                    onKeyDown={(e) => {
+                                        if (e.key === "Enter") {}
+                                    }}
+                                />
+                            </div>
+                            <div
+                                className={`${ styles.cultureBookHeaderBtn } ${ styles.flexCenter }`}
+                                style={{
+                                    marginRight: '20px',
+                                    backgroundColor: currentSubTabType[1] ? '#e2e2e2' : '',
+                                }}
+                                onClick={() => {
+                                    setCurrentSubTabType([false,true]);
+                                    setIsClicked(false);
+                                    clickMarkerBtn(`http://localhost:9002/seoul/culture/getArtMuseumInfo`);
+                                }}
+                            >
+                                미술관
+                            </div>
+                            <div
+                                className={`${ styles.cultureBookHeaderBtn } ${ styles.flexCenter }`}
+                                style={{
+                                    backgroundColor: currentSubTabType[0] ? '#e2e2e2' : '',
+                                }}
+                                onClick={() => {
+                                    setCurrentSubTabType([true,false]);
+                                    setIsClicked(false);
+                                    clickMarkerBtn(`http://localhost:9002/seoul/culture/getMuseumInfo`);
+                                }}
+                            >
+                                박물관
+                            </div>
+                            <div className={`${ styles.cultureBookHeaderBtn } ${ styles.flexCenter }`} onClick={() => {setIsClicked(false); setIsSearched(false);}}>홈</div>
+                        </div>
+                    }
+                    { currentTabType[1] && isClicked && currentSubTabType[0] && <CultureMuseumInfo museumContents={detailContents} /> }
+                    { currentTabType[1] && isClicked && currentSubTabType[1] && <CultureArtMuseumInfo museumContents={detailContents} /> }
                 </div>
             </SideTab>
         </div>
@@ -252,6 +342,21 @@ function OverLay(props) {
             >
                 <div className={ `${styles.boxtitle} ${styles.flexCenter}` }>{props.marker.lbrry_ty_nm}도서관</div>
                 <div className={ `${styles.overlayContent} ${styles.flexCenter}` }>{props.marker.lbrry_nm}</div>
+            </div>
+        );
+    } else if (props.marker.id !== undefined) {
+        return (
+            <div
+                className={styles.overlaybox}
+                style={{
+                    filter: props.marker.flag_nm === '공립' ? 'opacity(0.8) drop-shadow(0 0 0 #FF9473)' :
+                            props.marker.flag_nm === '사립' ? 'opacity(0.8) drop-shadow(0 0 0 #0064FF)' :
+                            props.marker.flag_nm === '대학' ? 'opacity(0.8) drop-shadow(0 0 0 #8AB78A)' : ''
+                }}
+                onClick={props.onClick}
+            >
+                <div className={ `${styles.boxtitle} ${styles.flexCenter}` }>{props.marker.flag_nm}{props.marker.mlsfc_nm}</div>
+                <div className={ `${styles.overlayContent} ${styles.flexCenter}` }>{props.marker.fclty_nm}</div>
             </div>
         );
     }
