@@ -14,8 +14,8 @@ import java.sql.PreparedStatement;
 
 public class ApiExplorerTourFestival {
     public static void main(String[] args) {
-        Connection con = null;
-        PreparedStatement pstmt = null;
+        Connection con = null; // 데이터베이스 연결 객체 선언
+        PreparedStatement pstmt = null; // SQL 문을 실행할 객체 선언
         try {
             // MySQL DB 연결 설정
             String urlDB = "jdbc:mysql://144.24.66.179:5705/goott";

@@ -506,7 +506,7 @@ function MapComponentFestival() {
             : `<p class="no-image">이미지 없음</p>`;
 
           const content = `
-            <div class="customoverlay-content">
+            <div class="customoverlay-content-festival">
               <h4>${festivalInfo.title}</h4>
               ${imageContent}
               <p>${festivalInfo.tel || '전화번호 없음'}</p>

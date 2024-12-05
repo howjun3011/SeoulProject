@@ -541,10 +541,16 @@ function MapComponent() {
         const position = marker.getPosition();
         const tourInfo = tourInfos.find(t => t.uniqueKey === activeOverlayKey);
         if (tourInfo) {
+          // addr1과 addr2를 결합하여 주소 문자열 생성 (addr2가 있을 경우만 추가)
+          const address = tourInfo.addr1
+            ? (tourInfo.addr2 ? `${tourInfo.addr1}, ${tourInfo.addr2}` : tourInfo.addr1)
+            : '주소 정보 없음';
           const content = `
             <div class="customoverlay-content">
               <h4>${tourInfo.title}</h4>
               ${tourInfo.imageUrl ? `<img src="${tourInfo.imageUrl}" alt="${tourInfo.title}" onerror="this.src='/markers/default.png'" />` : `<p>이미지가 없습니다.</p>`}
+              <p>${tourInfo.tel || '전화번호 없음'}</p>
+              <p>주소: ${address}</p>
             </div>
           `;
           overlayRef.current.setContent(content);

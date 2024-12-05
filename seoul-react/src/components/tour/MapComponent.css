@@ -252,7 +252,7 @@
     pointer-events: none;
     z-index: 100; /* 마커보다 위에 표시 */
     min-width: 200px;
-    height: 200px;
+    height: fit-content;
     min-height: 200px;
 }
 
@@ -288,8 +288,8 @@
 }
 
 .customoverlay-content img {
-    width: 100%;
-    height: calc(100% - 30px);
+    width: 50%;
+    height: fit-content;
     border-radius: 3px;
 }
 
@@ -298,7 +298,7 @@
     font-size: 14px;
     color: #555;
     width: 100%;
-    height: calc(100% - 30px);
+    height: fit-content;
     display: flex;
     align-content: center;
     justify-content: center;

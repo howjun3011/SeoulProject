@@ -55,10 +55,10 @@ public class TourInfo {
     @Column(name = "tour_info_cpyrht_div_cd")
     private String cpyrhtDivCd;
 
-    @Column(name = "tour_info_mapx")
+    @Column(name = "tour_info_mapX")
     private Double mapX;
 
-    @Column(name = "tour_info_mapy")
+    @Column(name = "tour_info_mapY")
     private Double mapY;
 
     @Column(name = "tour_info_mlevel")
