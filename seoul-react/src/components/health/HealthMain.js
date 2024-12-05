@@ -32,6 +32,16 @@ function HealthMain() {
                     const { latitude, longitude } = position.coords;
                     setUserLocation({ lat: latitude, lng: longitude }); // 사용자 위치 설정
                     setCurrentCenter({ lat: latitude, lng: longitude }); // 초기 지도 중심 설정
+
+                    // 현재 위치 마커를 상태에 추가
+                    setMarkers((prevMarkers) => [
+                        ...prevMarkers,
+                        {
+                            position: { lat: latitude, lng: longitude },
+                            name: '현재 위치',
+                            isCurrentLocation: true,
+                        },
+                    ]);
                 },
                 (error) => {
                     console.error("Geolocation error:", error); // 위치 가져오기 실패 시 오류 출력
@@ -151,15 +161,22 @@ function HealthMain() {
                 setHospitalList(data); // 병원 데이터 목록 상태로 저장
                 console.log(data.length);
 
-                // 마커 데이터 설정
-                setMarkers(
-                    data.map((hospital) => ({
-                        position: { lat: hospital.hosp_lat, lng: hospital.hosp_lon }, // 병원 좌표
-                        name: hospital.hosp_name, // 병원 이름
-                        phone: hospital.hosp_pnumber, // 병원 전화번호
-                        hospital: hospital, // 병원 전체 데이터
-                    }))
-                );
+                // 기존의 현재 위치 마커를 유지하면서 새로운 병원 마커들을 추가
+                setMarkers((prevMarkers) => {
+                    // 이전 마커들에서 현재 위치 마커를 찾습니다.
+                    const currentLocationMarker = prevMarkers.find((marker) => marker.isCurrentLocation);
+                    // 병원 마커 생성
+                    const hospitalMarkers = data.map((hospital) => ({
+                        position: { lat: hospital.hosp_lat, lng: hospital.hosp_lon },
+                        name: hospital.hosp_name,
+                        phone: hospital.hosp_pnumber,
+                        hospital: hospital,
+                    }));
+                    // 현재 위치 마커가 있으면 포함하여 마커 상태 업데이트
+                    return currentLocationMarker
+                        ? [currentLocationMarker, ...hospitalMarkers]
+                        : hospitalMarkers;
+                });
             } else {
                 // 현재 지도 범위 내 결과가 없을 경우
                 console.log("현재 지도 범위 내에 결과 없음.");
@@ -262,6 +279,40 @@ function HealthMain() {
         }
     }
 
+    // 현재 위치로 돌아가는 함수 추가
+    const returnToCurrentLocation = () => {
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(
+                function (position) {
+                    const lat = position.coords.latitude;
+                    const lng = position.coords.longitude;
+
+                    const newCenter = { lat: lat, lng: lng };
+                    setCurrentCenter(newCenter); // 지도 중심 좌표 업데이트
+                    map.setCenter(new window.kakao.maps.LatLng(lat, lng)); // 지도 중심 이동
+
+                    // 현재 위치 마커를 상태에 추가하거나 업데이트합니다.
+                    setMarkers((prevMarkers) => [
+                        // 기존의 현재 위치 마커를 제거
+                        ...prevMarkers.filter((m) => !m.isCurrentLocation),
+                        // 새로운 현재 위치 마커 추가
+                        {
+                            position: { lat: lat, lng: lng },
+                            name: '현재 위치',
+                            isCurrentLocation: true,
+                        },
+                    ]);
+                },
+                function (error) {
+                    console.error('Error getting location:', error);
+                    alert('위치 정보를 가져올 수 없어 현재 위치로 돌아갈 수 없습니다.');
+                }
+            );
+        } else {
+            alert('GPS를 지원하지 않습니다');
+        }
+    };
+
     function HospitalDetail({ hospital, onBack, setMarkers, hospitalList }) {
         const days = [
             { label: '일요일', field: 'hosp_sun_oc'},
@@ -362,59 +413,73 @@ function HealthMain() {
 
     return (
         <div className={styles.healthContainer}>
-            <CommonMap setMap={setMap} mapLevel={3}>
+            <CommonMap setMap={setMap} mapLevel={3} showControls={false} showCurrentLocationOverlay={false} showCurrentLocationMarker={false}>
+                {/* 현재 위치로 돌아가는 버튼 */}
+                <button
+                    onClick={returnToCurrentLocation}
+                    className={styles.currentLocationButton}
+                >
+                    현재 위치로 이동
+                </button>
+
                 {/* markers 배열 순회하면서 각 마커와 관련된 데이터 렌더링 */}
-                {markers.map((marker, index) => (
-                    /* React.Fragment: 여러 자식을 포함하는 부모 컨테이너 역할, 추가적인 DOM 노드 생성 방지 */
-                    <React.Fragment key={`marker-${marker.name}-${index}`}>
-                        <MapMarker
-                            position={marker.position}
-                            onClick={() => {
-                                setSelectedMarker(marker); // 마커 클릭 시 선택된 마커 설정
-                            }}
-                            zIndex={selectedMarker && selectedMarker.name === marker.name ? 10 : 1} // 선택된 마커의 z-index 높이기
-                        />
-                        {/* 선택된 마커가 현재 마커와 동일한 경우에만 오버레이 표시 */}
-                        {selectedMarker && selectedMarker.name === marker.name && (
-                            <CustomOverlayMap position={marker.position} // 마커와 동일한 위치에 오버레이 표시
-                                              yAnchor={1.5} // 오버레이의 y축 기준점 조정
-                                              zIndex={1000} // 오버레이의 z-index 높게 설정
-                            >
-                                {/* 오버레이에 표시될 정보 스타일 */}
-                                <div
-                                    onClick={() => {
-                                        setSelectedHospitalDetail(marker.hospital); // 사이드탭에 선택된 병원의 세부정보 보여주기
-                                    }}
-                                    style={{
-                                        // 선택된 마커는 z-index를 높게 설정
-                                        zIndex: 1000, // 오버레이의 z-index도 가장 앞으로 설정
-                                        backgroundColor: "#fff",
-                                        border: "1px solid #ddd",
-                                        borderRadius: "8px",
-                                        padding: "10px",
-                                        boxShadow: "0 2px 6px rgba(0,0,0,0.15)",
-                                        fontSize: "14px",
-                                        lineHeight: "1.6",
-                                        maxWidth: "400px",
-                                        textAlign: "center",
-                                        wordBreak: "break-word",
-                                        cursor: "pointer",
-                                    }}
-                                >
-                                    <strong style={{ fontSize: "16px", color: "#333" }}>
-                                        {marker.name}
-                                    </strong>
-                                    <br />
-                                    {marker.phone ? (
-                                        <span style={{ color: "#666" }}>{marker.phone}</span>
-                                    ) : (
-                                        <span style={{ color: "#999" }}>전화번호 없음</span>
-                                    )}
-                                </div>
-                            </CustomOverlayMap>
-                        )}
-                    </React.Fragment>
-                ))}
+                {markers.map((marker, index) => {
+                    const markerImage = marker.isCurrentLocation
+                        ? {
+                            src: '/images/health/current-location-marker.png', // 현재 위치 마커 이미지 경로
+                            size: { width: 33, height: 44 }, // 마커 크기
+                            options: { offset: { x: 16, y: 44 } }, // 중심점 설정
+                        }
+                        : {
+                            src: '/images/health/default-marker.png', // 일반 마커 이미지 경로
+                            size: { width: 33, height: 44 },
+                            options: { offset: { x: 16, y: 44 } },
+                        };
+
+                    return (
+                        <React.Fragment key={`marker-${marker.name}-${index}`}>
+                            <MapMarker
+                                position={marker.position}
+                                image={markerImage} // 이미지 적용
+                                onClick={() => {
+                                    setSelectedMarker(marker); // 마커 클릭 시 선택된 마커 설정
+                                }}
+                                zIndex={marker.isCurrentLocation ? 999 : 1} // 현재 위치 마커의 zIndex를 높게 설정
+                            />
+                            {selectedMarker && selectedMarker.name === marker.name && (
+                                <CustomOverlayMap position={marker.position} yAnchor={1.5} zIndex={1000}>
+                                    <div
+                                        onClick={() =>  {
+                                            setSelectedHospitalDetail(marker.hospital); // 오버레이 클릭 시 병원 세부정보 표시
+                                        }}
+                                        style={{
+                                            zIndex: 1000,
+                                            backgroundColor: '#fff',
+                                            border: '1px solid #ddd',
+                                            borderRadius: '8px',
+                                            padding: '10px',
+                                            boxShadow: '0 2px 6px rgba(0,0,0,0.15)',
+                                            fontSize: '14px',
+                                            lineHeight: '1.6',
+                                            maxWidth: '400px',
+                                            textAlign: 'center',
+                                            wordBreak: 'break-word',
+                                            cursor: 'pointer',
+                                        }}
+                                    >
+                                        <strong style={{ fontSize: '16px', color: '#333' }}>{marker.name}</strong>
+                                        <br />
+                                        {marker.phone ? (
+                                            <span style={{ color: '#666' }}>{marker.phone}</span>
+                                        ) : (
+                                            <span style={{ color: '#999' }}>전화번호 없음</span>
+                                        )}
+                                    </div>
+                                </CustomOverlayMap>
+                            )}
+                        </React.Fragment>
+                    );
+                })}
             </CommonMap>
             <SideTab>
                 <div className={styles.sideTabContainer}>
