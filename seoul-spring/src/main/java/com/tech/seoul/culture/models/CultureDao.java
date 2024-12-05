@@ -8,8 +8,11 @@ import java.util.List;
 public interface CultureDao {
 	public Integer selectCultureBookPKCnt(String esntl_id);
 	public Integer selectCultureBestsellerPKCnt(int seq_no);
+	public Integer selectCultureBookLibraryPKCnt(int lbrry_cd);
 	public List<CultureBookDto> selectCultureBook();
 	public List<CultureBestsellerDto> selectCultureBestseller();
+	public List<CultureBookLibraryDto> selectCultureBookLibrary();
 	public void insertCultureBook(CultureBookDto cultureBookDto);
 	public void insertCultureBestseller(CultureBestsellerDto cultureBestsellerDto);
+	public void insertCultureBookLibrary(CultureBookLibraryDto cultureBookLibraryDto);
 }

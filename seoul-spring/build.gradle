@@ -34,6 +34,8 @@ dependencies {
 	implementation 'org.mybatis.spring.boot:mybatis-spring-boot-starter:2.2.2'
 	// Dotenv
 	implementation 'me.paulschwarz:spring-dotenv:4.0.0'
+	// XMLMapper
+	implementation 'com.fasterxml.jackson.dataformat:jackson-dataformat-xml:2.13.0'
 
 	// MySQL JDBC 드라이버 추가
 	implementation 'mysql:mysql-connector-java:8.0.33'

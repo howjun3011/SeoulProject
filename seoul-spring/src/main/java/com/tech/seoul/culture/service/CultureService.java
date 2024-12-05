@@ -3,11 +3,17 @@ package com.tech.seoul.culture.service;
 import java.util.HashMap;
 import java.util.List;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import com.tech.seoul.culture.models.CultureBestsellerDto;
 import com.tech.seoul.culture.models.CultureBookDto;
+import com.tech.seoul.culture.models.CultureBookLibraryDto;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import com.tech.seoul.culture.models.CultureDao;
+import org.springframework.web.client.RestTemplate;
 
 @Service
 public class CultureService {
@@ -17,9 +23,13 @@ public class CultureService {
 		this.cultureDao = cultureDao;
 	}
 
+	@Value("${national.library.key}")
+	private String nationalLibraryKey;
+
 	// DB 정보 획득
 	public List<CultureBookDto> selectCultureBookService() {return cultureDao.selectCultureBook();}
 	public List<CultureBestsellerDto> selectCultureBestsellerService() {return cultureDao.selectCultureBestseller();}
+	public List<CultureBookLibraryDto> selectCultureBookLibraryService() {return cultureDao.selectCultureBookLibrary();}
 
 	// DB Insert
 	public void insertCultureBookService(HashMap<String, Object>[] maps) {
@@ -87,5 +97,56 @@ public class CultureService {
 			}
 		}
 		System.out.println("Complete All");
+	}
+
+	public void insertCultureBookLibraryService(HashMap<String, Object>[] maps) {
+		System.out.println("Start");
+		for (HashMap<String, Object> map : maps) {
+			Integer cnt = cultureDao.selectCultureBookPKCnt(map.get("LBRRY_CD").toString());
+
+			if (cnt == 0 && map.get("ONE_AREA_NM").toString().equals("서울특별시")) {
+				CultureBookLibraryDto cultureBookLibraryDtoDto = new CultureBookLibraryDto();
+
+				cultureBookLibraryDtoDto.setLbrry_cd(Integer.parseInt(map.get("LBRRY_CD").toString()));
+				cultureBookLibraryDtoDto.setLbrry_nm(map.get("LBRRY_NM").toString());
+				cultureBookLibraryDtoDto.setLbrry_addr(map.get("LBRRY_ADDR").toString());
+				cultureBookLibraryDtoDto.setLbrry_la(map.get("LBRRY_LA").toString());
+				cultureBookLibraryDtoDto.setLbrry_lo(map.get("LBRRY_LO").toString());
+				cultureBookLibraryDtoDto.setLbrry_no(map.get("LBRRY_NO").toString());
+				cultureBookLibraryDtoDto.setTel_no(map.get("TEL_NO").toString());
+				cultureBookLibraryDtoDto.setFax_no(map.get("FAX_NO").toString());
+				cultureBookLibraryDtoDto.setHmpg_value(map.get("HMPG_VALUE").toString());
+				cultureBookLibraryDtoDto.setOpnng_time(map.get("OPNNG_TIME").toString());
+				cultureBookLibraryDtoDto.setClosedon_dc(map.get("CLOSEDON_DC").toString());
+				cultureBookLibraryDtoDto.setLbrry_ty_nm(map.get("LBRRY_TY_NM").toString());
+				cultureBookLibraryDtoDto.setFond_mby_value(map.get("FOND_MBY_VALUE").toString());
+				cultureBookLibraryDtoDto.setOpnng_year(map.get("OPNNG_YEAR").toString());
+				cultureBookLibraryDtoDto.setZip_no(map.get("ZIP_NO").toString());
+				cultureBookLibraryDtoDto.setLbrry_ncm_nm(map.get("LBRRY_NCM_NM").toString());
+				cultureBookLibraryDtoDto.setReprsnt_at(map.get("REPRSNT_AT").toString());
+
+				cultureDao.insertCultureBookLibrary(cultureBookLibraryDtoDto);
+
+				System.out.println("Complete Inserting Library Data");
+			}
+		}
+		System.out.println("Complete All");
+	}
+
+	// 국립중앙도서관 OPEN API
+	public String getNationalLibraryService(String url) throws Exception {
+		// 국립중앙도서관 OPEN API를 활용해 xml 데이터 획득
+		RestTemplate restTemplate = new RestTemplate();
+		String xmlData = restTemplate.getForObject(url+nationalLibraryKey, String.class);
+
+		// XmlMapper를 사용해 XML을 JsonNode로 변환
+		XmlMapper xmlMapper = new XmlMapper();
+		JsonNode node = xmlMapper.readTree(xmlData.getBytes());
+
+		// ObjectMapper를 사용해 JsonNode를 문자열로 변환
+		ObjectMapper jsonMapper = new ObjectMapper();
+		String json = jsonMapper.writeValueAsString(node);
+
+		return json;
 	}
 }

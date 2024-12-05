@@ -20,7 +20,7 @@ function InsertDB() {
                     cursor: 'pointer',
                 }}
                 onClick={() => {
-                    SendFetchPost(`http://localhost:9002/seoul/culture/insertDB`);
+                    SendFetchPost(`http://localhost:9002/seoul/culture/insertDB`, db);
                 }}
             >
                 Insert

@@ -13,6 +13,10 @@
         SELECT COUNT(*) FROM culture_book_bestseller WHERE seq_no = #{seq_no}
     </select>
 
+    <select id="selectCultureBookLibraryPKCnt" resultType="Integer">
+        SELECT COUNT(*) FROM culture_book_library WHERE lbrry_cd = #{lbrry_cd}
+    </select>
+
     <select id="selectCultureBook" resultType="com.tech.seoul.culture.models.CultureBookDto">
         SELECT
             esntl_id, fclty_nm, lclas_nm, mlsfc_nm, zip_no, fclty_road_nm_addr, fclty_la, fclty_lo,
@@ -30,6 +34,15 @@
             culture_book_bestseller
         ORDER BY
             rank_co
+    </select>
+
+    <select id="selectCultureBookLibrary" resultType="com.tech.seoul.culture.models.CultureBookLibraryDto">
+        SELECT
+            lbrry_cd, lbrry_nm, lbrry_addr, lbrry_la, lbrry_lo, lbrry_no, tel_no, fax_no,
+            hmpg_value, opnng_time, closedon_dc, lbrry_ty_nm, fond_mby_value,
+            opnng_year, zip_no, lbrry_ncm_nm, reprsnt_at
+        FROM
+            culture_book_library
     </select>
 
     <insert id="insertCultureBook" parameterType="com.tech.seoul.culture.models.CultureBookDto">
@@ -57,6 +70,21 @@
             (
                 #{seq_no}, #{rank_co}, #{inpt_de}, #{isbn_ten_no}, #{isbn_thirteen_no}, #{book_title_nm}, #{authr_nm}, #{book_intrcn_cn},
                 #{publisher_nm}, #{pblicte_de}, #{book_cvr_image_nm}, #{book_mastr_seq_no}, #{kdc_nm}
+            )
+    </insert>
+
+    <insert id="insertCultureBookLibrary" parameterType="com.tech.seoul.culture.models.CultureBookLibraryDto">
+        INSERT INTO culture_book_library
+            (
+                lbrry_cd, lbrry_nm, lbrry_addr, lbrry_la, lbrry_lo, lbrry_no, tel_no, fax_no,
+                hmpg_value, opnng_time, closedon_dc, lbrry_ty_nm, fond_mby_value,
+                opnng_year, zip_no, lbrry_ncm_nm, reprsnt_at
+            )
+        VALUE
+            (
+                #{lbrry_cd}, #{lbrry_nm}, #{lbrry_addr}, #{lbrry_la}, #{lbrry_lo}, #{lbrry_no}, #{tel_no}, #{fax_no},
+                #{hmpg_value}, #{opnng_time}, #{closedon_dc}, #{lbrry_ty_nm}, #{fond_mby_value},
+                #{opnng_year}, #{zip_no}, #{lbrry_ncm_nm}, #{reprsnt_at}
             )
     </insert>
 	
