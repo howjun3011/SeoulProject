@@ -1,4 +1,4 @@
-package com.tech.seoul.tour;
+package com.tech.seoul.tour.tourInfo;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;

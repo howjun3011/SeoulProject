@@ -1,57 +1,35 @@
-// src/components/tour/MapComponent.jsx
+// src/components/tour/MapComponentFestival.jsx
 import React, { useEffect, useState, useRef } from 'react';
 import axios from 'axios';
-import { useNavigate } from 'react-router-dom';
-import './MapComponent.css';
+import './MapComponentFestival.css';
 
-function MapComponent() {
+function MapComponentFestival() {
   // 상태 변수 선언
-  const [cat1, setCat1] = useState(''); // 카테고리 선택 상태
-  const [activeOverlayKey, setActiveOverlayKey] = useState(null); // 활성화된 오버레이의 고유 키
   const [seoulBoundary, setSeoulBoundary] = useState(null); // 서울 최외곽 GeoJSON 데이터
   const [seoulDistricts, setSeoulDistricts] = useState(null); // 서울 구 단위 GeoJSON 데이터
   const [isMapLoaded, setIsMapLoaded] = useState(false); // 지도 로드 상태
-  const [tourInfos, setTourInfos] = useState([]); // 현재 표시된 관광지 정보
+  const [festivalInfos, setFestivalInfos] = useState([]); // 현재 표시된 축제 정보
+  const [activeOverlayKey, setActiveOverlayKey] = useState(null); // 활성화된 오버레이의 고유 키
 
   // useRef 훅을 사용하여 변수 관리
   const mapRef = useRef(null); // 지도 인스턴스 저장
   const overlayRef = useRef(null); // 오버레이 인스턴스 저장
-  const markersRef = useRef(new Map()); // Map 객체로 변경
+  const markersRef = useRef(new Map()); // 마커 저장
   const seoulDistrictPolygonsRef = useRef([]); // 서울 구 단위 폴리곤 인스턴스 배열 저장
   const seoulBoundaryPolygonsRef = useRef([]); // 서울 최외곽 폴리곤 인스턴스 배열 저장
   const idleListenerRef = useRef(null); // 'idle' 이벤트 리스너 저장
 
-  // React Router의 네비게이션 훅
-  const navigate = useNavigate();
-
-  // 카테고리 옵션 배열
-  const cat1Options = [
-    { code: 'A01', name: '자연' },
+  // 축제 카테고리 옵션 배열 (필요시 추가 가능)
+  const festivalCatOptions = [
     { code: 'A02', name: '인문(문화/예술/역사)' },
-    { code: 'A03', name: '레포츠' },
-    { code: 'A04', name: '쇼핑' },
-    { code: 'A05', name: '음식' },
-    { code: 'B02', name: '숙박' },
-    // { code: 'C01', name: '추천코스' }, // 제거됨
+    // 추가 카테고리가 있다면 여기에 추가
   ];
 
   // 카테고리별 마커 이미지 매핑 (기본 이미지 추가)
   const markerImages = {
-    A01: '/markers/blue.png',        // 자연
     A02: '/markers/orange.png',      // 인문(문화/예술/역사)
-    A03: '/markers/mint.png',        // 레포츠
-    A04: '/markers/burgundy.png',    // 쇼핑
-    A05: '/markers/pink.png',        // 음식
-    B02: '/markers/purple.png',      // 숙박
     default: '/markers/default.png', // 기본 마커 이미지
   };
-
-  // cat1을 ref로 관리하여 최신 상태 유지
-  const cat1Ref = useRef(cat1);
-
-  useEffect(() => {
-    cat1Ref.current = cat1;
-  }, [cat1]);
 
   /**
    * GeoJSON 파일을 로드하여 상태 변수에 저장합니다.
@@ -92,23 +70,23 @@ function MapComponent() {
   }, []);
 
   /**
-   * 관광지 정보를 가져와 마커를 업데이트합니다.
+   * 축제 정보를 가져와 마커를 업데이트합니다.
    * @param {number} centerLat - 지도 중심의 위도
    * @param {number} centerLng - 지도 중심의 경도
    */
-  const fetchTourInfo = async (centerLat, centerLng) => {
+  const fetchFestivalInfo = async (centerLat, centerLng) => {
     try {
-      console.log(`Fetching tour info for coordinates: (${centerLat}, ${centerLng}), Category: ${cat1Ref.current}`);
-      const response = await axios.get('http://localhost:9002/seoul/tour/nearby', {
+      console.log(`Fetching festival info for coordinates: (${centerLat}, ${centerLng})`);
+      const response = await axios.get('http://localhost:9002/seoul/tour/festival/nearby', {
         params: {
           latitude: centerLat,
           longitude: centerLng,
-          radius: 1, // 반경 (단위: km)
-          cat1: cat1Ref.current || null, // 선택된 카테고리
+          radius: 300, // 반경 (단위: km)
+          // 필요시 추가 파라미터
         },
       });
 
-      console.log('Tour info response:', response.data);
+      console.log('Festival info response:', response.data);
 
       // 기존 마커 제거
       markersRef.current.forEach((marker) => {
@@ -117,26 +95,26 @@ function MapComponent() {
       markersRef.current.clear(); // Map 객체 비우기
 
       // 중복 제거: title과 좌표를 기준으로 중복된 항목 필터링
-      const uniqueTours = response.data.filter((tour, index, self) =>
-          index === self.findIndex((t) =>
-            t.title === tour.title && t.mapX === tour.mapX && t.mapY === tour.mapY
+      const uniqueFestivals = response.data.filter((festival, index, self) =>
+          index === self.findIndex((f) =>
+            f.title === festival.title && f.mapX === festival.mapX && f.mapY === festival.mapY
           )
       );
 
-      console.log('Unique tours:', uniqueTours);
+      console.log('Unique festivals:', uniqueFestivals);
 
-      // 고유한 키를 부여하여 관광지 정보를 업데이트
-      const uniqueToursWithKeys = uniqueTours.map((tour, index) => ({
-        ...tour,
-        uniqueKey: tour.id || `${tour.mapX}-${tour.mapY}-${index}`, // 고유 키 생성
+      // 고유한 키를 부여하여 축제 정보를 업데이트
+      const uniqueFestivalsWithKeys = uniqueFestivals.map((festival, index) => ({
+        ...festival,
+        uniqueKey: festival.tourFestivalId || `${festival.mapX}-${festival.mapY}-${index}`, // 고유 키 생성
       }));
 
       // 새로운 마커 추가
-      uniqueToursWithKeys.forEach((tourInfo) => {
-        const position = new window.kakao.maps.LatLng(tourInfo.mapY, tourInfo.mapX);
+      uniqueFestivalsWithKeys.forEach((festivalInfo) => {
+        const position = new window.kakao.maps.LatLng(festivalInfo.mapY, festivalInfo.mapX);
 
         // 카테고리에 따른 마커 이미지 선택
-        const markerImageSrc = markerImages[tourInfo.cat1] || markerImages.default; // 기본 마커 이미지 경로
+        const markerImageSrc = markerImages[festivalInfo.cat1] || markerImages.default; // 기본 마커 이미지 경로
         const imageSize = new window.kakao.maps.Size(33, 44); // 마커 이미지 크기
         const markerImage = new window.kakao.maps.MarkerImage(markerImageSrc, imageSize);
 
@@ -148,7 +126,7 @@ function MapComponent() {
         });
 
         // 마커를 Map에 저장
-        const markerKey = tourInfo.uniqueKey;
+        const markerKey = festivalInfo.uniqueKey;
         markersRef.current.set(markerKey, marker);
 
         // 마커 클릭 이벤트 등록
@@ -158,10 +136,10 @@ function MapComponent() {
         });
       });
 
-      // 관광지 정보를 상태에 저장
-      setTourInfos(uniqueToursWithKeys);
+      // 축제 정보를 상태에 저장
+      setFestivalInfos(uniqueFestivalsWithKeys);
     } catch (error) {
-      console.error('Error fetching tour info:', error);
+      console.error('Error fetching festival info:', error);
     }
   };
 
@@ -232,7 +210,7 @@ function MapComponent() {
       const container = document.getElementById('map'); // 지도를 표시할 div
       const options = {
         center: new kakao.maps.LatLng(lat, lng), // 초기 지도 중심좌표
-        level: 3, // 초기 확대 수준
+        level: 8, // 초기 확대 수준
       };
       mapRef.current = new kakao.maps.Map(container, options); // 지도 인스턴스 생성
 
@@ -255,7 +233,7 @@ function MapComponent() {
         zIndex: 4, // 사용자 오버레이의 zIndex 설정
       });
 
-      // 전역 오버레이 생성 (관광지 정보 표시용)
+      // 전역 오버레이 생성 (축제 정보 표시용)
       overlayRef.current = new kakao.maps.CustomOverlay({
         yAnchor: 1,
         zIndex: 100, // 오버레이의 zIndex를 높게 설정
@@ -271,8 +249,8 @@ function MapComponent() {
         createSeoulBoundaryPolygon(); // 서울 최외곽 경계선 폴리곤 생성
       }
 
-      // 초기 관광지 정보 로드
-      fetchTourInfo(lat, lng);
+      // 초기 축제 정보 로드
+      fetchFestivalInfo(lat, lng);
     };
 
     loadMap(); // 지도 로드 함수 호출
@@ -444,7 +422,7 @@ function MapComponent() {
   };
 
   /**
-   * 지도 이동 시 관광지 정보 업데이트
+   * 지도 이동 시 축제 정보 업데이트
    */
   useEffect(() => {
     if (!isMapLoaded || !mapRef.current) return;
@@ -459,8 +437,8 @@ function MapComponent() {
         const center = mapRef.current.getCenter(); // 현재 지도 중심 좌표
         const centerLat = center.getLat();
         const centerLng = center.getLng();
-        console.log(`Idle event triggered. New center: (${centerLat}, ${centerLng}), Category: ${cat1Ref.current}`);
-        fetchTourInfo(centerLat, centerLng); // 관광지 정보 업데이트
+        console.log(`Idle event triggered. New center: (${centerLat}, ${centerLng})`);
+        fetchFestivalInfo(centerLat, centerLng); // 축제 정보 업데이트
       });
 
       idleListenerRef.current = listener; // 리스너 저장
@@ -480,23 +458,6 @@ function MapComponent() {
       }
     };
   }, [isMapLoaded]); // cat1 제거하여 중복 리스너 방지
-
-  /**
-   * 카테고리 변경 시 관광지 정보를 업데이트합니다.
-   */
-  useEffect(() => {
-    if (!isMapLoaded || !mapRef.current) return;
-
-    const kakao = window.kakao;
-
-    // 현재 지도 중심 좌표 가져오기
-    const center = mapRef.current.getCenter();
-    const centerLat = center.getLat();
-    const centerLng = center.getLng();
-
-    // 관광지 정보 가져오기
-    fetchTourInfo(centerLat, centerLng);
-  }, [cat1, isMapLoaded]); // cat1 변경 시 관광지 정보 업데이트
 
   /**
    * 현재 위치로 돌아가는 함수
@@ -523,13 +484,6 @@ function MapComponent() {
   };
 
   /**
-   * 상시 관광지 정보 모달에서 카테고리 필터링
-   */
-  const filteredTourInfos = cat1
-    ? tourInfos.filter((tour) => tour.cat1 === cat1)
-    : tourInfos;
-
-  /**
    * 활성화된 오버레이를 업데이트할 때 호출되는 useEffect
    */
   useEffect(() => {
@@ -539,12 +493,25 @@ function MapComponent() {
       const marker = markersRef.current.get(activeOverlayKey);
       if (marker) {
         const position = marker.getPosition();
-        const tourInfo = tourInfos.find(t => t.uniqueKey === activeOverlayKey);
-        if (tourInfo) {
+        const festivalInfo = festivalInfos.find(f => f.uniqueKey === activeOverlayKey);
+        if (festivalInfo) {
+          // addr1과 addr2를 결합하여 주소 문자열 생성 (addr2가 있을 경우만 추가)
+          const address = festivalInfo.addr1
+            ? (festivalInfo.addr2 ? `${festivalInfo.addr1}, ${festivalInfo.addr2}` : festivalInfo.addr1)
+            : '주소 정보 없음';
+
+          // firstimage가 존재하면 이미지 태그 생성, 없으면 이미지 없음 문자열
+          const imageContent = festivalInfo.firstimage
+            ? `<img src="${festivalInfo.firstimage}" alt="${festivalInfo.title}" class="festival-image" />`
+            : `<p class="no-image">이미지 없음</p>`;
+
           const content = `
             <div class="customoverlay-content">
-              <h4>${tourInfo.title}</h4>
-              ${tourInfo.imageUrl ? `<img src="${tourInfo.imageUrl}" alt="${tourInfo.title}" onerror="this.src='/markers/default.png'" />` : `<p>이미지가 없습니다.</p>`}
+              <h4>${festivalInfo.title}</h4>
+              ${imageContent}
+              <p>${festivalInfo.tel || '전화번호 없음'}</p>
+              <p>주소: ${address}</p>
+              <p>축제 기간: ${festivalInfo.eventStartDate} ~ ${festivalInfo.eventEndDate}</p>
             </div>
           `;
           overlayRef.current.setContent(content);
@@ -559,32 +526,26 @@ function MapComponent() {
         overlayRef.current.setMap(null);
       }
     }
-  }, [activeOverlayKey, tourInfos]);
-
-  /**
-   * 축제 페이지로 이동하는 함수
-   */
-  const navigateToFestival = () => {
-    navigate('/seoul/tour/festival');
-  };
+  }, [activeOverlayKey, festivalInfos]);
 
   return (
     <div style={{ position: 'relative' }}>
-      {/* 카테고리 필터 UI */}
-      <div className="category-filter">
-        <select
-          value={cat1}
-          onChange={(e) => setCat1(e.target.value)}
-          className="category-select"
-        >
-          <option value="">대분류 선택</option>
-          {cat1Options.map((option) => (
-            <option key={option.code} value={option.code}>
-              {option.name}
-            </option>
-          ))}
-        </select>
-      </div>
+      {/*/!* 축제 카테고리 필터 UI (필요시 추가) *!/*/}
+      {/*<div className="category-filter">*/}
+      {/*  <select*/}
+      {/*    value={''} // 축제 페이지에서는 카테고리 필터가 필요 없을 수 있음*/}
+      {/*    onChange={() => {}}*/}
+      {/*    className="category-select"*/}
+      {/*    disabled*/}
+      {/*  >*/}
+      {/*    <option value="">축제 카테고리 선택</option>*/}
+      {/*    {festivalCatOptions.map((option) => (*/}
+      {/*      <option key={option.code} value={option.code}>*/}
+      {/*        {option.name}*/}
+      {/*      </option>*/}
+      {/*    ))}*/}
+      {/*  </select>*/}
+      {/*</div>*/}
 
       {/* 현재 위치로 돌아가는 버튼 */}
       <button
@@ -592,15 +553,6 @@ function MapComponent() {
         className="current-location-button"
       >
         현재 위치로
-      </button>
-
-      {/* 축제 페이지로 이동하는 버튼 */}
-      <button
-        onClick={navigateToFestival}
-        className="navigate-festival-button"
-        style={{ position: 'absolute', top: '10px', left: '10px', zIndex: 5 }}
-      >
-        축제 보기
       </button>
 
       {/* 지도 표시 */}
@@ -612,13 +564,13 @@ function MapComponent() {
       {/* 지도 중앙에 항상 표시될 타겟 아이콘 */}
       <img src="/markers/aim.png" alt="Center Marker" className="map-center-icon" />
 
-      {/* 상시 관광지 정보 모달창 */}
+      {/* 상시 축제 정보 모달창 */}
       <div className="persistent-modal">
-        <h3>관광지 목록</h3>
-        {filteredTourInfos.length > 0 ? (
-          filteredTourInfos.map((tourInfo, index) => {
+        <h3>축제 목록</h3>
+        {festivalInfos.length > 0 ? (
+          festivalInfos.map((festivalInfo, index) => {
             // 고유한 키 생성
-            const key = tourInfo.uniqueKey;
+            const key = festivalInfo.uniqueKey;
 
             const handleClick = () => {
               // 지도 중심 이동
@@ -638,12 +590,12 @@ function MapComponent() {
               <div
                 key={key}
                 className="tour-item"
-                onClick={handleClick} // 수정된 클릭 핸들러
+                onClick={handleClick} // 클릭 핸들러
               >
-                {tourInfo.imageUrl ? (
+                {festivalInfo.firstimage ? (
                   <img
-                    src={tourInfo.imageUrl}
-                    alt={tourInfo.title}
+                    src={festivalInfo.firstimage}
+                    alt={festivalInfo.title}
                     className="tour-item-image"
                     onError={(e) => {
                       e.target.onerror = null;
@@ -655,16 +607,16 @@ function MapComponent() {
                     이미지 없음
                   </div>
                 )}
-                <span className="tour-item-title">{tourInfo.title}</span>
+                <span className="tour-item-title">{festivalInfo.title}</span>
               </div>
             );
           })
         ) : (
-          <p className="no-tours">관광지가 없습니다.</p>
+          <p className="no-tours">축제가 없습니다.</p>
         )}
       </div>
     </div>
   );
 }
 
-export default MapComponent;
+export default MapComponentFestival;

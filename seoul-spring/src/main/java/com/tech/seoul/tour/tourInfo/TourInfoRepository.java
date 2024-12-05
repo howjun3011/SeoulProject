@@ -1,5 +1,5 @@
 // TourInfoRepository.java
-package com.tech.seoul.tour;
+package com.tech.seoul.tour.tourInfo;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
