@@ -4,19 +4,65 @@ import GetFetch from '../../hooks/getFetch';
 function CultureBooKMain(props) {
     // 사서의 책장 정보 획득하는 함수
     const randomPage = Math.floor(Math.random()*5943)+1;
-    const recommendationOriData = GetFetch(`http://api.kcisa.kr/openapi/service/rest/convergence2018/conver6?serviceKey=${encodeURIComponent(process.env.REACT_APP_RECOMMENDATION_LIBRARY_KEY)}&numOfRows=10&pageNo=${randomPage}`);
-    let recommendationData;
-    if (recommendationOriData.response !== undefined) {recommendationData = recommendationOriData.response.body.items.item;}
+    const recommendationData = GetFetch(`http://api.kcisa.kr/openapi/service/rest/convergence2018/conver6?serviceKey=${encodeURIComponent(process.env.REACT_APP_RECOMMENDATION_LIBRARY_KEY)}&numOfRows=10&pageNo=${randomPage}`);
     
     // 베스트 셀러 정보 획득하는 함수
     const bestsellerDatas = GetFetch(`http://localhost:9002/seoul/culture/getBestsellerData`);
 
+    // 국립중앙도서관 사서 추천 도서 정보를 획득하는 함수
+    const nationalLibraryData = GetFetch(`http://localhost:9002/seoul/culture/getNationalLibrary`);
+
     return (
         <div className={styles.cultureBookMain}>
+            <div className={styles.bestsellerHeader}>국립중앙도서관 사서추천도서</div>
+            <div className={styles.bestsellerContainer}>
+                {
+                    nationalLibraryData.list !== undefined && nationalLibraryData.list.map((data, index) => {
+                        return (
+                            <div
+                                className={styles.bestsellerFrame}
+                                key={data.item.recomNo}
+                            >
+                                <div className={styles.bestsellerFrameNo}>{index + 1}.</div>
+                                <div>
+                                    <img
+                                        src={data.item.recomfilepath}
+                                        alt={data.item.recomtitle}
+                                        style={{
+                                            width: '80px',
+                                            height: '100px'
+                                        }}
+                                    />
+                                </div>
+                                <div className={styles.bestsellerFrameInfo} style={{ height: '114px' }}>
+                                    <div className={styles.bestsellerFrameInfoHeader}>
+                                        {data.item.recomtitle}
+                                    </div>
+                                    <div
+                                        style={{ display: 'flex', marginBottom: '6px', color: '#111', fontSize: '12px', opacity: '0.7' }}
+                                    >
+                                        <div
+                                            style={{
+                                                maxWidth: '140px',
+                                                overflow: 'hidden',
+                                                whiteSpace: 'nowrap',
+                                                textOverflow: 'ellipsis'
+                                            }}
+                                        >
+                                            {data.item.recomauthor}
+                                        </div>&nbsp;| {data.item.recompublisher} | {data.item.publishYear}년
+                                    </div>
+                                    <div className={styles.bestsellerFrameInfoDetail}>{data.item.recomcontens.replace(/<[^>]*>/g, '').replace(/&[^;\s]+;/g, '')}</div>
+                                </div>
+                            </div>
+                        );
+                    })
+                }
+            </div>
             <div className={styles.bestsellerHeader}>사서의 책장</div>
             <div className={styles.bestsellerContainer}>
                 {
-                    recommendationOriData.response !== undefined && recommendationData.map((data, index) => {
+                    recommendationData.response !== undefined && recommendationData.response.body.items.item.map((data, index) => {
                         return (
                             <div
                                 className={styles.bestsellerFrame}
@@ -32,16 +78,16 @@ function CultureBooKMain(props) {
                                     >
                                         <div
                                             style={{
-                                                maxWidth: '140px',
+                                                maxWidth: '250px',
                                                 overflow: 'hidden',
                                                 whiteSpace: 'nowrap',
                                                 textOverflow: 'ellipsis'
                                             }}
                                         >
                                             {data.rights}
-                                        </div>&nbsp;| {new Date(data.issuedDate.replace('KST ','')).getFullYear()}년 { String(new Date(data.issuedDate.replace('KST ','')).getMonth()).padStart(2,'0') }월
+                                        </div>&nbsp;| { data.issuedDate !== null && new Date(data.issuedDate.replace('KST ','')).getFullYear() }년 { data.issuedDate !== null && String(new Date(data.issuedDate.replace('KST ','')).getMonth()).padStart(2,'0') }월
                                     </div>
-                                    <div className={styles.bestsellerFrameInfoDetail}>{data.description.replace(/<(\/)?([a-zA-Z]*)(\s[a-zA-Z]*=[^>]*)?(\s)*(\/)?>/ig,'')}</div>
+                                    <div className={styles.bestsellerFrameInfoDetail}>{ ( data.description !== undefined || data.description !== null) && data.description.replace(/<[^>]*>/g, '').replace(/&[^;\s]+;/g, '') }</div>
                                 </div>
                             </div>
                         );
