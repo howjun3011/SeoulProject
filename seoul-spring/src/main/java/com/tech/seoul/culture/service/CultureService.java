@@ -6,13 +6,10 @@ import java.util.List;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
-import com.tech.seoul.culture.models.CultureBestsellerDto;
-import com.tech.seoul.culture.models.CultureBookDto;
-import com.tech.seoul.culture.models.CultureBookLibraryDto;
+import com.tech.seoul.culture.models.*;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import com.tech.seoul.culture.models.CultureDao;
 import org.springframework.web.client.RestTemplate;
 
 @Service
@@ -26,10 +23,14 @@ public class CultureService {
 	@Value("${national.library.key}")
 	private String nationalLibraryKey;
 
+
 	// DB 정보 획득
 	public List<CultureBookDto> selectCultureBookService() {return cultureDao.selectCultureBook();}
 	public List<CultureBestsellerDto> selectCultureBestsellerService() {return cultureDao.selectCultureBestseller();}
 	public List<CultureBookLibraryDto> selectCultureBookLibraryService() {return cultureDao.selectCultureBookLibrary();}
+	public List<CultureMuseumInfoDto> selectCultureMuseumInfoService() {return cultureDao.selectCultureMuseumInfo();}
+	public List<CultureArtMuseumInfoDto> selectCultureArtMuseumInfoService() {return cultureDao.selectCultureArtMuseumInfo();}
+
 
 	// DB Insert
 	public void insertCultureBookService(HashMap<String, Object>[] maps) {
@@ -102,7 +103,7 @@ public class CultureService {
 	public void insertCultureBookLibraryService(HashMap<String, Object>[] maps) {
 		System.out.println("Start");
 		for (HashMap<String, Object> map : maps) {
-			Integer cnt = cultureDao.selectCultureBookPKCnt(map.get("LBRRY_CD").toString());
+			Integer cnt = cultureDao.selectCultureBookLibraryPKCnt(Integer.parseInt(map.get("LBRRY_CD").toString()));
 
 			if (cnt == 0 && map.get("ONE_AREA_NM").toString().equals("서울특별시")) {
 				CultureBookLibraryDto cultureBookLibraryDtoDto = new CultureBookLibraryDto();
@@ -132,6 +133,139 @@ public class CultureService {
 		}
 		System.out.println("Complete All");
 	}
+
+	public void insertCultureMuseumInfoService(HashMap<String, Object>[] maps) {
+		System.out.println("Start");
+		for (HashMap<String, Object> map : maps) {
+			Integer cnt = cultureDao.selectCultureMuseumInfoPKCnt(map.get("ID").toString());
+
+			if (cnt == 0 && map.get("CTPRVN_NM").toString().equals("서울")) {
+				CultureMuseumInfoDto cultureMuseumInfoDto = new CultureMuseumInfoDto();
+
+				cultureMuseumInfoDto.setId(map.get("ID").toString());
+				cultureMuseumInfoDto.setLclas_nm(map.get("LCLAS_NM").toString());
+				cultureMuseumInfoDto.setMlsfc_nm(map.get("MLSFC_NM").toString());
+				cultureMuseumInfoDto.setFclty_nm(map.get("FCLTY_NM").toString());
+				cultureMuseumInfoDto.setRdnmadr_nm(map.get("RDNMADR_NM").toString());
+				cultureMuseumInfoDto.setZip_no(map.get("ZIP_NO").toString());
+				cultureMuseumInfoDto.setFclty_lo(map.get("FCLTY_LO").toString());
+				cultureMuseumInfoDto.setFclty_la(map.get("FCLTY_LA").toString());
+				cultureMuseumInfoDto.setFlag_nm(map.get("FLAG_NM").toString());
+				cultureMuseumInfoDto.setTel_no(map.get("TEL_NO").toString());
+				cultureMuseumInfoDto.setOpnng_de(map.get("OPNNG_DE").toString());
+				cultureMuseumInfoDto.setHmpg_addr(map.get("HMPG_ADDR").toString());
+				cultureMuseumInfoDto.setSound_provd_at(map.get("SOUND_PROVD_AT").toString());
+				cultureMuseumInfoDto.setSound_utiliiza_price(map.get("SOUND_UTILIIZA_PRICE").toString());
+				cultureMuseumInfoDto.setMobile_provd_at(map.get("MOBILE_PROVD_AT").toString());
+				cultureMuseumInfoDto.setLnd_ar_value(map.get("LND_AR_VALUE").toString());
+				cultureMuseumInfoDto.setTotar_value(map.get("TOTAR_VALUE").toString());
+				cultureMuseumInfoDto.setDspyrm_artft_chg_co(map.get("DSPYRM_ARTFT_CHG_CO").toString());
+				cultureMuseumInfoDto.setSpecl_dspy_ar_value(map.get("SPECL_DSPY_AR_VALUE").toString());
+				cultureMuseumInfoDto.setData_co(map.get("DATA_CO").toString());
+				cultureMuseumInfoDto.setParkng_posbl_co(map.get("PARKNG_POSBL_CO").toString());
+				cultureMuseumInfoDto.setHdch_artft_knd_co(map.get("HDCH_ARTFT_KND_CO").toString());
+				cultureMuseumInfoDto.setHdch_artft_cas_co(map.get("HDCH_ARTFT_CAS_CO").toString());
+				cultureMuseumInfoDto.setHdch_artft_co(map.get("HDCH_ARTFT_CO").toString());
+				cultureMuseumInfoDto.setCrlts_nm(map.get("CRLTS_NM").toString());
+				cultureMuseumInfoDto.setCrlts_co(map.get("CRLTS_CO").toString());
+				cultureMuseumInfoDto.setPblprfr_cas_co(map.get("PBLPRFR_CAS_CO").toString());
+				cultureMuseumInfoDto.setTot_progrm_co(map.get("TOT_PROGRM_CO").toString());
+				cultureMuseumInfoDto.setProgrm_co(map.get("PROGRM_CO").toString());
+				cultureMuseumInfoDto.setFdrm_exprn_progrm_co(map.get("FDRM_EXPRN_PROGRM_CO").toString());
+				cultureMuseumInfoDto.setNon_fdrm_exprn_progrm_co(map.get("NON_FDRM_EXPRN_PROGRM_CO").toString());
+				cultureMuseumInfoDto.setOut_progrm_co(map.get("OUT_PROGRM_CO").toString());
+				cultureMuseumInfoDto.setOpnng_day_co(map.get("OPNNG_DAY_CO").toString());
+				cultureMuseumInfoDto.setOpnng_time(map.get("OPNNG_TIME").toString());
+				cultureMuseumInfoDto.setViewng_nmpr_co(map.get("VIEWNG_NMPR_CO").toString());
+				cultureMuseumInfoDto.setDay_avrg_viewng_nmpr_co(map.get("DAY_AVRG_VIEWNG_NMPR_CO").toString());
+				cultureMuseumInfoDto.setViewng_price(map.get("VIEWNG_PRICE").toString());
+				cultureMuseumInfoDto.setInfn_viewng_price(map.get("INFN_VIEWNG_PRICE").toString());
+				cultureMuseumInfoDto.setSchboy_viewng_price(map.get("SCHBOY_VIEWNG_PRICE").toString());
+				cultureMuseumInfoDto.setMsklsd_viewng_price(map.get("MSKLSD_VIEWNG_PRICE").toString());
+				cultureMuseumInfoDto.setAdult_viewng_price(map.get("ADULT_VIEWNG_PRICE").toString());
+				cultureMuseumInfoDto.setGrp_dscnt_rt(map.get("GRP_DSCNT_RT").toString());
+				cultureMuseumInfoDto.setEtc_dscnt_rt(map.get("ETC_DSCNT_RT").toString());
+				cultureMuseumInfoDto.setDscnt_cn(map.get("DSCNT_CN").toString());
+				cultureMuseumInfoDto.setFre_trget_cn(map.get("FRE_TRGET_CN").toString());
+				cultureMuseumInfoDto.setSpecl_viewng_price(map.get("SPECL_VIEWNG_PRICE").toString());
+				cultureMuseumInfoDto.setInfn_specl_viewng_price(map.get("INFN_SPECL_VIEWNG_PRICE").toString());
+				cultureMuseumInfoDto.setSchboy_specl_viewng_price(map.get("SCHBOY_SPECL_VIEWNG_PRICE").toString());
+				cultureMuseumInfoDto.setMsklsd_specl_viewng_price(map.get("MSKLSD_SPECL_VIEWNG_PRICE").toString());
+				cultureMuseumInfoDto.setAdult_specl_viewng_price(map.get("ADULT_SPECL_VIEWNG_PRICE").toString());
+				cultureMuseumInfoDto.setGrp_specl_viewng_rt(map.get("GRP_SPECL_VIEWNG_RT").toString());
+				cultureMuseumInfoDto.setEtc_specl_viewng_dscnt_rt(map.get("ETC_SPECL_VIEWNG_DSCNT_RT").toString());
+				cultureMuseumInfoDto.setEtc_specl_viewng_dscnt_cn(map.get("ETC_SPECL_VIEWNG_DSCNT_CN").toString());
+				cultureMuseumInfoDto.setFre_specl_viewng_price(map.get("FRE_SPECL_VIEWNG_PRICE").toString());
+				cultureMuseumInfoDto.setRm_cn(map.get("RM_CN").toString());
+
+				cultureDao.insertCultureMuseumInfo(cultureMuseumInfoDto);
+
+				System.out.println("Complete Inserting Library Data");
+			}
+		}
+		System.out.println("Complete All");
+	}
+
+	public void insertCultureArtMuseumInfoService(HashMap<String, Object>[] maps) {
+		System.out.println("Start");
+		for (HashMap<String, Object> map : maps) {
+			Integer cnt = cultureDao.selectCultureArtMuseumInfoPKCnt(map.get("ID").toString());
+
+			if (cnt == 0 && map.get("CTPRVN_NM").toString().equals("서울")) {
+				CultureArtMuseumInfoDto cultureMuseumInfoDto = new CultureArtMuseumInfoDto();
+
+				cultureMuseumInfoDto.setId(map.get("ID").toString());
+				cultureMuseumInfoDto.setLclas_nm(map.get("LCLAS_NM").toString());
+				cultureMuseumInfoDto.setMlsfc_nm(map.get("MLSFC_NM").toString());
+				cultureMuseumInfoDto.setFclty_nm(map.get("FCLTY_NM").toString());
+				cultureMuseumInfoDto.setRdnmadr_nm(map.get("RDNMADR_NM").toString());
+				cultureMuseumInfoDto.setZip_no(map.get("ZIP_NO").toString());
+				cultureMuseumInfoDto.setFclty_lo(map.get("FCLTY_LO").toString());
+				cultureMuseumInfoDto.setFclty_la(map.get("FCLTY_LA").toString());
+				cultureMuseumInfoDto.setFlag_nm(map.get("FLAG_NM").toString());
+				cultureMuseumInfoDto.setTel_no(map.get("TEL_NO").toString());
+				cultureMuseumInfoDto.setOpnng_de(map.get("OPNNG_DE").toString());
+				cultureMuseumInfoDto.setHmpg_addr(map.get("HMPG_ADDR").toString());
+				cultureMuseumInfoDto.setSound_provd_at(map.get("SOUND_PROVD_AT").toString());
+				cultureMuseumInfoDto.setSound_utiliiza_price(map.get("SOUND_UTILIIZA_PRICE").toString());
+				cultureMuseumInfoDto.setMobile_provd_at(map.get("MOBILE_PROVD_AT").toString());
+				cultureMuseumInfoDto.setLnd_ar_value(map.get("LND_AR_VALUE").toString());
+				cultureMuseumInfoDto.setLnd_ar_value(map.get("BULD_AR_VALUE").toString());
+				cultureMuseumInfoDto.setLnd_ar_value(map.get("DSPY_AR_CN").toString());
+				cultureMuseumInfoDto.setData_co(map.get("DATA_CO").toString());
+				cultureMuseumInfoDto.setPblprfr_cas_co(map.get("PBLPRFR_CAS_CO").toString());
+				cultureMuseumInfoDto.setTot_progrm_co(map.get("TOT_PROGRM_CO").toString());
+				cultureMuseumInfoDto.setOpnng_day_co(map.get("OPNNG_DAY_CO").toString());
+				cultureMuseumInfoDto.setViewng_nmpr_co(map.get("VIEWNG_NMPR_CO").toString());
+				cultureMuseumInfoDto.setDay_avrg_viewng_nmpr_co(map.get("DAY_AVRG_VIEWNG_NMPR_CO").toString());
+				cultureMuseumInfoDto.setViewng_price(map.get("VIEWNG_PRICE").toString());
+				cultureMuseumInfoDto.setInfn_viewng_price(map.get("INFN_VIEWNG_PRICE").toString());
+				cultureMuseumInfoDto.setSchboy_viewng_price(map.get("SCHBOY_VIEWNG_PRICE").toString());
+				cultureMuseumInfoDto.setMsklsd_viewng_price(map.get("MSKLSD_VIEWNG_PRICE").toString());
+				cultureMuseumInfoDto.setAdult_viewng_price(map.get("ADULT_VIEWNG_PRICE").toString());
+				cultureMuseumInfoDto.setGrp_dscnt_rt(map.get("GRP_DSCNT_RT").toString());
+				cultureMuseumInfoDto.setEtc_dscnt_rt(map.get("ETC_DSCNT_RT").toString());
+				cultureMuseumInfoDto.setDscnt_cn(map.get("DSCNT_CN").toString());
+				cultureMuseumInfoDto.setFre_trget_cn(map.get("FRE_TRGET_CN").toString());
+				cultureMuseumInfoDto.setSpecl_viewng_price(map.get("SPECL_VIEWNG_PRICE").toString());
+				cultureMuseumInfoDto.setInfn_specl_viewng_price(map.get("INFN_SPECL_VIEWNG_PRICE").toString());
+				cultureMuseumInfoDto.setSchboy_specl_viewng_price(map.get("SCHBOY_SPECL_VIEWNG_PRICE").toString());
+				cultureMuseumInfoDto.setMsklsd_specl_viewng_price(map.get("MSKLSD_SPECL_VIEWNG_PRICE").toString());
+				cultureMuseumInfoDto.setAdult_specl_viewng_price(map.get("ADULT_SPECL_VIEWNG_PRICE").toString());
+				cultureMuseumInfoDto.setGrp_specl_viewng_rt(map.get("GRP_SPECL_VIEWNG_RT").toString());
+				cultureMuseumInfoDto.setEtc_specl_viewng_dscnt_rt(map.get("ETC_SPECL_VIEWNG_DSCNT_RT").toString());
+				cultureMuseumInfoDto.setEtc_specl_viewng_dscnt_cn(map.get("ETC_SPECL_VIEWNG_DSCNT_CN").toString());
+				cultureMuseumInfoDto.setFre_specl_viewng_price(map.get("FRE_SPECL_VIEWNG_PRICE").toString());
+				cultureMuseumInfoDto.setRm_cn(map.get("RM_CN").toString());
+
+				cultureDao.insertCultureArtMuseumInfo(cultureMuseumInfoDto);
+
+				System.out.println("Complete Inserting Library Data");
+			}
+		}
+		System.out.println("Complete All");
+	}
+
 
 	// 국립중앙도서관 OPEN API
 	public String getNationalLibraryService(String url) throws Exception {

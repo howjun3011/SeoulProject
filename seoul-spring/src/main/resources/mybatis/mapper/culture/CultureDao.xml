@@ -4,7 +4,8 @@
     "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
 <mapper namespace="com.tech.seoul.culture.models.CultureDao">
-	
+
+    <!-- 책 -->
 	<select id="selectCultureBookPKCnt" resultType="Integer">
         SELECT COUNT(*) FROM culture_book_store WHERE esntl_id = #{esntl_id}
     </select>
@@ -85,6 +86,99 @@
                 #{lbrry_cd}, #{lbrry_nm}, #{lbrry_addr}, #{lbrry_la}, #{lbrry_lo}, #{lbrry_no}, #{tel_no}, #{fax_no},
                 #{hmpg_value}, #{opnng_time}, #{closedon_dc}, #{lbrry_ty_nm}, #{fond_mby_value},
                 #{opnng_year}, #{zip_no}, #{lbrry_ncm_nm}, #{reprsnt_at}
+            )
+    </insert>
+
+    <!-- 박물관 -->
+    <select id="selectCultureMuseumInfoPKCnt" resultType="Integer">
+        SELECT COUNT(*) FROM culture_museum_info WHERE id = #{id}
+    </select>
+
+    <select id="selectCultureArtMuseumInfoPKCnt" resultType="Integer">
+        SELECT COUNT(*) FROM culture_art_museum_info WHERE id = #{id}
+    </select>
+
+    <select id="selectCultureMuseumInfo" resultType="com.tech.seoul.culture.models.CultureMuseumInfoDto">
+        SELECT
+            id, lclas_nm, mlsfc_nm, fclty_nm, rdnmadr_nm, zip_no, fclty_lo, fclty_la,
+            flag_nm, tel_no, opnng_de, hmpg_addr, sound_provd_at,
+            sound_utiliiza_price, mobile_provd_at, lnd_ar_value, totar_value,
+            dspyrm_artft_chg_co, specl_dspy_ar_value, data_co, parkng_posbl_co, hdch_artft_knd_co, hdch_artft_cas_co, hdch_artft_co, crlts_nm,
+            crlts_co, pblprfr_cas_co, tot_progrm_co, progrm_co, fdrm_exprn_progrm_co,
+            non_fdrm_exprn_progrm_co, out_progrm_co, opnng_day_co, opnng_time,
+            viewng_nmpr_co, day_avrg_viewng_nmpr_co, viewng_price, infn_viewng_price, schboy_viewng_price, msklsd_viewng_price, adult_viewng_price,
+            grp_dscnt_rt, etc_dscnt_rt, dscnt_cn, fre_trget_cn, specl_viewng_price, infn_specl_viewng_price,
+            schboy_specl_viewng_price, msklsd_specl_viewng_price, adult_specl_viewng_price, grp_specl_viewng_rt,
+            etc_specl_viewng_dscnt_rt, etc_specl_viewng_dscnt_cn, fre_specl_viewng_price, rm_cn
+        FROM
+            culture_museum_info
+    </select>
+
+    <select id="selectCultureArtMuseumInfo" resultType="com.tech.seoul.culture.models.CultureArtMuseumInfoDto">
+        SELECT
+            id, lclas_nm, mlsfc_nm, fclty_nm, rdnmadr_nm, zip_no, fclty_lo, fclty_la,
+            flag_nm, tel_no, opnng_de, hmpg_addr, sound_provd_at,
+            sound_utiliiza_price, mobile_provd_at, lnd_ar_value, buld_ar_value, dspy_ar_cn,
+            data_co, pblprfr_cas_co, tot_progrm_co, opnng_day_co,
+            viewng_nmpr_co, day_avrg_viewng_nmpr_co, viewng_price, infn_viewng_price, schboy_viewng_price, msklsd_viewng_price, adult_viewng_price,
+            grp_dscnt_rt, etc_dscnt_rt, dscnt_cn, fre_trget_cn, specl_viewng_price, infn_specl_viewng_price,
+            schboy_specl_viewng_price, msklsd_specl_viewng_price, adult_specl_viewng_price, grp_specl_viewng_rt,
+            etc_specl_viewng_dscnt_rt, etc_specl_viewng_dscnt_cn, fre_specl_viewng_price, rm_cn
+        FROM
+            culture_art_museum_info
+    </select>
+
+    <insert id="insertCultureMuseumInfo" parameterType="com.tech.seoul.culture.models.CultureMuseumInfoDto">
+        INSERT INTO culture_museum_info
+            (
+                id, lclas_nm, mlsfc_nm, fclty_nm, rdnmadr_nm, zip_no, fclty_lo, fclty_la,
+                flag_nm, tel_no, opnng_de, hmpg_addr, sound_provd_at,
+                sound_utiliiza_price, mobile_provd_at, lnd_ar_value, totar_value,
+                dspyrm_artft_chg_co, specl_dspy_ar_value, data_co, parkng_posbl_co, hdch_artft_knd_co, hdch_artft_cas_co, hdch_artft_co, crlts_nm,
+                crlts_co, pblprfr_cas_co, tot_progrm_co, progrm_co, fdrm_exprn_progrm_co,
+                non_fdrm_exprn_progrm_co, out_progrm_co, opnng_day_co, opnng_time,
+                viewng_nmpr_co, day_avrg_viewng_nmpr_co, viewng_price, infn_viewng_price, schboy_viewng_price, msklsd_viewng_price, adult_viewng_price,
+                grp_dscnt_rt, etc_dscnt_rt, dscnt_cn, fre_trget_cn, specl_viewng_price, infn_specl_viewng_price,
+                schboy_specl_viewng_price, msklsd_specl_viewng_price, adult_specl_viewng_price, grp_specl_viewng_rt,
+                etc_specl_viewng_dscnt_rt, etc_specl_viewng_dscnt_cn, fre_specl_viewng_price, rm_cn
+            )
+        VALUE
+            (
+                #{id}, #{lclas_nm}, #{mlsfc_nm}, #{fclty_nm}, #{rdnmadr_nm}, #{zip_no}, #{fclty_lo}, #{fclty_la},
+                #{flag_nm}, #{tel_no}, #{opnng_de}, #{hmpg_addr}, #{sound_provd_at},
+                #{sound_utiliiza_price}, #{mobile_provd_at}, #{lnd_ar_value}, #{totar_value},
+                #{dspyrm_artft_chg_co}, #{specl_dspy_ar_value}, #{data_co}, #{parkng_posbl_co}, #{hdch_artft_knd_co}, #{hdch_artft_cas_co}, #{hdch_artft_co}, #{crlts_nm},
+                #{crlts_co}, #{pblprfr_cas_co}, #{tot_progrm_co}, #{progrm_co}, #{fdrm_exprn_progrm_co},
+                #{non_fdrm_exprn_progrm_co}, #{out_progrm_co}, #{opnng_day_co}, #{opnng_time},
+                #{viewng_nmpr_co}, #{day_avrg_viewng_nmpr_co}, #{viewng_price}, #{infn_viewng_price}, #{schboy_viewng_price}, #{msklsd_viewng_price}, #{adult_viewng_price},
+                #{grp_dscnt_rt}, #{etc_dscnt_rt}, #{dscnt_cn}, #{fre_trget_cn}, #{specl_viewng_price}, #{infn_specl_viewng_price},
+                #{schboy_specl_viewng_price}, #{msklsd_specl_viewng_price}, #{adult_specl_viewng_price}, #{grp_specl_viewng_rt},
+                #{etc_specl_viewng_dscnt_rt}, #{etc_specl_viewng_dscnt_cn}, #{fre_specl_viewng_price}, #{rm_cn}
+            )
+    </insert>
+
+    <insert id="insertCultureArtMuseumInfo" parameterType="com.tech.seoul.culture.models.CultureArtMuseumInfoDto">
+        INSERT INTO culture_art_museum_info
+            (
+                id, lclas_nm, mlsfc_nm, fclty_nm, rdnmadr_nm, zip_no, fclty_lo, fclty_la,
+                flag_nm, tel_no, opnng_de, hmpg_addr, sound_provd_at,
+                sound_utiliiza_price, mobile_provd_at, lnd_ar_value, buld_ar_value, dspy_ar_cn,
+                data_co, pblprfr_cas_co, tot_progrm_co, opnng_day_co,
+                viewng_nmpr_co, day_avrg_viewng_nmpr_co, viewng_price, infn_viewng_price, schboy_viewng_price, msklsd_viewng_price, adult_viewng_price,
+                grp_dscnt_rt, etc_dscnt_rt, dscnt_cn, fre_trget_cn, specl_viewng_price, infn_specl_viewng_price,
+                schboy_specl_viewng_price, msklsd_specl_viewng_price, adult_specl_viewng_price, grp_specl_viewng_rt,
+                etc_specl_viewng_dscnt_rt, etc_specl_viewng_dscnt_cn, fre_specl_viewng_price, rm_cn
+            )
+        VALUE
+            (
+                #{id}, #{lclas_nm}, #{mlsfc_nm}, #{fclty_nm}, #{rdnmadr_nm}, #{zip_no}, #{fclty_lo}, #{fclty_la},
+                #{flag_nm}, #{tel_no}, #{opnng_de}, #{hmpg_addr}, #{sound_provd_at},
+                #{sound_utiliiza_price}, #{mobile_provd_at}, #{lnd_ar_value}, #{buld_ar_value}, #{dspy_ar_cn},
+                #{data_co}, #{pblprfr_cas_co}, #{tot_progrm_co}, #{opnng_day_co},
+                #{viewng_nmpr_co}, #{day_avrg_viewng_nmpr_co}, #{viewng_price}, #{infn_viewng_price}, #{schboy_viewng_price}, #{msklsd_viewng_price}, #{adult_viewng_price},
+                #{grp_dscnt_rt}, #{etc_dscnt_rt}, #{dscnt_cn}, #{fre_trget_cn}, #{specl_viewng_price}, #{infn_specl_viewng_price},
+                #{schboy_specl_viewng_price}, #{msklsd_specl_viewng_price}, #{adult_specl_viewng_price}, #{grp_specl_viewng_rt},
+                #{etc_specl_viewng_dscnt_rt}, #{etc_specl_viewng_dscnt_cn}, #{fre_specl_viewng_price}, #{rm_cn}
             )
     </insert>
 	

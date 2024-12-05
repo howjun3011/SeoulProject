@@ -68,7 +68,7 @@ function CommonMap(props) {
         >
             {/* 마커 */}
             <MapMarker position={{ lat: location.latitude, lng: location.longitude }}></MapMarker>
-            <CustomOverlayMap position={{ lat: location.latitude, lng: location.longitude }}>
+            <CustomOverlayMap position={{ lat: location.latitude, lng: location.longitude }} zIndex={2000}>
                 <div className={ `${commons.overlay} ${commons.flexCenter}` }>{mapName}</div>
             </CustomOverlayMap>
             {/* 맵 타입 */}

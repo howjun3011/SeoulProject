@@ -3,9 +3,7 @@ package com.tech.seoul.culture.controllers;
 import java.util.HashMap;
 import java.util.List;
 
-import com.tech.seoul.culture.models.CultureBestsellerDto;
-import com.tech.seoul.culture.models.CultureBookDto;
-import com.tech.seoul.culture.models.CultureBookLibraryDto;
+import com.tech.seoul.culture.models.*;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 
@@ -27,6 +25,10 @@ public class CultureController {
 	public List<CultureBestsellerDto> selectCultureBestsellerMain() {return cultureService.selectCultureBestsellerService();}
 	@GetMapping(value = "/getBookLibrary", produces = MediaType.APPLICATION_JSON_VALUE)
 	public List<CultureBookLibraryDto> selectCultureBookLibraryMain() {return cultureService.selectCultureBookLibraryService();}
+	@GetMapping(value = "/getMuseumInfo", produces = MediaType.APPLICATION_JSON_VALUE)
+	public List<CultureMuseumInfoDto> selectCultureMuseumInfoMain() {return cultureService.selectCultureMuseumInfoService();}
+	@GetMapping(value = "/getArtMuseumInfo", produces = MediaType.APPLICATION_JSON_VALUE)
+	public List<CultureArtMuseumInfoDto> selectCultureArtMuseumInfoMain() {return cultureService.selectCultureArtMuseumInfoService();}
 
 	// DB Insert
 	@PostMapping(value = "/insertDB", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -36,13 +38,20 @@ public class CultureController {
 		// 베스트셀러 정보 입력
 		// cultureService.insertCultureBestsellerService(maps);
 		// 도서관 정보 입력
-		cultureService.insertCultureBookLibraryService(maps);
+		// cultureService.insertCultureBookLibraryService(maps);
+		// 박물관 정보 입력
+		// cultureService.insertCultureMuseumInfoService(maps);
+		// 박물관 정보 입력
+		cultureService.insertCultureArtMuseumInfoService(maps);
 	}
 
 	// 국립중앙도서관 사서추천도서
 	@GetMapping("/getNationalLibrary")
 	public String getNationalLibraryMain() throws Exception {
-		return cultureService.getNationalLibraryService("https://nl.go.kr/NL/search/openApi/saseoApi.do?key=");
+		int year = (int)(Math.random() * 4);
+		int[] sornNum = new int[] {11, 6, 5, 4};
+
+		return cultureService.getNationalLibraryService("https://nl.go.kr/NL/search/openApi/saseoApi.do?start_date=202"+year+"0101&end_date=20241130&drCode="+sornNum[(int)(Math.random() * 3)]+"&key=");
 	}
 
 	// 국립중앙도서관 소장자료 검색 기능
