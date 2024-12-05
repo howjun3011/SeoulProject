@@ -1,0 +1,177 @@
+.flexCenter {
+    display: flex; 
+    justify-content: center; 
+    align-items: center;
+}
+.educationContainer {
+    position: relative; 
+    width: 100%; 
+    height: 100%;
+}
+.educationFrame {
+    width: 100%; 
+    height: 100%;
+}
+.educationHeader {
+    display: flex; 
+    justify-content: space-around; 
+    align-items: center; 
+    width: 100%; 
+    height: 40px;
+}
+.educationHeaderCompontent {
+    width: 25%; 
+    height: 100%; 
+    border-right: 1px solid #fff; 
+    color: #111; font-size: 13px; 
+    letter-spacing: 0.1px; 
+    opacity: 0.9; 
+    cursor: pointer; 
+    user-select: none; 
+    overflow: hidden; 
+    white-space: nowrap; 
+    text-overflow: clip;
+}
+.educationHeader :first-child {
+    border-top-left-radius: 20px;
+}
+.educationHeader :last-child {
+    border-top-right-radius: 20px; 
+    border-right: none;
+}
+
+.overlaybox {
+    position: relative; 
+    display: flex; 
+    flex-direction: column; 
+    align-items: center; 
+    width: 100px; 
+    height: 120px; 
+    background: url('../../../../public/images/main/overLay.png'); 
+    background-repeat: no-repeat; 
+    background-size: 100px 120px; 
+    overflow: hidden;
+}
+.overlaybox .boxtitle {
+    width: 100%; 
+    padding: 10px 0 5px 0; 
+    color: #fff; 
+    font-size: 15px; 
+    font-weight: 400;
+}
+.overlaybox .overlayContent {
+    position: relative; 
+    width: 85%; 
+    height: 55%; 
+    padding: 5px; 
+    background: #666565;
+    border-radius: 3px; 
+    color: #fff; 
+    line-height: 1; 
+    font-size: 13px; 
+    line-height: 16px; 
+    white-space: normal; 
+    word-wrap: break-word;
+}
+.educationTab{
+    display: flex;
+    height: 40px;
+    border-radius: 20px 20px 0 0;
+    gap: 1px;
+    overflow: hidden;
+    align-items: center;
+    text-align: center;
+}
+.educationTab .tab{
+    display: flex;
+    height: 100%;
+    background-color: #b8b8b8;
+    flex: 1;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    cursor: pointer;
+}
+
+
+.searchBox{
+    height: 50px;
+    width:100%;
+    margin:10px 0;
+    padding: 0 5px;
+}
+.searchBox select,
+.searchBox input[type="text"] {
+    margin-right: 10px;
+    padding: 5px;
+}
+
+.selectedItems {
+    margin-top: 10px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+}
+
+.selectedItem {
+    background-color: #f0f0f0;
+    padding: 5px 10px;
+    border-radius: 15px;
+    display: flex;
+    align-items: center;
+    font-size: 14px;
+}
+
+.removeButton {
+    margin-left: 5px;
+    background: none;
+    border: none;
+    color: red;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+.error {
+    color: red;
+    margin-top: 10px;
+    font-size: 12px;
+}
+
+.kinderResultListBox{
+    padding: 0 0 10px 0;
+}
+
+.resultItem{
+    cursor: pointer;
+    margin: 10px 0 0 10px;
+    list-style-type: none;
+}
+.footPage {
+    display: flex; /* 수평 정렬 */
+    justify-content: center; /* 중앙 정렬 */
+    align-items: center; /* 세로 정렬 */
+    margin-top: 20px; /* 버튼과 다른 콘텐츠 간 간격 */
+}
+
+.pagination {
+    margin-top: 2rem;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+  
+    > * {
+      cursor: pointer;
+    }
+  }
+  
+  .pagination__link {
+    transition: all 0.25s;
+    padding: 0.2rem 0.6rem;
+    border-radius: 0.3rem;
+  }
+  
+  .pagination__link__active {
+    background-color: #bbb;
+    color: #fefefe;
+  }

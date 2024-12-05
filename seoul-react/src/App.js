@@ -10,6 +10,8 @@ import MainLayout from "./components/main/MainLayout";
 // Component
 import CultureMain from "./components/culture/CultureMain";
 import HealthMain from './components/health/HealthMain';
+import EducationMain from './components/education/EducationMain';
+
 import InsertDB from './components/db/InsertDB';
 
 // Tour Component
@@ -27,6 +29,7 @@ function App() {
             <Route path="/" element={<Navigate to="/seoul" />} />
             <Route path="/seoul" element={ <Home menuNames={ menuNames } addressNames={ addressNames } /> }></Route>
             <Route path="/seoul/culture" element={ <CultureMain /> }></Route>
+            <Route path="/seoul/education" element={ <EducationMain /> }></Route>
             <Route path="/seoul/health" element={ <HealthMain /> }></Route>
             <Route path="/seoul/tour" element={ <TourInfo /> }></Route>
             <Route path="/seoul/db" element={ <InsertDB /> }></Route>

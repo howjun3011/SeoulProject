@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.tech.seoul.edu.models.EduDao">
+	<select id="KindergartenNormal" resultType="com.tech.seoul.edu.models.KindergartenDto">
+		SELECT 
+			kindergarten_name 
+		FROM 
+			kids_normal_now
+		WHERE 
+			x_coordinate &gt; ${swLng} 
+			AND x_coordinate &lt; ${neLng}
+			AND y_coordinate &gt; ${swLat} 
+			AND y_coordinate &lt; (${neLat}-((${neLat}-${neLat})/3) )
+	</select>
+	
+	<sql id="includeKinderName" >
+		<choose>
+			<when test="query != null">
+				AND kindergarten_name LIKE CONCAT('%', #{query}, '%')
+			</when>
+		</choose>
+	</sql>
+	<sql id="includeKinderAddress" >
+		<choose>
+			<when test="areas != null and areas.length > 0">
+				AND (
+				<foreach item="area" collection="areas" separator=" OR " >
+				 	address LIKE CONCAT('%', #{area},'%')
+				</foreach>
+				)
+			</when>
+		</choose>
+	</sql>
+	<select id="KindergartenName" resultType="com.tech.seoul.edu.models.KindergartenNameDto" >
+		SELECT 
+			kindergarten_name,
+			address,
+			y_coordinate,
+			x_coordinate
+		FROM
+			kids_normal_now
+		WHERE 1=1
+			<include refid="includeKinderName" />
+			<include refid="includeKinderAddress" />
+		ORDER BY 
+			x_coordinate
+		LIMIT #{start}, #{end}
+	</select>
+	
+	<select id="KindergartenNameCnt" resultType="int" >
+		SELECT 
+			COUNT(*)
+		FROM
+			kids_normal_now
+		WHERE 1=1
+			<include refid="includeKinderName" />
+			<include refid="includeKinderAddress" />
+	</select>
+</mapper>
