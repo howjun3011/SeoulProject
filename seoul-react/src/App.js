@@ -11,11 +11,13 @@ import MainLayout from "./components/main/MainLayout";
 import CultureMain from "./components/culture/CultureMain";
 import HealthMain from './components/health/HealthMain';
 import EducationMain from './components/education/EducationMain';
+import ExerciseMain from './components/exercise/ExerciseMain';
 
 import InsertDB from './components/db/InsertDB';
 
 // Tour Component
 import TourInfo from './components/tour/MapComponent';
+import TourFestival from './components/tour/MapComponentFestival';
 
 function App() {
   const menuNames = [ '어린이', '문화', '체육', '환경', '건강', '관광' ];
@@ -30,8 +32,13 @@ function App() {
             <Route path="/seoul" element={ <Home menuNames={ menuNames } addressNames={ addressNames } /> }></Route>
             <Route path="/seoul/culture" element={ <CultureMain /> }></Route>
             <Route path="/seoul/education" element={ <EducationMain /> }></Route>
+            <Route path="/seoul/exercise" element={ <ExerciseMain /> }></Route>
             <Route path="/seoul/health" element={ <HealthMain /> }></Route>
-            <Route path="/seoul/tour" element={ <TourInfo /> }></Route>
+
+            <Route path="/seoul/tour" element={ <TourInfo /> }>
+              {/*<Route path="festival" element={ <TourFestival /> } />*/}
+            </Route>
+            <Route path="/seoul/tour/festival" element={ <TourFestival /> }></Route>
             <Route path="/seoul/db" element={ <InsertDB /> }></Route>
           </Routes>
         </MainLayout>

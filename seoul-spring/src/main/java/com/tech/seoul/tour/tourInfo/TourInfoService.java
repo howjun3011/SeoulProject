@@ -1,5 +1,5 @@
 // TourInfoService.java
-package com.tech.seoul.tour;
+package com.tech.seoul.tour.tourInfo;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
