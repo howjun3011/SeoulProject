@@ -1,3 +1,5 @@
+package com.tech.seoul;
+
 import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URL;

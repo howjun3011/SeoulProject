@@ -11,11 +11,14 @@ function Home(props) {
     
     function resize() {
         const windowHeight = window.innerHeight;
-        const menuHeight = document.querySelector(`.${ styles.mainHeader }`).clientHeight;
 
+        const menuElement = document.querySelector(`.${ styles.mainHeader }`);
         const centerElement = document.querySelector(`.${ styles.mainCenter }`);
+        console.log(menuElement);
 
-        if (centerElement) {
+        if (centerElement && menuElement) {
+            console.log("complete");
+            const menuHeight = menuElement.clientHeight;
             centerElement.style.height = `${ windowHeight - menuHeight - 1 }px`;
         }
     }
