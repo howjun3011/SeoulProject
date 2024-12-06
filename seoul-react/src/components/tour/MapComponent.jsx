@@ -535,28 +535,69 @@ function MapComponent() {
   useEffect(() => {
     const kakao = window.kakao;
 
+    const fetchTourDetail = async (contentId) => {
+      const serviceKey = "yUAPog6Rgt2Os0UIFDpFja5DVD0qzGn6j1PHTeXT5QkxuaK4FjVPHFSNLlVeQ9lD2Gv5P6fsJyUga4R5zA0osA==";
+      const url = `https://apis.data.go.kr/B551011/KorService1/detailCommon1?MobileOS=ETC&MobileApp=AppTest&_type=json&contentId=${contentId}&defaultYN=Y&firstImageYN=Y&areacodeYN=Y&catcodeYN=Y&addrinfoYN=Y&mapinfoYN=Y&overviewYN=Y&serviceKey=${serviceKey}`;
+
+      try {
+        const response = await fetch(url);
+        const data = await response.json();
+        return data.response.body.items.item[0]; // API 결과에 따라 필요한 데이터 추출
+      } catch (error) {
+        console.error("API 호출 중 오류 발생:", error);
+        return null;
+      }
+    };
+
     if (activeOverlayKey) {
       const marker = markersRef.current.get(activeOverlayKey);
       if (marker) {
         const position = marker.getPosition();
         const tourInfo = tourInfos.find(t => t.uniqueKey === activeOverlayKey);
+        // if (tourInfo) {
+        //   // addr1과 addr2를 결합하여 주소 문자열 생성 (addr2가 있을 경우만 추가)
+        //   const address = tourInfo.addr1
+        //     ? (tourInfo.addr2 ? `${tourInfo.addr1}, ${tourInfo.addr2}` : tourInfo.addr1)
+        //     : '주소 정보 없음';
+        //   const content = `
+        //     <div class="customoverlay-content">
+        //       <h4>${tourInfo.title}</h4>
+        //       ${tourInfo.imageUrl ? `<img src="${tourInfo.imageUrl}" alt="${tourInfo.title}" onerror="this.src='/markers/default.png'" />` : `<p>이미지가 없습니다.</p>`}
+        //       <p>${tourInfo.tel || '전화번호 없음'}</p>
+        //       <p>주소: ${address}</p>
+        //     </div>
+        //   `;
+        //   overlayRef.current.setContent(content);
+        //   overlayRef.current.setPosition(position);
+        //   overlayRef.current.setZIndex(100); // CustomOverlay의 zIndex를 높게 설정
+        //   overlayRef.current.setMap(mapRef.current);
+        // }
         if (tourInfo) {
-          // addr1과 addr2를 결합하여 주소 문자열 생성 (addr2가 있을 경우만 추가)
-          const address = tourInfo.addr1
-            ? (tourInfo.addr2 ? `${tourInfo.addr1}, ${tourInfo.addr2}` : tourInfo.addr1)
-            : '주소 정보 없음';
-          const content = `
-            <div class="customoverlay-content">
-              <h4>${tourInfo.title}</h4>
-              ${tourInfo.imageUrl ? `<img src="${tourInfo.imageUrl}" alt="${tourInfo.title}" onerror="this.src='/markers/default.png'" />` : `<p>이미지가 없습니다.</p>`}
-              <p>${tourInfo.tel || '전화번호 없음'}</p>
-              <p>주소: ${address}</p>
-            </div>
-          `;
-          overlayRef.current.setContent(content);
-          overlayRef.current.setPosition(position);
-          overlayRef.current.setZIndex(100); // CustomOverlay의 zIndex를 높게 설정
-          overlayRef.current.setMap(mapRef.current);
+          // API 호출
+          fetchTourDetail(tourInfo.contentid).then((detailData) => {
+            if (detailData) {
+              const address = detailData.addr1
+                ? detailData.addr2
+                  ? `${detailData.addr1}, ${detailData.addr2}`
+                  : detailData.addr1
+                : "주소 정보 없음";
+
+              const content = `
+              <div class="customoverlay-content">
+                <h4>${detailData.title}</h4>
+                ${detailData.firstimage ? `<img src="${detailData.firstimage}" alt="${detailData.title}" onerror="this.src='/markers/default.png'" />` : `<p>이미지가 없습니다.</p>`}
+                <p>${detailData.tel || "전화번호 없음"}</p>
+                <p><strong>주소: ${address}</strong></p>
+                <p>설명: ${detailData.overview || "설명 없음"}</p> <!-- overview 추가 -->
+              </div>
+            `;
+
+              overlayRef.current.setContent(content);
+              overlayRef.current.setPosition(position);
+              overlayRef.current.setZIndex(100);
+              overlayRef.current.setMap(mapRef.current);
+            }
+          });
         }
       }
     } else {

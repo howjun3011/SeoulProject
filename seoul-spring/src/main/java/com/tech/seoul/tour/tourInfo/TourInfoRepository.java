@@ -21,9 +21,10 @@ public interface TourInfoRepository extends JpaRepository<TourInfo, Integer> {
             "t.tour_info_tel, " +   // row[8]
             "t.tour_info_addr1, " + // addr1 추가 row[9]
             "t.tour_info_addr2, " + // addr2 추가 row[10]
+            "t.tour_info_contentid, " + // row[11]
             "(6371 * acos(cos(radians(:latitude)) * cos(radians(t.tour_info_mapy)) * " +
             "cos(radians(t.tour_info_mapx) - radians(:longitude)) + " +
-            "sin(radians(:latitude)) * sin(radians(t.tour_info_mapy)))) AS distance " + // row[11]
+            "sin(radians(:latitude)) * sin(radians(t.tour_info_mapy)))) AS distance " + // row[12]
             "FROM tour_info t " +
             "WHERE t.tour_info_mapx IS NOT NULL " +
             "AND t.tour_info_mapy IS NOT NULL " +
