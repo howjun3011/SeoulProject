@@ -23,7 +23,7 @@
         <if test="subject != null and subject != ''">
             AND (
                 hosp_name LIKE CONCAT('%', #{subject}, '%')
-                or hosp_sbj LIKE CONCAT(#{subject}, ',%')
+                or hosp_sbj LIKE CONCAT('%', #{subject}, '%')
             )
         </if>
         <if test="week != null and week != ''">
