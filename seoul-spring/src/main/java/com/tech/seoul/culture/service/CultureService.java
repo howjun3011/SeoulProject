@@ -20,9 +20,6 @@ public class CultureService {
 		this.cultureDao = cultureDao;
 	}
 
-	@Value("${national.library.key}")
-	private String nationalLibraryKey;
-
 
 	// DB 정보 획득
 	public List<CultureBookDto> selectCultureBookService() {return cultureDao.selectCultureBook();}
@@ -267,11 +264,11 @@ public class CultureService {
 	}
 
 
-	// 국립중앙도서관 OPEN API
-	public String getNationalLibraryService(String url) throws Exception {
-		// 국립중앙도서관 OPEN API를 활용해 xml 데이터 획득
+	// OPEN API를 활용해 획득한 XML 데이터 JSON으로 변환하는 함수
+	public String getXmlToJsonService(String url) throws Exception {
+		// OPEN API를 활용해 xml 데이터 획득
 		RestTemplate restTemplate = new RestTemplate();
-		String xmlData = restTemplate.getForObject(url+nationalLibraryKey, String.class);
+		String xmlData = restTemplate.getForObject(url, String.class);
 
 		// XmlMapper를 사용해 XML을 JsonNode로 변환
 		XmlMapper xmlMapper = new XmlMapper();
