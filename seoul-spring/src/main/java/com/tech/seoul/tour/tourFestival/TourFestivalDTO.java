@@ -22,5 +22,7 @@ public class TourFestivalDTO {
     private String tel;            // 전화번호
     private String addr1;          // 주소 1
     private String addr2;          // 주소 2 (옵션)
+    private Integer contentid;
+    private Integer contenttypeid;
 }
 

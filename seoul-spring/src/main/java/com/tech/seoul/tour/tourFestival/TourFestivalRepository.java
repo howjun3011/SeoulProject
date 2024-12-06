@@ -22,6 +22,8 @@ public interface TourFestivalRepository extends JpaRepository<TourFestival, Inte
             "t.tour_festival_tel, " +
             "t.tour_festival_addr1, " + // addr1 추가
             "t.tour_festival_addr2, " + // addr2 추가
+            "t.tour_festival_contentid, " +
+            "t.tour_festival_contenttypeid, " +
             "(6371 * acos(cos(radians(:latitude)) * cos(radians(t.tour_festival_mapy)) * " +
             "cos(radians(t.tour_festival_mapx) - radians(:longitude)) + " +
             "sin(radians(:latitude)) * sin(radians(t.tour_festival_mapy)))) AS distance " +

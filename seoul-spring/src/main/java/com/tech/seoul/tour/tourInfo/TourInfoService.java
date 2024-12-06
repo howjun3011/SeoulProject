@@ -38,7 +38,8 @@ public class TourInfoService {
             dto.setAddr1((String) row[9]);                        // String
             dto.setAddr2((String) row[10]);                        // String
             dto.setContentid(((Number) row[11]).intValue());    // Integer
-            dto.setDistance(((Number) row[12]).doubleValue());    // Double
+            dto.setContenttypeid(((Number) row[12]).intValue());    // Integer
+            dto.setDistance(((Number) row[13]).doubleValue());    // Double
             tourInfos.add(dto);
         }
 

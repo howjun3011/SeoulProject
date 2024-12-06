@@ -98,7 +98,6 @@ function MapComponent() {
    */
   const fetchTourInfo = async (centerLat, centerLng) => {
     try {
-      console.log(`Fetching tour info for coordinates: (${centerLat}, ${centerLng}), Category: ${cat1Ref.current}`);
       const response = await axios.get('http://localhost:9002/seoul/tour/nearby', {
         params: {
           latitude: centerLat,
@@ -107,8 +106,6 @@ function MapComponent() {
           cat1: cat1Ref.current || null, // 선택된 카테고리
         },
       });
-
-      console.log('Tour info response:', response.data);
 
       // 기존 마커 제거
       markersRef.current.forEach((marker) => {
@@ -122,8 +119,6 @@ function MapComponent() {
             t.title === tour.title && t.mapX === tour.mapX && t.mapY === tour.mapY
           )
       );
-
-      console.log('Unique tours:', uniqueTours);
 
       // 고유한 키를 부여하여 관광지 정보를 업데이트
       const uniqueToursWithKeys = uniqueTours.map((tour, index) => ({
@@ -295,7 +290,6 @@ function MapComponent() {
    */
   const createSeoulPolygon = () => {
     const kakao = window.kakao;
-    console.log('seoulDistricts:', seoulDistricts);
     const polygons = [];
 
     // GeoJSON 파일이 제대로 로드되었는지 확인
@@ -314,8 +308,6 @@ function MapComponent() {
         const path = coordinates[0].map(
           (coord, coordIndex) => {
             const latLng = new kakao.maps.LatLng(coord[1], coord[0]); // [lat, lng]
-            // 디버깅을 위해 각 좌표의 lat과 lng를 로그로 출력
-            console.log(`Polygon [Feature ${featureIndex}]: Coord ${coordIndex}: ${latLng.getLat()}, ${latLng.getLng()}`);
             return latLng;
           }
         );
@@ -331,15 +323,12 @@ function MapComponent() {
         });
 
         polygons.push(polygon);
-        console.log(`Polygon [Feature ${featureIndex}] created.`);
       } else if (type === 'MultiPolygon') {
         // 다중 폴리곤인 경우 각 폴리곤을 별도로 생성
         coordinates.forEach((polygonCoords, polygonIndex) => {
           const path = polygonCoords[0].map(
             (coord, coordIndex) => {
               const latLng = new kakao.maps.LatLng(coord[1], coord[0]); // [lat, lng]
-              // 디버깅을 위해 각 좌표의 lat과 lng를 로그로 출력
-              console.log(`MultiPolygon [Feature ${featureIndex} - Polygon ${polygonIndex}]: Coord ${coordIndex}: ${latLng.getLat()}, ${latLng.getLng()}`);
               return latLng;
             }
           );
@@ -354,7 +343,6 @@ function MapComponent() {
           });
 
           polygons.push(polygon);
-          console.log(`MultiPolygon [Feature ${featureIndex} - Polygon ${polygonIndex}] created.`);
         });
       }
     });
@@ -371,7 +359,6 @@ function MapComponent() {
    */
   const createSeoulBoundaryPolygon = () => {
     const kakao = window.kakao;
-    console.log('seoulBoundary:', seoulBoundary);
     console.log('createSeoulBoundaryPolygon 호출 시 seoulBoundary:', seoulBoundary);
     const polygons = [];
 
@@ -391,8 +378,6 @@ function MapComponent() {
         const path = coordinates[0].map(
           (coord, coordIndex) => {
             const latLng = new kakao.maps.LatLng(coord[1], coord[0]); // [lat, lng]
-            // 디버깅을 위해 각 좌표의 lat과 lng를 로그로 출력
-            console.log(`Boundary Polygon [Feature ${featureIndex}]: Coord ${coordIndex}: ${latLng.getLat()}, ${latLng.getLng()}`);
             return latLng;
           }
         );
@@ -409,15 +394,12 @@ function MapComponent() {
         });
 
         polygons.push(polygon);
-        console.log(`Boundary Polygon [Feature ${featureIndex}] created.`);
       } else if (type === 'MultiPolygon') {
         // 다중 폴리곤인 경우 각 폴리곤을 별도로 생성
         coordinates.forEach((polygonCoords, polygonIndex) => {
           const path = polygonCoords[0].map(
             (coord, coordIndex) => {
               const latLng = new kakao.maps.LatLng(coord[1], coord[0]); // [lat, lng]
-              // 디버깅을 위해 각 좌표의 lat과 lng를 로그로 출력
-              console.log(`Boundary MultiPolygon [Feature ${featureIndex} - Polygon ${polygonIndex}]: Coord ${coordIndex}: ${latLng.getLat()}, ${latLng.getLng()}`);
               return latLng;
             }
           );
@@ -432,7 +414,6 @@ function MapComponent() {
           });
 
           polygons.push(polygon);
-          console.log(`Boundary MultiPolygon [Feature ${featureIndex} - Polygon ${polygonIndex}] created.`);
         });
       }
     });
@@ -459,12 +440,10 @@ function MapComponent() {
         const center = mapRef.current.getCenter(); // 현재 지도 중심 좌표
         const centerLat = center.getLat();
         const centerLng = center.getLng();
-        console.log(`Idle event triggered. New center: (${centerLat}, ${centerLng}), Category: ${cat1Ref.current}`);
         fetchTourInfo(centerLat, centerLng); // 관광지 정보 업데이트
       });
 
       idleListenerRef.current = listener; // 리스너 저장
-      console.log('Added idle listener:', listener);
     };
 
     addIdleListener(); // 리스너 추가
@@ -475,7 +454,6 @@ function MapComponent() {
     return () => {
       if (idleListenerRef.current) {
         kakao.maps.event.removeListener(idleListenerRef.current);
-        console.log('Removed idle listener:', idleListenerRef.current);
         idleListenerRef.current = null;
       }
     };
@@ -549,38 +527,86 @@ function MapComponent() {
       }
     };
 
+    const fetchTourDetailInfo = async (contentId, contentTypeId) => {
+      const serviceKey = "yUAPog6Rgt2Os0UIFDpFja5DVD0qzGn6j1PHTeXT5QkxuaK4FjVPHFSNLlVeQ9lD2Gv5P6fsJyUga4R5zA0osA==";
+      const url = `https://apis.data.go.kr/B551011/KorService1/detailIntro1?MobileOS=ETC&MobileApp=AppTest&_type=json&contentId=${contentId}&contentTypeId=${contentTypeId}&serviceKey=${serviceKey}`;
+
+      try {
+        const response = await fetch(url);
+        const data = await response.json();
+        return data.response.body.items.item[0]; // API 결과에 따라 필요한 데이터 추출
+      } catch (error) {
+        console.error("API 호출 중 오류 발생:", error);
+        return null;
+      }
+    };
+
     if (activeOverlayKey) {
       const marker = markersRef.current.get(activeOverlayKey);
       if (marker) {
         const position = marker.getPosition();
         const tourInfo = tourInfos.find(t => t.uniqueKey === activeOverlayKey);
+
         if (tourInfo) {
           // API 호출
           fetchTourDetail(tourInfo.contentid).then((detailData) => {
             if (detailData) {
-              const address = detailData.addr1
-                ? detailData.addr2
-                  ? `${detailData.addr1}, ${detailData.addr2}`
-                  : detailData.addr1
-                : "주소 정보 없음";
+              // 추가로 detailInfo 데이터 가져오기
+              fetchTourDetailInfo(tourInfo.contentid, detailData.contenttypeid).then((detailInfo) => {
+                const address = detailData.addr1
+                  ? detailData.addr2
+                    ? `${detailData.addr1}, ${detailData.addr2}`
+                    : detailData.addr1
+                  : "주소 정보 없음";
 
-              const content = `
-              <div class="customoverlay-content">
-                <h4>${detailData.title}</h4>
-                ${detailData.firstimage ? `<img src="${detailData.firstimage}" alt="${detailData.title}" onerror="this.src='/markers/default.png'" />` : `<p>이미지가 없습니다.</p>`}
-                <p>${detailData.tel || "전화번호 없음"}</p>
-                <p><strong>주소: ${address}</strong></p>
-                <p>설명: ${detailData.overview || "설명 없음"}</p> <!-- overview 추가 -->
-              </div>
-            `;
+                // 가져온 데이터를 조건부로 표시
+                const extraInfo = `
+                  ${detailInfo?.infocenterfood ? `<p><strong>식당 문의처:</strong> ${detailInfo.infocenterfood}</p>` : ""}
+                  ${detailInfo?.opentimefood ? `<p><strong>영업시간:</strong> ${detailInfo.opentimefood}</p>` : ""}
+                  ${detailInfo?.infocentershopping ? `<p><strong>쇼핑 문의처:</strong> ${detailInfo.infocentershopping}</p>` : ""}
+                  ${detailInfo?.opentime ? `<p><strong>운영 시간:</strong> ${detailInfo.opentime}</p>` : ""}
+                  ${detailInfo?.infocenterlodging ? `<p><strong>숙소 문의처:</strong> ${detailInfo.infocenterlodging}</p>` : ""}
+                  ${detailInfo?.checkintime && detailInfo?.checkouttime
+                          ? `<p><strong>체크인:</strong> ${detailInfo.checkintime}, <strong>체크아웃:</strong> ${detailInfo.checkouttime}</p>`
+                          : ""}
+                  ${detailInfo?.infocenterleports ? `<p><strong>레포츠 문의처:</strong> ${detailInfo.infocenterleports}</p>` : ""}
+                  ${detailInfo?.usetimeleports ? `<p><strong>레포츠 이용 시간:</strong> ${detailInfo.usetimeleports}</p>` : ""}
+                  ${detailInfo?.infocenter ? `<p><strong>일반 문의:</strong> ${detailInfo.infocenter}</p>` : ""}
+                  ${detailInfo?.usetime ? `<p><strong>이용 시간:</strong> ${detailInfo.usetime}</p>` : ""}
+                  ${detailInfo?.infocenterculture ? `<p><strong>문화 문의처:</strong> ${detailInfo.infocenterculture}</p>` : ""}
+                  ${detailInfo?.sponsor1tel ? `<p><strong>스폰서 연락처:</strong> ${detailInfo.sponsor1tel}</p>` : ""}
+                  ${detailInfo?.playtime ? `<p><strong>운영 시간:</strong> ${detailInfo.playtime}</p>` : ""}
+                `;
 
-              overlayRef.current.setContent(content);
-              overlayRef.current.setPosition(position);
-              overlayRef.current.setZIndex(100);
-              overlayRef.current.setMap(mapRef.current);
+                const content = `
+                  <div class="customoverlay-content">
+                    <h4>${detailData.title}</h4>
+                    ${detailData.firstimage ? `<img src="${detailData.firstimage}" alt="${detailData.title}" onerror="this.src='/markers/default.png'" />` : `<p>이미지가 없습니다.</p>`}
+                    <p><strong>주소:</strong> ${address}</p>
+                    ${extraInfo} <!-- 추가 정보 표시 -->
+                  </div>
+                `;
+
+                const contentDescription = `
+                  <div class="customoverlay-content description">
+                    <p><strong>설명:</strong> ${detailData.overview || "설명 없음"}</p>
+                  </div>
+                `;
+
+                const mergedContent = `
+                  ${content}
+                  ${contentDescription}
+                `;
+
+                overlayRef.current.setContent(mergedContent);
+                overlayRef.current.setPosition(position);
+                overlayRef.current.setZIndex(100);
+                overlayRef.current.setMap(mapRef.current);
+              });
             }
           });
         }
+
       }
     } else {
       // 오버레이 숨기기
