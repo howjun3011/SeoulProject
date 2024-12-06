@@ -69,6 +69,16 @@ function CommonMap(props) {
             level={level}
             isPanto={true}
             onCreate={isChanged ? props.setMap : ''}
+
+            onClick={(map, mouseEvent) => {
+                const lat = mouseEvent.latLng.getLat();
+                const lng = mouseEvent.latLng.getLng();
+        
+                // 부모 컴포넌트에 클릭한 위치 좌표 전달 (예: ExerciseMain에서 사용)
+                if (props.onPinDrop) {
+                    props.onPinDrop(lat, lng);
+                }
+            }}
         >
             {/* 마커 */}
             {/* showCurrentLocationMarker가 true일 때만 마커를 렌더링 */}
