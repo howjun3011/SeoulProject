@@ -14,10 +14,8 @@ function Home(props) {
 
         const menuElement = document.querySelector(`.${ styles.mainHeader }`);
         const centerElement = document.querySelector(`.${ styles.mainCenter }`);
-        console.log(menuElement);
 
         if (centerElement && menuElement) {
-            console.log("complete");
             const menuHeight = menuElement.clientHeight;
             centerElement.style.height = `${ windowHeight - menuHeight - 1 }px`;
         }
