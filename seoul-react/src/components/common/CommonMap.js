@@ -72,19 +72,17 @@ function CommonMap(props) {
         >
             {/* 마커 */}
             {/* showCurrentLocationMarker가 true일 때만 마커를 렌더링 */}
-            {showCurrentLocationMarker && (
+            { showCurrentLocationMarker && (
                 <MapMarker position={{ lat: location.latitude, lng: location.longitude }}></MapMarker>
-            )}
+            ) }
             {/* showCurrentLocationOverlay가 true일 때만 오버레이를 렌더링 */}
-            {showCurrentLocationOverlay && (
+            { showCurrentLocationOverlay && (
                 <CustomOverlayMap position={{ lat: location.latitude, lng: location.longitude }}>
                     <div className={`${commons.overlay} ${commons.flexCenter}`}>{mapName}</div>
                 </CustomOverlayMap>
-            )}
+            ) }
             {/* 맵 타입 */}
             { mapTypeId && <MapTypeId type={mapTypeId} /> }
-
-            { props.children }
 
             {/* showControls가 true일 때만 아래 요소들을 렌더링 */}
             { showControls && (
@@ -151,7 +149,7 @@ function CommonMap(props) {
                         <div className={ `${commons.mapSelectBtn} ${commons.flexCenter}` } onClick={() => setMapTypeId("USE_DISTRICT")}>지적편집도</div>
                     </div>
                 </>
-            )}
+            ) }
             { props.children }
         </Map>
     );

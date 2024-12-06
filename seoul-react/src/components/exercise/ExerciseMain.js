@@ -24,7 +24,8 @@ function ExerciseMain() {
                         {
                             tabNames.map((tabName, index) => {
                                 return (
-                                    <div 
+                                    <div
+                                        key={tabName}
                                         className={ `${styles.exerciseHeaderCompontent} ${styles.flexCenter}` }
                                         style={{
                                             backgroundColor: currentTabType[index] ? '#a0a0a0' : '#b8b8b8',
