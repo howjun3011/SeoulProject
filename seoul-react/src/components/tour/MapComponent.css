@@ -77,16 +77,16 @@
     position: absolute;
     top: 10px;
     right: 15px;
-    font-size: 24px;
-    font-weight: bold;
+    font-size: 18px;
     color: #aaa;
     cursor: pointer;
     transition: color 0.3s;
 }
 
 .close:hover {
-    color: #000;
+    color: #333;
 }
+
 
 /* 애니메이션 */
 @keyframes slide-down {
@@ -136,7 +136,7 @@
 /* 현재 위치로 돌아가는 버튼 스타일링 */
 .current-location-button {
     position: absolute;
-    top: 60px;
+    top: 20px;
     right: 20px;
     padding: 10px 15px;
     background-color: #fff;
@@ -159,67 +159,132 @@
     position: fixed;
     bottom: 20px;
     right: 20px;
-    width: 300px;
-    max-height: 400px;
+    width: 400px;
+    height: 500px;
     overflow-y: auto;
-    background-color: #fff;
-    border: 1px solid #ccc;
-    border-radius: 8px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.2);
-    padding: 10px;
+    background-color: #ffffff; /* 순백 배경 */
+    border-radius: 12px; /* 둥근 모서리 */
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2); /* 더 부드러운 그림자 */
+    padding: 20px; /* 여백 증가 */
     z-index: 1000;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
 }
 
 .persistent-modal h3 {
     text-align: center;
-    margin-top: 0;
-    margin-bottom: 10px;
+    font-size: 20px; /* 큰 제목 폰트 */
+    font-weight: bold;
+    margin: 0;
+    color: #333; /* 진한 텍스트 */
+    border-bottom: 2px solid #f0f0f0; /* 얇은 밑줄 */
+    padding-bottom: 10px;
+}
+
+/* Webkit 기반 브라우저용 스크롤바 스타일링 */
+.persistent-modal::-webkit-scrollbar {
+    width: 15px;
+}
+
+.persistent-modal::-webkit-scrollbar-track {
+    background: #f0f0f0;
+    border-radius: 5px;
+}
+
+.persistent-modal::-webkit-scrollbar-thumb {
+    background: linear-gradient(180deg, #c1c1c1, #a8a8a8);
+    border-radius: 5px;
+    border: 3px solid #f0f0f0;
+    transition: background 0.3s;
+}
+
+.persistent-modal::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(180deg, #a8a8a8, #8c8c8c);
 }
 
 .tour-item {
     display: flex;
     align-items: center;
-    margin-bottom: 10px;
+    gap: 10px;
+    padding: 10px;
+    border-radius: 10px;
+    background-color: #f9f9f9;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    transition: background-color 0.3s, transform 0.2s;
     cursor: pointer;
-    transition: background-color 0.3s;
-    padding: 5px;
-    border-radius: 5px;
 }
 
+
 .tour-item:hover {
-    background-color: #f9f9f9;
+    background-color: #f0f4ff;
+    transform: translateY(-2px);
 }
 
 .tour-item-image {
-    width: 50px;
-    height: 50px;
+    width: 60px;
+    height: 60px;
     object-fit: cover;
-    border-radius: 4px;
-    margin-right: 10px;
-}
-
-.persistent-modal .no-image {
-    width: 50px;
-    height: 50px;
-    background-color: #f0f0f0;
-    border-radius: 4px;
-    margin-right: 10px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: #888;
-    font-size: 12px;
-    margin-top: 0;
+    border-radius: 8px;
 }
 
 .tour-item-title {
-    font-size: 14px;
+    font-size: 16px;
+    font-weight: bold;
     color: #333;
+    margin: 0;
 }
 
 .no-tours {
     text-align: center;
-    color: #888;
+    color: #999;
+    font-size: 14px;
+}
+
+.center-box {
+    width: 310px;
+    margin: 0 auto;
+}
+
+/* 카테고리 필터 스타일 */
+.category-tabs {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+/* 탭 버튼 기본 스타일 */
+.tab-button {
+    flex: 1 1 auto;
+    padding: 10px 16px;
+    margin: 4px;
+    border: none;
+    border-radius: 8px;
+    background-color: #f5f5f6;
+    color: #333;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color 0.3s, transform 0.2s, box-shadow 0.3s;
+}
+
+/* 활성화된 탭 버튼 스타일 */
+.tab-button.active {
+    background-color: #007bdf;
+    color: white;
+    box-shadow: 0 4px 8px rgba(0, 123, 223, 0.2);
+    transform: translateY(-2px);
+}
+
+/* 탭 버튼 호버 효과 */
+.tab-button:hover {
+    background-color: #e2e6ea;
+}
+
+/* 탭 버튼 클릭 시 잠깐 효과 */
+.tab-button:active {
+    transform: scale(0.98);
 }
 
 /* Responsive Design (선택 사항) */
@@ -234,39 +299,39 @@
     }
 }
 
-
 /* CustomOverlay 내용 스타일 */
 .customoverlay-content {
     position: absolute;
-    bottom: 50px; /* 마커 위로 충분히 올림 */
+    bottom: 55px; /* 마커 위로 충분히 올림 */
     left: 50%;
     transform: translateX(-50%); /* 중앙 정렬 */
-    padding: 5px 10px;
-    background-color: white;
-    border-radius: 4px;
-    border: 1px solid #ccc;
-    font-size: 13px;
+    padding: 15px;
+    background-color: #ffffff;
+    border-radius: 10px;
+    border: 1px solid #e0e0e0;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    font-size: 14px;
     color: #333;
     text-align: center;
-    white-space: nowrap;
     pointer-events: none;
     z-index: 100; /* 마커보다 위에 표시 */
-    min-width: 200px;
-    height: 200px;
+    min-width: 400px;
+    height: fit-content;
     min-height: 200px;
+    word-wrap: break-word; /* 단어가 길 경우 자동으로 줄바꿈 */
+    overflow-wrap: break-word; /* 더 나은 브라우저 호환성 */
+    white-space: normal; /* 텍스트를 여러 줄로 표시 */
 }
 
 .customoverlay-content::after {
     content: '';
     position: absolute;
-    bottom: -7px; /* 외곽선을 포함한 위치 */
+    bottom: -10px;
     left: 50%;
-    margin-left: -7px; /* 외곽선을 포함한 크기 반영 */
-    border-top: 7px solid #ccc; /* 외곽선 색상 */
-    border-left: 7px solid transparent;
-    border-right: 7px solid transparent;
-    pointer-events: none;
-    z-index: -1; /* 기존 삼각형 아래로 */
+    margin-left: -10px;
+    border-top: 10px solid #ffffff; /* 삼각형 색상 */
+    border-left: 10px solid transparent;
+    border-right: 10px solid transparent;
 }
 
 .customoverlay-content::before {
@@ -283,26 +348,33 @@
 }
 
 .customoverlay-content h4 {
-    margin: 0 0 5px 0;
-    font-size: 16px;
+    margin: 0 0 10px 0;
+    font-size: 18px;
+    font-weight: bold;
+    color: #222;
+    border-bottom: 1px solid #e0e0e0;
+    padding-bottom: 5px;
 }
 
 .customoverlay-content img {
     width: 100%;
-    height: calc(100% - 30px);
-    border-radius: 3px;
+    height: auto;
+    border-radius: 8px;
+    margin-bottom: 10px;
+    object-fit: cover; /* 이미지 비율 유지 */
 }
 
 .customoverlay-content p {
-    margin: 0;
+    margin: 5px 0;
     font-size: 14px;
+    line-height: 1.6;
     color: #555;
-    width: 100%;
-    height: calc(100% - 30px);
-    display: flex;
-    align-content: center;
-    justify-content: center;
-    flex-wrap: wrap;
+}
+
+/* 주소 강조 */
+.customoverlay-content p strong {
+    font-weight: bold;
+    color: #007bdf;
 }
 
 /* 지도 중앙에 항상 표시될 타겟 아이콘 스타일 */

@@ -16,4 +16,8 @@ public class TourInfoDTO {
     private String cat3;
     private String imageUrl; // 이미지 URL 필드 추가
     private Double distance;
+    private String tel;            // 전화번호
+    private String addr1;          // 주소 1
+    private String addr2;          // 주소 2 (옵션)
+    private Integer contentid;
 }

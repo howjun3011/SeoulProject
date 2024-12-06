@@ -136,7 +136,7 @@
 /* 현재 위치로 돌아가는 버튼 스타일링 */
 .current-location-button {
     position: absolute;
-    top: 60px;
+    top: 20px;
     right: 20px;
     padding: 10px 15px;
     background-color: #fff;
@@ -159,21 +159,48 @@
     position: fixed;
     bottom: 20px;
     right: 20px;
-    width: 300px;
-    max-height: 400px;
+    width: 400px;
+    height: 500px;
     overflow-y: auto;
-    background-color: #fff;
-    border: 1px solid #ccc;
-    border-radius: 8px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.2);
-    padding: 10px;
+    background-color: #ffffff; /* 순백 배경 */
+    border-radius: 12px; /* 둥근 모서리 */
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2); /* 더 부드러운 그림자 */
+    padding: 20px; /* 여백 증가 */
     z-index: 1000;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
 }
 
 .persistent-modal h3 {
     text-align: center;
-    margin-top: 0;
-    margin-bottom: 10px;
+    font-size: 20px; /* 큰 제목 폰트 */
+    font-weight: bold;
+    margin: 0;
+    color: #333; /* 진한 텍스트 */
+    border-bottom: 2px solid #f0f0f0; /* 얇은 밑줄 */
+    padding-bottom: 10px;
+}
+
+/* Webkit 기반 브라우저용 스크롤바 스타일링 */
+.persistent-modal::-webkit-scrollbar {
+    width: 15px;
+}
+
+.persistent-modal::-webkit-scrollbar-track {
+    background: #f0f0f0;
+    border-radius: 5px;
+}
+
+.persistent-modal::-webkit-scrollbar-thumb {
+    background: linear-gradient(180deg, #c1c1c1, #a8a8a8);
+    border-radius: 5px;
+    border: 3px solid #f0f0f0;
+    transition: background 0.3s;
+}
+
+.persistent-modal::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(180deg, #a8a8a8, #8c8c8c);
 }
 
 .tour-item {
@@ -236,7 +263,7 @@
 
 
 /* CustomOverlay 내용 스타일 */
-.customoverlay-content {
+.customoverlay-content-festival {
     position: absolute;
     bottom: 50px; /* 마커 위로 충분히 올림 */
     left: 50%;
@@ -256,7 +283,7 @@
     min-height: 200px;
 }
 
-.customoverlay-content::after {
+.customoverlay-content-festival::after {
     content: '';
     position: absolute;
     bottom: -7px; /* 외곽선을 포함한 위치 */
@@ -269,7 +296,7 @@
     z-index: -1; /* 기존 삼각형 아래로 */
 }
 
-.customoverlay-content::before {
+.customoverlay-content-festival::before {
     content: '';
     position: absolute;
     bottom: -6px;
@@ -282,18 +309,18 @@
     z-index: 0;
 }
 
-.customoverlay-content h4 {
+.customoverlay-content-festival h4 {
     margin: 0 0 5px 0;
     font-size: 16px;
 }
 
-.customoverlay-content img {
+.customoverlay-content-festival img {
     width: 50%;
     height: fit-content;
     border-radius: 3px;
 }
 
-.customoverlay-content p {
+.customoverlay-content-festival p {
     margin: 0;
     font-size: 14px;
     color: #555;
@@ -306,7 +333,7 @@
     padding: 3px 0;
 }
 
-.customoverlay-content p.no-image {
+.customoverlay-content-festival p.no-image {
     width: 50%;
     height: 100px;
     margin: 0 auto;

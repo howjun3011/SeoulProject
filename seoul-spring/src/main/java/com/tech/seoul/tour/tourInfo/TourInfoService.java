@@ -34,7 +34,11 @@ public class TourInfoService {
             dto.setCat2((String) row[5]);                        // String
             dto.setCat3((String) row[6]);                        // String
             dto.setImageUrl((String) row[7]);                    // String (이미지 URL)
-            dto.setDistance(((Number) row[8]).doubleValue());    // Double
+            dto.setTel((String) row[8]);                        // String
+            dto.setAddr1((String) row[9]);                        // String
+            dto.setAddr2((String) row[10]);                        // String
+            dto.setContentid(((Number) row[11]).intValue());    // Integer
+            dto.setDistance(((Number) row[12]).doubleValue());    // Double
             tourInfos.add(dto);
         }
 

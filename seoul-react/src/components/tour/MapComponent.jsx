@@ -16,7 +16,7 @@ function MapComponent() {
   // useRef 훅을 사용하여 변수 관리
   const mapRef = useRef(null); // 지도 인스턴스 저장
   const overlayRef = useRef(null); // 오버레이 인스턴스 저장
-  const markersRef = useRef(new Map()); // Map 객체로 변경
+  const markersRef = useRef(new Map()); // 마커를 저장하는 Map 객체
   const seoulDistrictPolygonsRef = useRef([]); // 서울 구 단위 폴리곤 인스턴스 배열 저장
   const seoulBoundaryPolygonsRef = useRef([]); // 서울 최외곽 폴리곤 인스턴스 배열 저장
   const idleListenerRef = useRef(null); // 'idle' 이벤트 리스너 저장
@@ -535,22 +535,51 @@ function MapComponent() {
   useEffect(() => {
     const kakao = window.kakao;
 
+    const fetchTourDetail = async (contentId) => {
+      const serviceKey = "yUAPog6Rgt2Os0UIFDpFja5DVD0qzGn6j1PHTeXT5QkxuaK4FjVPHFSNLlVeQ9lD2Gv5P6fsJyUga4R5zA0osA==";
+      const url = `https://apis.data.go.kr/B551011/KorService1/detailCommon1?MobileOS=ETC&MobileApp=AppTest&_type=json&contentId=${contentId}&defaultYN=Y&firstImageYN=Y&areacodeYN=Y&catcodeYN=Y&addrinfoYN=Y&mapinfoYN=Y&overviewYN=Y&serviceKey=${serviceKey}`;
+
+      try {
+        const response = await fetch(url);
+        const data = await response.json();
+        return data.response.body.items.item[0]; // API 결과에 따라 필요한 데이터 추출
+      } catch (error) {
+        console.error("API 호출 중 오류 발생:", error);
+        return null;
+      }
+    };
+
     if (activeOverlayKey) {
       const marker = markersRef.current.get(activeOverlayKey);
       if (marker) {
         const position = marker.getPosition();
         const tourInfo = tourInfos.find(t => t.uniqueKey === activeOverlayKey);
         if (tourInfo) {
-          const content = `
-            <div class="customoverlay-content">
-              <h4>${tourInfo.title}</h4>
-              ${tourInfo.imageUrl ? `<img src="${tourInfo.imageUrl}" alt="${tourInfo.title}" onerror="this.src='/markers/default.png'" />` : `<p>이미지가 없습니다.</p>`}
-            </div>
-          `;
-          overlayRef.current.setContent(content);
-          overlayRef.current.setPosition(position);
-          overlayRef.current.setZIndex(100); // CustomOverlay의 zIndex를 높게 설정
-          overlayRef.current.setMap(mapRef.current);
+          // API 호출
+          fetchTourDetail(tourInfo.contentid).then((detailData) => {
+            if (detailData) {
+              const address = detailData.addr1
+                ? detailData.addr2
+                  ? `${detailData.addr1}, ${detailData.addr2}`
+                  : detailData.addr1
+                : "주소 정보 없음";
+
+              const content = `
+              <div class="customoverlay-content">
+                <h4>${detailData.title}</h4>
+                ${detailData.firstimage ? `<img src="${detailData.firstimage}" alt="${detailData.title}" onerror="this.src='/markers/default.png'" />` : `<p>이미지가 없습니다.</p>`}
+                <p>${detailData.tel || "전화번호 없음"}</p>
+                <p><strong>주소: ${address}</strong></p>
+                <p>설명: ${detailData.overview || "설명 없음"}</p> <!-- overview 추가 -->
+              </div>
+            `;
+
+              overlayRef.current.setContent(content);
+              overlayRef.current.setPosition(position);
+              overlayRef.current.setZIndex(100);
+              overlayRef.current.setMap(mapRef.current);
+            }
+          });
         }
       }
     } else {
@@ -570,22 +599,6 @@ function MapComponent() {
 
   return (
     <div style={{ position: 'relative' }}>
-      {/* 카테고리 필터 UI */}
-      <div className="category-filter">
-        <select
-          value={cat1}
-          onChange={(e) => setCat1(e.target.value)}
-          className="category-select"
-        >
-          <option value="">대분류 선택</option>
-          {cat1Options.map((option) => (
-            <option key={option.code} value={option.code}>
-              {option.name}
-            </option>
-          ))}
-        </select>
-      </div>
-
       {/* 현재 위치로 돌아가는 버튼 */}
       <button
         onClick={returnToCurrentLocation}
@@ -615,8 +628,30 @@ function MapComponent() {
       {/* 상시 관광지 정보 모달창 */}
       <div className="persistent-modal">
         <h3>관광지 목록</h3>
+
+        {/* 카테고리 탭 추가 */}
+        <div className="category-tabs">
+          <div className="center-box">
+            <button
+              className={`tab-button ${cat1 === '' ? 'active' : ''}`}
+              onClick={() => setCat1('')}
+            >
+              전체
+            </button>
+            {cat1Options.map((option) => (
+              <button
+                key={option.code}
+                className={`tab-button ${cat1 === option.code ? 'active' : ''}`}
+                onClick={() => setCat1(option.code)}
+              >
+                {option.name}
+              </button>
+            ))}
+          </div>
+        </div>
+
         {filteredTourInfos.length > 0 ? (
-          filteredTourInfos.map((tourInfo, index) => {
+          filteredTourInfos.map((tourInfo) => {
             // 고유한 키 생성
             const key = tourInfo.uniqueKey;
 
@@ -638,7 +673,7 @@ function MapComponent() {
               <div
                 key={key}
                 className="tour-item"
-                onClick={handleClick} // 수정된 클릭 핸들러
+                onClick={handleClick} // 클릭 핸들러
               >
                 {tourInfo.imageUrl ? (
                   <img
