@@ -13,8 +13,10 @@ import CultureBooKStore from './CultureBooKStore';
 import CultureBookLibrary from './CultureBookLibrary';
 import CultureBookSearch from './CultureBookSearch';
 
+import CultureMuseumMain from './CultureMuseumMain';
 import CultureMuseumInfo from './CultureMuseumInfo';
 import CultureArtMuseumInfo from './CultureArtMuseumInfo';
+import CultureMuseumSearch from './CultureMuseumSearch';
 
 function CultureMain() {
     // 카카오 맵 기본 설정
@@ -48,15 +50,17 @@ function CultureMain() {
         clickMarkerBtn(`http://localhost:9002/seoul/culture/getBookData`);
     }, []);
 
-    // 책 검색 기능
-    const [bookSearchPlaceholder, setBookSearchPlaceholder] = useState('국립중앙도서관 소장자료를 검색해보세요.');
+    // 검색 기능
+    const searchPlaceholderName = ['국립중앙도서관 소장자료를 검색해보세요.','국립박물관의 소장유물을 검색해보세요.'];
+    const [searchPlaceholder, setSearchPlaceholder] = useState(searchPlaceholderName[0]);
     const [searchValue, setSearchValue] = useState('');
     const saveSearchValue = (event) => {setSearchValue(event.target.value);}
 
     async function goSearch(url) {
         setIsSearched(true);
         const x = await getData(url);
-        setDetailContents(x.result.item);
+        if (x.result) {setDetailContents(x.result.item);}
+        else if (x.response) {setDetailContents(x.response.body.items.item);}
         setIsClicked(false);
     }
 
@@ -174,9 +178,10 @@ function CultureMain() {
 
                                             // 공통 초기화
                                             setIsClicked(false);
-                                            // 책 초기화
+                                            setSearchPlaceholder(searchPlaceholderName[index]);
                                             setIsSearched(false);
                                             setCurrentSubTabType([true,false]);
+                                            setSearchValue('');
 
                                             // 각각의 탭에 따라 마커 설정
                                             if (index === 0) {clickMarkerBtn(`http://localhost:9002/seoul/culture/getBookData`);}
@@ -205,14 +210,14 @@ function CultureMain() {
                                 </button>
                                 <input
                                     className={styles.headerInput}
-                                    placeholder={bookSearchPlaceholder}
+                                    placeholder={searchPlaceholder}
                                     onClick={() => {
-                                        setBookSearchPlaceholder('');
+                                        setSearchPlaceholder('');
                                     }}
-                                    onBlur={() => {setBookSearchPlaceholder('국립중앙도서관 소장자료를 검색해보세요.');}}
+                                    onBlur={() => {setSearchPlaceholder(searchPlaceholderName[0]);}}
                                     value={searchValue}
                                     onChange={saveSearchValue}
-                                    onKeyDown={(e) => {
+                                    onKeyDown={async (e) => {
                                         if (e.key === "Enter") {
                                             goSearch(`http://localhost:9002/seoul/culture/getNationalLibrarySearch?kwd=${encodeURIComponent(searchValue)}`);
                                         }
@@ -228,6 +233,7 @@ function CultureMain() {
                                 onClick={() => {
                                     setCurrentSubTabType([false,true]);
                                     setIsClicked(false);
+                                    setIsSearched(false);
                                     clickMarkerBtn(`http://localhost:9002/seoul/culture/getBookLibrary`);
                                 }}
                             >
@@ -241,6 +247,7 @@ function CultureMain() {
                                 onClick={() => {
                                     setCurrentSubTabType([true,false]);
                                     setIsClicked(false);
+                                    setIsSearched(false);
                                     clickMarkerBtn(`http://localhost:9002/seoul/culture/getBookData`);
                                 }}
                             >
@@ -258,21 +265,26 @@ function CultureMain() {
                             <div className={`${styles.cultureBookSearch} ${styles.flexCenter}`}>
                                 <button
                                     className={styles.searchBtn}
+                                    onClick={async () => {
+                                        goSearch(`http://api.kcisa.kr/openapi/service/rest/convergence/conver7?keyword=${encodeURIComponent(searchValue)}&serviceKey=${encodeURIComponent(process.env.REACT_APP_SEARCH_MUSEUM_ITEM_KEY)}&numOfRows=50`);
+                                    }}
                                 >
                                     <img src="/images/culture/searchBtn.png"
                                         alt="Search Button" height="14px" />
                                 </button>
                                 <input
                                     className={styles.headerInput}
-                                    placeholder={bookSearchPlaceholder}
+                                    placeholder={searchPlaceholder}
                                     onClick={() => {
-                                        setBookSearchPlaceholder('');
+                                        setSearchPlaceholder('');
                                     }}
-                                    onBlur={() => {setBookSearchPlaceholder('국립중앙도서관 소장자료를 검색해보세요.');}}
+                                    onBlur={() => {setSearchPlaceholder(setSearchPlaceholder[1]);}}
                                     value={searchValue}
                                     onChange={saveSearchValue}
-                                    onKeyDown={(e) => {
-                                        if (e.key === "Enter") {}
+                                    onKeyDown={async (e) => {
+                                        if (e.key === "Enter") {
+                                            goSearch(`http://api.kcisa.kr/openapi/service/rest/convergence/conver7?keyword=${encodeURIComponent(searchValue)}&serviceKey=${encodeURIComponent(process.env.REACT_APP_SEARCH_MUSEUM_ITEM_KEY)}&numOfRows=50`);
+                                        }
                                     }}
                                 />
                             </div>
@@ -285,6 +297,7 @@ function CultureMain() {
                                 onClick={() => {
                                     setCurrentSubTabType([false,true]);
                                     setIsClicked(false);
+                                    setIsSearched(false);
                                     clickMarkerBtn(`http://localhost:9002/seoul/culture/getArtMuseumInfo`);
                                 }}
                             >
@@ -298,6 +311,7 @@ function CultureMain() {
                                 onClick={() => {
                                     setCurrentSubTabType([true,false]);
                                     setIsClicked(false);
+                                    setIsSearched(false);
                                     clickMarkerBtn(`http://localhost:9002/seoul/culture/getMuseumInfo`);
                                 }}
                             >
@@ -306,6 +320,8 @@ function CultureMain() {
                             <div className={`${ styles.cultureBookHeaderBtn } ${ styles.flexCenter }`} onClick={() => {setIsClicked(false); setIsSearched(false);}}>홈</div>
                         </div>
                     }
+                    { currentTabType[1] && !isClicked && !isSearched && <CultureMuseumMain /> }
+                    { currentTabType[1] && !isClicked && isSearched && <CultureMuseumSearch museumContents={detailContents} /> }
                     { currentTabType[1] && isClicked && currentSubTabType[0] && <CultureMuseumInfo museumContents={detailContents} /> }
                     { currentTabType[1] && isClicked && currentSubTabType[1] && <CultureArtMuseumInfo museumContents={detailContents} /> }
                 </div>
