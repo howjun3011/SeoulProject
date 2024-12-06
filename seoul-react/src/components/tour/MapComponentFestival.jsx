@@ -76,17 +76,14 @@ function MapComponentFestival() {
    */
   const fetchFestivalInfo = async (centerLat, centerLng) => {
     try {
-      console.log(`Fetching festival info for coordinates: (${centerLat}, ${centerLng})`);
       const response = await axios.get('http://localhost:9002/seoul/tour/festival/nearby', {
         params: {
           latitude: centerLat,
           longitude: centerLng,
-          radius: 300, // 반경 (단위: km)
+          radius: 1000, // 반경 (단위: km)
           // 필요시 추가 파라미터
         },
       });
-
-      console.log('Festival info response:', response.data);
 
       // 기존 마커 제거
       markersRef.current.forEach((marker) => {
@@ -100,8 +97,6 @@ function MapComponentFestival() {
             f.title === festival.title && f.mapX === festival.mapX && f.mapY === festival.mapY
           )
       );
-
-      console.log('Unique festivals:', uniqueFestivals);
 
       // 고유한 키를 부여하여 축제 정보를 업데이트
       const uniqueFestivalsWithKeys = uniqueFestivals.map((festival, index) => ({
@@ -292,8 +287,6 @@ function MapComponentFestival() {
         const path = coordinates[0].map(
           (coord, coordIndex) => {
             const latLng = new kakao.maps.LatLng(coord[1], coord[0]); // [lat, lng]
-            // 디버깅을 위해 각 좌표의 lat과 lng를 로그로 출력
-            console.log(`Polygon [Feature ${featureIndex}]: Coord ${coordIndex}: ${latLng.getLat()}, ${latLng.getLng()}`);
             return latLng;
           }
         );
@@ -309,15 +302,12 @@ function MapComponentFestival() {
         });
 
         polygons.push(polygon);
-        console.log(`Polygon [Feature ${featureIndex}] created.`);
       } else if (type === 'MultiPolygon') {
         // 다중 폴리곤인 경우 각 폴리곤을 별도로 생성
         coordinates.forEach((polygonCoords, polygonIndex) => {
           const path = polygonCoords[0].map(
             (coord, coordIndex) => {
               const latLng = new kakao.maps.LatLng(coord[1], coord[0]); // [lat, lng]
-              // 디버깅을 위해 각 좌표의 lat과 lng를 로그로 출력
-              console.log(`MultiPolygon [Feature ${featureIndex} - Polygon ${polygonIndex}]: Coord ${coordIndex}: ${latLng.getLat()}, ${latLng.getLng()}`);
               return latLng;
             }
           );
@@ -332,7 +322,6 @@ function MapComponentFestival() {
           });
 
           polygons.push(polygon);
-          console.log(`MultiPolygon [Feature ${featureIndex} - Polygon ${polygonIndex}] created.`);
         });
       }
     });
@@ -349,7 +338,6 @@ function MapComponentFestival() {
    */
   const createSeoulBoundaryPolygon = () => {
     const kakao = window.kakao;
-    console.log('seoulBoundary:', seoulBoundary);
     console.log('createSeoulBoundaryPolygon 호출 시 seoulBoundary:', seoulBoundary);
     const polygons = [];
 
@@ -369,8 +357,6 @@ function MapComponentFestival() {
         const path = coordinates[0].map(
           (coord, coordIndex) => {
             const latLng = new kakao.maps.LatLng(coord[1], coord[0]); // [lat, lng]
-            // 디버깅을 위해 각 좌표의 lat과 lng를 로그로 출력
-            console.log(`Boundary Polygon [Feature ${featureIndex}]: Coord ${coordIndex}: ${latLng.getLat()}, ${latLng.getLng()}`);
             return latLng;
           }
         );
@@ -394,8 +380,6 @@ function MapComponentFestival() {
           const path = polygonCoords[0].map(
             (coord, coordIndex) => {
               const latLng = new kakao.maps.LatLng(coord[1], coord[0]); // [lat, lng]
-              // 디버깅을 위해 각 좌표의 lat과 lng를 로그로 출력
-              console.log(`Boundary MultiPolygon [Feature ${featureIndex} - Polygon ${polygonIndex}]: Coord ${coordIndex}: ${latLng.getLat()}, ${latLng.getLng()}`);
               return latLng;
             }
           );
@@ -410,7 +394,6 @@ function MapComponentFestival() {
           });
 
           polygons.push(polygon);
-          console.log(`Boundary MultiPolygon [Feature ${featureIndex} - Polygon ${polygonIndex}] created.`);
         });
       }
     });
@@ -437,12 +420,10 @@ function MapComponentFestival() {
         const center = mapRef.current.getCenter(); // 현재 지도 중심 좌표
         const centerLat = center.getLat();
         const centerLng = center.getLng();
-        console.log(`Idle event triggered. New center: (${centerLat}, ${centerLng})`);
         fetchFestivalInfo(centerLat, centerLng); // 축제 정보 업데이트
       });
 
       idleListenerRef.current = listener; // 리스너 저장
-      console.log('Added idle listener:', listener);
     };
 
     addIdleListener(); // 리스너 추가
@@ -453,7 +434,6 @@ function MapComponentFestival() {
     return () => {
       if (idleListenerRef.current) {
         kakao.maps.event.removeListener(idleListenerRef.current);
-        console.log('Removed idle listener:', idleListenerRef.current);
         idleListenerRef.current = null;
       }
     };
@@ -489,35 +469,77 @@ function MapComponentFestival() {
   useEffect(() => {
     const kakao = window.kakao;
 
+    const fetchFestivalDetail = async (contentid, contenttypeid) => {
+      try {
+        const response = await fetch(
+          `https://apis.data.go.kr/B551011/KorService1/detailInfo1?serviceKey=yUAPog6Rgt2Os0UIFDpFja5DVD0qzGn6j1PHTeXT5QkxuaK4FjVPHFSNLlVeQ9lD2Gv5P6fsJyUga4R5zA0osA%3D%3D&MobileOS=ETC&MobileApp=AppTest&_type=json&contentId=${contentid}&contentTypeId=${contenttypeid}&numOfRows=10&pageNo=1`
+        );
+        const data = await response.json();
+        if (data.response.header.resultCode === "0000") {
+          return data.response.body.items.item;
+        } else {
+          console.error("API 호출 실패:", data.response.header.resultMsg);
+          return [];
+        }
+      } catch (error) {
+        console.error("API 호출 에러:", error);
+        return [];
+      }
+    };
+
     if (activeOverlayKey) {
       const marker = markersRef.current.get(activeOverlayKey);
       if (marker) {
         const position = marker.getPosition();
         const festivalInfo = festivalInfos.find(f => f.uniqueKey === activeOverlayKey);
+
         if (festivalInfo) {
-          // addr1과 addr2를 결합하여 주소 문자열 생성 (addr2가 있을 경우만 추가)
-          const address = festivalInfo.addr1
-            ? (festivalInfo.addr2 ? `${festivalInfo.addr1}, ${festivalInfo.addr2}` : festivalInfo.addr1)
-            : '주소 정보 없음';
+          const { contentid, contenttypeid } = festivalInfo;
 
-          // firstimage가 존재하면 이미지 태그 생성, 없으면 이미지 없음 문자열
-          const imageContent = festivalInfo.firstimage
-            ? `<img src="${festivalInfo.firstimage}" alt="${festivalInfo.title}" class="festival-image" />`
-            : `<p class="no-image">이미지 없음</p>`;
+          fetchFestivalDetail(contentid, contenttypeid).then(details => {
+            console.log("API URL:", `https://apis.data.go.kr/B551011/KorService1/detailInfo1?serviceKey=yUAPog6Rgt2Os0UIFDpFja5DVD0qzGn6j1PHTeXT5QkxuaK4FjVPHFSNLlVeQ9lD2Gv5P6fsJyUga4R5zA0osA%3D%3D&MobileOS=ETC&MobileApp=AppTest&_type=json&contentId=${contentid}&contentTypeId=${contenttypeid}&numOfRows=10&pageNo=1`);
+            // details가 항상 배열인지 확인
+            const safeDetails = Array.isArray(details) ? details : [];
 
-          const content = `
-            <div class="customoverlay-content">
+            // addr1과 addr2를 결합하여 주소 문자열 생성
+            const address = festivalInfo.addr1
+              ? (festivalInfo.addr2 ? `${festivalInfo.addr1}, ${festivalInfo.addr2}` : festivalInfo.addr1)
+              : '주소 정보 없음';
+
+            // firstimage가 존재하면 이미지 태그 생성
+            const imageContent = festivalInfo.firstimage
+              ? `<img src="${festivalInfo.firstimage}" alt="${festivalInfo.title}" class="festival-image" />`
+              : `<p class="no-image">이미지 없음</p>`;
+
+            // infoname과 infotext를 기반으로 추가 상세 정보 생성
+            const detailContent = safeDetails.map(detail => `
+            <p><strong>${detail.infoname}:</strong> ${detail.infotext}</p>
+          `).join("");
+
+            const content = `
+            <div class="customoverlay-content festival">
               <h4>${festivalInfo.title}</h4>
               ${imageContent}
-              <p>${festivalInfo.tel || '전화번호 없음'}</p>
-              <p><strong>주소: ${address}</strong></p>
-              <p>축제 기간: ${festivalInfo.eventStartDate} ~ ${festivalInfo.eventEndDate}</p>
+              <p><strong>문의처:</strong> ${festivalInfo.tel || '전화번호 없음'}</p>
+              <p><strong>주소:</strong> ${address}</p>
+              <p><strong>축제 기간:</strong> ${festivalInfo.eventStartDate} ~ ${festivalInfo.eventEndDate}</p>
             </div>
           `;
-          overlayRef.current.setContent(content);
-          overlayRef.current.setPosition(position);
-          overlayRef.current.setZIndex(100); // CustomOverlay의 zIndex를 높게 설정
-          overlayRef.current.setMap(mapRef.current);
+            const contentDescription = `
+            <div class="customoverlay-content description">
+              <p>${detailContent}</p>
+            </div>
+          `;
+            const mergedContent = `
+                ${content}
+                ${contentDescription}
+          `;
+
+            overlayRef.current.setContent(mergedContent);
+            overlayRef.current.setPosition(position);
+            overlayRef.current.setZIndex(100); // CustomOverlay의 zIndex를 높게 설정
+            overlayRef.current.setMap(mapRef.current);
+          });
         }
       }
     } else {

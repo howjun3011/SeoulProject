@@ -70,8 +70,11 @@ public class TourFestivalService {
                 dto.setAddr1(row[11] != null ? row[11].toString() : null);
                 dto.setAddr2(row[12] != null ? row[12].toString() : null);
 
+                dto.setContentid(((Number) row[13]).intValue());    // Integer
+                dto.setContenttypeid(((Number) row[14]).intValue());    // Integer
+
                 // 거리 처리
-                dto.setDistance(row[13] != null ? ((Number) row[13]).doubleValue() : null);
+                dto.setDistance(row[15] != null ? ((Number) row[15]).doubleValue() : null);
 
                 festivals.add(dto);
             } catch (ClassCastException e) {

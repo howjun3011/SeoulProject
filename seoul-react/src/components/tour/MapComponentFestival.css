@@ -263,24 +263,9 @@
 
 
 /* CustomOverlay 내용 스타일 */
-.customoverlay-content-festival {
-    position: absolute;
-    bottom: 50px; /* 마커 위로 충분히 올림 */
-    left: 50%;
-    transform: translateX(-50%); /* 중앙 정렬 */
-    padding: 5px 10px;
-    background-color: white;
-    border-radius: 4px;
-    border: 1px solid #ccc;
-    font-size: 13px;
-    color: #333;
-    text-align: center;
-    white-space: nowrap;
-    pointer-events: none;
-    z-index: 100; /* 마커보다 위에 표시 */
-    min-width: 200px;
-    height: fit-content;
-    min-height: 200px;
+
+.customoverlay-content.description {
+    transform: translate(50%, 0%);
 }
 
 .customoverlay-content-festival::after {
