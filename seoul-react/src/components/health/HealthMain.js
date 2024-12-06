@@ -90,7 +90,7 @@ function HealthMain() {
         if (map) {
             // 지도와 dragstart 이벤트 발생 시 선택된 마커 초기화
             window.kakao.maps.event.addListener(map, "dragstart", () => {
-               setSelectedMarker(null); // 선택된 마커 초기화
+                setSelectedMarker(null); // 선택된 마커 초기화
             });
 
             // 지도의 mouseup 이벤트 발생 시 중심 좌표를 업데이트
@@ -179,48 +179,43 @@ function HealthMain() {
                 });
             } else {
                 // 현재 지도 범위 내 결과가 없을 경우
-                console.log("현재 지도 범위 내에 결과 없음.");
+                console.log("현재 지도 범위 내에 결과 없음, 반경을 3km로 확대하여 재검색");
 
-                // 검색어가 있는 경우에만 전체 검색 시도
-                if (keyword && keyword.trim() !== '') {
-                    console.log("전체 검색 시도");
+                const newParams = new URLSearchParams(params);
+                newParams.set('radius', 3); // 반경 3km로 업데이트
 
-                    const responseAll = await fetch(
-                        `http://localhost:9002/seoul/health/search?keyword=${keyword}`
+                const responseExpanded = await fetch(
+                    `http://localhost:9002/seoul/health/search?${newParams.toString()}`
+                );
+
+                if(!responseExpanded.ok) {
+                    throw new Error(`HTTP error! status: ${responseExpanded.status}`);
+                }
+
+                const dataExpanded = await responseExpanded.json();
+
+                if (Array.isArray(dataExpanded) && dataExpanded.length > 0) {
+                    setHospitalList(dataExpanded);
+                    // 첫 번째 병원 데이터의 위치로 지도 중심 좌표 설정
+                    const firstHospital = dataExpanded[0];
+                    const newCenter = {
+                        lat: firstHospital.hosp_lat,
+                        lng: firstHospital.hosp_lon,
+                    };
+                    setCurrentCenter(newCenter);
+                    map.setCenter(new window.kakao.maps.LatLng(newCenter.lat, newCenter.lng));
+
+                    // 마커 데이터 설정
+                    setMarkers(
+                        dataExpanded.map((hospital) => ({
+                            position: { lat: hospital.hosp_lat, lng: hospital.hosp_lon },
+                            name: hospital.hosp_name,
+                            phone: hospital.hosp_pnumber,
+                            hospital: hospital,
+                        }))
                     );
-                    if (!responseAll.ok) {
-                        throw new Error(`HTTP error! status: ${responseAll.status}`);
-                    }
-
-                    const dataAll = await responseAll.json();
-
-                    if (Array.isArray(dataAll) && dataAll.length > 0) {
-                        setHospitalList(dataAll);
-                        // 첫 번째 병원 데이터의 위치로 지도 중심 좌표 설정
-                        const firstHospital = dataAll[0];
-                        const newCenter = {
-                            lat: firstHospital.hosp_lat,
-                            lng: firstHospital.hosp_lon,
-                        };
-                        setCurrentCenter(newCenter);
-                        map.setCenter(new window.kakao.maps.LatLng(newCenter.lat, newCenter.lng));
-
-                        // 마커 데이터 설정
-                        setMarkers(
-                            dataAll.map((hospital) => ({
-                                position: { lat: hospital.hosp_lat, lng: hospital.hosp_lon },
-                                name: hospital.hosp_name,
-                                phone: hospital.hosp_pnumber,
-                            }))
-                        );
-                    } else {
-                        // 전체 검색에서도 결과가 없을 경우
-                        console.log("검색 결과가 없습니다.");
-                        setHospitalList([]);
-                        setMarkers([]);
-                    }
                 } else {
-                    // 검색어가 없으면 병원 목록과 마커를 비웁니다.
+                    console.log("3km 반경에서도 검색 결과 없음");
                     setHospitalList([]);
                     setMarkers([]);
                 }
@@ -427,12 +422,12 @@ function HealthMain() {
                     const markerImage = marker.isCurrentLocation
                         ? {
                             src: '/images/health/current-location-marker.png', // 현재 위치 마커 이미지 경로
-                            size: { width: 33, height: 44 }, // 마커 크기
+                            size: { width: 44, height: 44 }, // 마커 크기
                             options: { offset: { x: 16, y: 44 } }, // 중심점 설정
                         }
                         : {
                             src: '/images/health/default-marker.png', // 일반 마커 이미지 경로
-                            size: { width: 33, height: 44 },
+                            size: { width: 44, height: 44 },
                             options: { offset: { x: 16, y: 44 } },
                         };
 
@@ -467,12 +462,18 @@ function HealthMain() {
                                             cursor: 'pointer',
                                         }}
                                     >
-                                        <strong style={{ fontSize: '16px', color: '#333' }}>{marker.name}</strong>
-                                        <br />
-                                        {marker.phone ? (
-                                            <span style={{ color: '#666' }}>{marker.phone}</span>
+                                        {marker.isCurrentLocation ? (
+                                            <strong style={{ fontsize: '16px', color: '#333' }}>현재 위치</strong>
                                         ) : (
-                                            <span style={{ color: '#999' }}>전화번호 없음</span>
+                                            <>
+                                                <strong style={{ fontSize: '16px', color: '#333' }}>{marker.name}</strong>
+                                                <br />
+                                                {marker.phone ? (
+                                                    <span style={{ color: '#666' }}>{marker.phone}</span>
+                                                ) : (
+                                                    <span style={{ color: '#999' }}>전화번호 없음</span>
+                                                )}
+                                            </>
                                         )}
                                     </div>
                                 </CustomOverlayMap>

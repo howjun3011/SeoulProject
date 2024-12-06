@@ -28,13 +28,9 @@ public class HealthController {
         if(lat != null && lon != null && radius != null) {
             // 위치 기반 검색
             return healthService.searchHospitalsByLocationAndKeyword(lat, lon, radius, keyword, subject, week);
-        } else if (keyword != null && !keyword.isEmpty()) {
-            // 키워드 기반 전체 검색
-            return healthService.searchHospitalsByKeyword(keyword, subject, week);
         } else {
             // 검색어와 위치 정보가 모두 없을 때 빈 리스트 반환
             return Collections.emptyList();
         }
     }
-
 }
