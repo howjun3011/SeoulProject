@@ -4,5 +4,21 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
 <mapper namespace="com.tech.seoul.exercise.models.ExerciseDao">
-
+	<select id="getExercise" resultType="com.tech.seoul.exercise.models.ExerciseDto">
+		SELECT facility_name, address, latitude, longitude, phone_number, exercise_type
+		FROM exercise
+		WHERE exercise_type = #{param1} 
+	</select>
+	
+	<select id="getExerciseByRadius" resultType="com.tech.seoul.exercise.models.ExerciseDto">
+        SELECT exercise_num, facility_name, address, latitude, longitude, phone_number, exercise_type,
+               (6371 * ACOS(
+                   COS(RADIANS(#{latitude})) * COS(RADIANS(latitude)) * COS(RADIANS(longitude) - RADIANS(#{longitude}))
+                   + SIN(RADIANS(#{latitude})) * SIN(RADIANS(latitude))
+               )) AS distance
+        FROM exercise
+        WHERE exercise_type = #{exerciseType}
+        HAVING distance &lt; #{radius}
+        ORDER BY distance ASC
+    </select>
 </mapper>
