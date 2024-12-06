@@ -22,14 +22,6 @@ public class HealthService {
         return hospitals;
     }
 
-    public List<HospitalDto> searchHospitalsByKeyword(String keyword, String subject, String week) {
-        List<HospitalDto> hospitals = healthDao.findByKeyword(keyword, subject, week);
-        processSubjects(hospitals); // 진료과목 리스트 반환
-        processSimpleAddress(hospitals); // 간단 주소 생성
-
-        return hospitals;
-    }
-
     // hosp_sbj 필드를 hosp_sbj_list로 변환하는 메서드
     // 콤마로 구분
     private void processSubjects(List<HospitalDto> hospitals) {
