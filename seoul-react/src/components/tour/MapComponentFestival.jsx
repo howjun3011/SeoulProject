@@ -550,24 +550,31 @@ function MapComponentFestival() {
     }
   }, [activeOverlayKey, festivalInfos]);
 
+  // 커스텀 레이아웃 표시 여부
+  const [customOverlayVisible, setCustomOverlayVisible] = useState(false);
+
+  // 커스텀 레이아웃 활성화 함수
+  const showCustomOverlay = () => {
+    setCustomOverlayVisible(true);
+  };
+
+  // 커스텀 레이아웃 닫기 함수
+  const hideCustomOverlay = () => {
+    setCustomOverlayVisible(false);
+    if (overlayRef.current) {
+      overlayRef.current.setMap(null); // 커스텀 오버레이 숨기기
+    }
+  };
+
+  // 오버레이 활성화 시 상태 업데이트
+  useEffect(() => {
+    if (activeOverlayKey && overlayRef.current) {
+      setCustomOverlayVisible(true); // 오버레이가 활성화되면 버튼 표시
+    }
+  }, [activeOverlayKey]);
+
   return (
     <div style={{ position: 'relative' }}>
-      {/*/!* 축제 카테고리 필터 UI (필요시 추가) *!/*/}
-      {/*<div className="category-filter">*/}
-      {/*  <select*/}
-      {/*    value={''} // 축제 페이지에서는 카테고리 필터가 필요 없을 수 있음*/}
-      {/*    onChange={() => {}}*/}
-      {/*    className="category-select"*/}
-      {/*    disabled*/}
-      {/*  >*/}
-      {/*    <option value="">축제 카테고리 선택</option>*/}
-      {/*    {festivalCatOptions.map((option) => (*/}
-      {/*      <option key={option.code} value={option.code}>*/}
-      {/*        {option.name}*/}
-      {/*      </option>*/}
-      {/*    ))}*/}
-      {/*  </select>*/}
-      {/*</div>*/}
 
       {/* 현재 위치로 돌아가는 버튼 */}
       <button
@@ -576,6 +583,16 @@ function MapComponentFestival() {
       >
         현재 위치로
       </button>
+
+      {/* 커스텀 레이아웃 닫기 버튼 */}
+      {customOverlayVisible && (
+        <button
+          onClick={hideCustomOverlay}
+          className="close-overlay-button"
+        >
+          설명 닫기
+        </button>
+      )}
 
       {/* 지도 표시 */}
       <div
