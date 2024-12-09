@@ -223,7 +223,7 @@
     background: linear-gradient(180deg, #a8a8a8, #8c8c8c);
 }
 
-.tour-item {
+.pet-item {
     display: flex;
     align-items: center;
     margin-bottom: 10px;
@@ -233,11 +233,11 @@
     border-radius: 5px;
 }
 
-.tour-item:hover {
+.pet-item:hover {
     background-color: #f9f9f9;
 }
 
-.tour-item-image {
+.pet-item-image {
     width: 50px;
     height: 50px;
     object-fit: cover;
@@ -259,7 +259,7 @@
     margin-top: 0;
 }
 
-.tour-item-title {
+.pet-item-title {
     font-size: 14px;
     color: #333;
 }

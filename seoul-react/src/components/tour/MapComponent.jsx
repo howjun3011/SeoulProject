@@ -623,6 +623,36 @@ function MapComponent() {
     navigate('/seoul/tour/festival');
   };
 
+  /**
+   * 펫 페이지로 이동하는 함수
+   */
+  const navigateToPet = () => {
+    navigate('/seoul/tour/pet');
+  };
+
+  // 커스텀 레이아웃 표시 여부
+  const [customOverlayVisible, setCustomOverlayVisible] = useState(false);
+
+  // 커스텀 레이아웃 활성화 함수
+  const showCustomOverlay = () => {
+    setCustomOverlayVisible(true);
+  };
+
+  // 커스텀 레이아웃 닫기 함수
+  const hideCustomOverlay = () => {
+    setCustomOverlayVisible(false);
+    if (overlayRef.current) {
+      overlayRef.current.setMap(null); // 커스텀 오버레이 숨기기
+    }
+  };
+
+  // 오버레이 활성화 시 상태 업데이트
+  useEffect(() => {
+    if (activeOverlayKey && overlayRef.current) {
+      setCustomOverlayVisible(true); // 오버레이가 활성화되면 버튼 표시
+    }
+  }, [activeOverlayKey]);
+
   return (
     <div style={{ position: 'relative' }}>
       {/* 현재 위치로 돌아가는 버튼 */}
@@ -641,6 +671,25 @@ function MapComponent() {
       >
         축제 보기
       </button>
+
+      {/* 펫 페이지로 이동하는 버튼 */}
+      <button
+        onClick={navigateToPet}
+        className="navigate-festival-button"
+        style={{ position: 'absolute', top: '60px', left: '10px', zIndex: 5 }}
+      >
+        펫 보기
+      </button>
+
+      {/* 커스텀 레이아웃 닫기 버튼 */}
+      {customOverlayVisible && (
+        <button
+          onClick={hideCustomOverlay}
+          className="close-overlay-button"
+        >
+          설명 닫기
+        </button>
+      )}
 
       {/* 지도 표시 */}
       <div

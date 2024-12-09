@@ -1,14 +1,14 @@
-// src/components/tour/MapComponentFestival.jsx
+// src/components/tour/MapComponentPet.jsx
 import React, { useEffect, useState, useRef } from 'react';
 import axios from 'axios';
-import './MapComponentFestival.css';
+import './MapComponentPet.css';
 
-function MapComponentFestival() {
+function MapComponentPet() {
   // 상태 변수 선언
   const [seoulBoundary, setSeoulBoundary] = useState(null); // 서울 최외곽 GeoJSON 데이터
   const [seoulDistricts, setSeoulDistricts] = useState(null); // 서울 구 단위 GeoJSON 데이터
   const [isMapLoaded, setIsMapLoaded] = useState(false); // 지도 로드 상태
-  const [festivalInfos, setFestivalInfos] = useState([]); // 현재 표시된 축제 정보
+  const [petInfos, setPetInfos] = useState([]); // 현재 표시된 반려동물 정보
   const [activeOverlayKey, setActiveOverlayKey] = useState(null); // 활성화된 오버레이의 고유 키
 
   // useRef 훅을 사용하여 변수 관리
@@ -19,16 +19,18 @@ function MapComponentFestival() {
   const seoulBoundaryPolygonsRef = useRef([]); // 서울 최외곽 폴리곤 인스턴스 배열 저장
   const idleListenerRef = useRef(null); // 'idle' 이벤트 리스너 저장
 
-  // 축제 카테고리 옵션 배열 (필요시 추가 가능)
-  const festivalCatOptions = [
-    { code: 'A02', name: '인문(문화/예술/역사)' },
+  // 반려동물 카테고리 옵션 배열 (필요시 추가 가능)
+  const petCatOptions = [
+    { code: 'A01', name: '견종' },
+    { code: 'A02', name: '고양이' },
     // 추가 카테고리가 있다면 여기에 추가
   ];
 
   // 카테고리별 마커 이미지 매핑 (기본 이미지 추가)
   const markerImages = {
-    A02: '/markers/orange.png',      // 인문(문화/예술/역사)
-    default: '/markers/default.png', // 기본 마커 이미지
+    A01: '/markers/pet.png',        // 견종
+    A02: '/markers/pet.png',        // 고양이
+    default: '/markers/pet.png',    // 기본 마커 이미지
   };
 
   /**
@@ -70,17 +72,17 @@ function MapComponentFestival() {
   }, []);
 
   /**
-   * 축제 정보를 가져와 마커를 업데이트합니다.
+   * 반려동물 정보를 가져와 마커를 업데이트합니다.
    * @param {number} centerLat - 지도 중심의 위도
    * @param {number} centerLng - 지도 중심의 경도
    */
-  const fetchFestivalInfo = async (centerLat, centerLng) => {
+  const fetchPetInfo = async (centerLat, centerLng) => {
     try {
-      const response = await axios.get('http://localhost:9002/seoul/tour/festival/nearby', {
+      const response = await axios.get('http://localhost:9002/seoul/tour/pet/nearby', {
         params: {
           latitude: centerLat,
           longitude: centerLng,
-          radius: 1000, // 반경 (단위: km)
+          radius: 5, // 반경 (단위: km)
           // 필요시 추가 파라미터
         },
       });
@@ -92,24 +94,24 @@ function MapComponentFestival() {
       markersRef.current.clear(); // Map 객체 비우기
 
       // 중복 제거: title과 좌표를 기준으로 중복된 항목 필터링
-      const uniqueFestivals = response.data.filter((festival, index, self) =>
-          index === self.findIndex((f) =>
-            f.title === festival.title && f.mapX === festival.mapX && f.mapY === festival.mapY
+      const uniquePets = response.data.filter((pet, index, self) =>
+          index === self.findIndex((p) =>
+            p.title === pet.title && p.mapx === pet.mapx && p.mapy === pet.mapy
           )
       );
 
-      // 고유한 키를 부여하여 축제 정보를 업데이트
-      const uniqueFestivalsWithKeys = uniqueFestivals.map((festival, index) => ({
-        ...festival,
-        uniqueKey: festival.tourFestivalId || `${festival.mapX}-${festival.mapY}-${index}`, // 고유 키 생성
+      // 고유한 키를 부여하여 반려동물 정보를 업데이트
+      const uniquePetsWithKeys = uniquePets.map((pet, index) => ({
+        ...pet,
+        uniqueKey: pet.tourPetId || `${pet.mapx}-${pet.mapy}-${index}`, // 고유 키 생성
       }));
 
       // 새로운 마커 추가
-      uniqueFestivalsWithKeys.forEach((festivalInfo) => {
-        const position = new window.kakao.maps.LatLng(festivalInfo.mapY, festivalInfo.mapX);
+      uniquePetsWithKeys.forEach((petInfo) => {
+        const position = new window.kakao.maps.LatLng(petInfo.mapy, petInfo.mapx);
 
         // 카테고리에 따른 마커 이미지 선택
-        const markerImageSrc = markerImages[festivalInfo.cat1] || markerImages.default; // 기본 마커 이미지 경로
+        const markerImageSrc = markerImages[petInfo.cat1] || markerImages.default; // 기본 마커 이미지 경로
         const imageSize = new window.kakao.maps.Size(33, 44); // 마커 이미지 크기
         const markerImage = new window.kakao.maps.MarkerImage(markerImageSrc, imageSize);
 
@@ -121,7 +123,7 @@ function MapComponentFestival() {
         });
 
         // 마커를 Map에 저장
-        const markerKey = festivalInfo.uniqueKey;
+        const markerKey = petInfo.uniqueKey;
         markersRef.current.set(markerKey, marker);
 
         // 마커 클릭 이벤트 등록
@@ -131,10 +133,10 @@ function MapComponentFestival() {
         });
       });
 
-      // 축제 정보를 상태에 저장
-      setFestivalInfos(uniqueFestivalsWithKeys);
+      // 반려동물 정보를 상태에 저장
+      setPetInfos(uniquePetsWithKeys);
     } catch (error) {
-      console.error('Error fetching festival info:', error);
+      console.error('Error fetching pet info:', error);
     }
   };
 
@@ -228,7 +230,7 @@ function MapComponentFestival() {
         zIndex: 4, // 사용자 오버레이의 zIndex 설정
       });
 
-      // 전역 오버레이 생성 (축제 정보 표시용)
+      // 전역 오버레이 생성 (반려동물 정보 표시용)
       overlayRef.current = new kakao.maps.CustomOverlay({
         yAnchor: 1,
         zIndex: 100, // 오버레이의 zIndex를 높게 설정
@@ -244,8 +246,8 @@ function MapComponentFestival() {
         createSeoulBoundaryPolygon(); // 서울 최외곽 경계선 폴리곤 생성
       }
 
-      // 초기 축제 정보 로드
-      fetchFestivalInfo(lat, lng);
+      // 초기 반려동물 정보 로드
+      fetchPetInfo(lat, lng);
     };
 
     loadMap(); // 지도 로드 함수 호출
@@ -405,7 +407,7 @@ function MapComponentFestival() {
   };
 
   /**
-   * 지도 이동 시 축제 정보 업데이트
+   * 지도 이동 시 반려동물 정보 업데이트
    */
   useEffect(() => {
     if (!isMapLoaded || !mapRef.current) return;
@@ -420,7 +422,7 @@ function MapComponentFestival() {
         const center = mapRef.current.getCenter(); // 현재 지도 중심 좌표
         const centerLat = center.getLat();
         const centerLng = center.getLng();
-        fetchFestivalInfo(centerLat, centerLng); // 축제 정보 업데이트
+        fetchPetInfo(centerLat, centerLng); // 반려동물 정보 업데이트
       });
 
       idleListenerRef.current = listener; // 리스너 저장
@@ -450,7 +452,7 @@ function MapComponentFestival() {
           const lng = position.coords.longitude;
           const kakao = window.kakao;
           const newCenter = new kakao.maps.LatLng(lat, lng);
-          mapRef.current.setCenter(newCenter);
+          mapRef.current.panTo(newCenter);
           setActiveOverlayKey(null); // 오버레이 닫기
         },
         function (error) {
@@ -469,16 +471,28 @@ function MapComponentFestival() {
   useEffect(() => {
     const kakao = window.kakao;
 
-    const fetchFestivalDetail = async (contentid, contenttypeid) => {
+    const fetchPetDetail = async (contentid) => {
       try {
         const response = await fetch(
-          `https://apis.data.go.kr/B551011/KorService1/detailInfo1?serviceKey=yUAPog6Rgt2Os0UIFDpFja5DVD0qzGn6j1PHTeXT5QkxuaK4FjVPHFSNLlVeQ9lD2Gv5P6fsJyUga4R5zA0osA%3D%3D&MobileOS=ETC&MobileApp=AppTest&_type=json&contentId=${contentid}&contentTypeId=${contenttypeid}&numOfRows=10&pageNo=1`
+          `https://apis.data.go.kr/B551011/KorPetTourService/detailPetTour?serviceKey=yUAPog6Rgt2Os0UIFDpFja5DVD0qzGn6j1PHTeXT5QkxuaK4FjVPHFSNLlVeQ9lD2Gv5P6fsJyUga4R5zA0osA%3D%3D&numOfRows=10&pageNo=1&MobileOS=ETC&MobileApp=AppTest&contentId=${contentid}&_type=json`
         );
         const data = await response.json();
-        if (data.response.header.resultCode === "0000") {
-          return data.response.body.items.item;
+        if (
+          data.response &&
+          data.response.header.resultCode === "0000" &&
+          data.response.body &&
+          data.response.body.totalCount > 0
+        ) {
+          const items = data.response.body.items.item;
+          if (Array.isArray(items)) {
+            return items;
+          } else if (items) {
+            return [items];
+          } else {
+            return [];
+          }
         } else {
-          console.error("API 호출 실패:", data.response.header.resultMsg);
+          console.error("API 호출 실패 또는 데이터 없음:", data.response.header.resultMsg);
           return [];
         }
       } catch (error) {
@@ -491,49 +505,61 @@ function MapComponentFestival() {
       const marker = markersRef.current.get(activeOverlayKey);
       if (marker) {
         const position = marker.getPosition();
-        const festivalInfo = festivalInfos.find(f => f.uniqueKey === activeOverlayKey);
+        const petInfo = petInfos.find(p => p.uniqueKey === activeOverlayKey);
 
-        if (festivalInfo) {
-          const { contentid, contenttypeid } = festivalInfo;
+        if (petInfo) {
+          const { contentid } = petInfo;
 
-          fetchFestivalDetail(contentid, contenttypeid).then(details => {
-            console.log("API URL:", `https://apis.data.go.kr/B551011/KorService1/detailInfo1?serviceKey=yUAPog6Rgt2Os0UIFDpFja5DVD0qzGn6j1PHTeXT5QkxuaK4FjVPHFSNLlVeQ9lD2Gv5P6fsJyUga4R5zA0osA%3D%3D&MobileOS=ETC&MobileApp=AppTest&_type=json&contentId=${contentid}&contentTypeId=${contenttypeid}&numOfRows=10&pageNo=1`);
+          fetchPetDetail(contentid).then(details => {
+            console.log("API URL:", `https://apis.data.go.kr/B551011/KorPetTourService/detailPetTour?serviceKey=yUAPog6Rgt2Os0UIFDpFja5DVD0qzGn6j1PHTeXT5QkxuaK4FjVPHFSNLlVeQ9lD2Gv5P6fsJyUga4R5zA0osA%3D%3D&numOfRows=10&pageNo=1&MobileOS=ETC&MobileApp=AppTest&contentId=${contentid}&_type=json`);
+            console.log("API Response Details:", details);
+
             // details가 항상 배열인지 확인
             const safeDetails = Array.isArray(details) ? details : [];
 
             // addr1과 addr2를 결합하여 주소 문자열 생성
-            const address = festivalInfo.addr1
-              ? (festivalInfo.addr2 ? `${festivalInfo.addr1}, ${festivalInfo.addr2}` : festivalInfo.addr1)
+            const address = petInfo.addr1
+              ? (petInfo.addr2 ? `${petInfo.addr1}, ${petInfo.addr2}` : petInfo.addr1)
               : '주소 정보 없음';
 
             // firstimage가 존재하면 이미지 태그 생성
-            const imageContent = festivalInfo.firstimage
-              ? `<img src="${festivalInfo.firstimage}" alt="${festivalInfo.title}" class="festival-image" />`
+            const imageContent = petInfo.firstimage
+              ? `<img src="${petInfo.firstimage}" alt="${petInfo.title}" class="pet-image" />`
               : `<p class="no-image">이미지 없음</p>`;
 
             // infoname과 infotext를 기반으로 추가 상세 정보 생성
-            const detailContent = safeDetails.map(detail => `
-            <p><strong>${detail.infoname}:</strong> ${detail.infotext}</p>
-          `).join("");
+            // 실제 API 응답에 맞게 필드명 수정
+            const detailContent = safeDetails.map(detail => {
+              return `
+                <p><strong>동반 유형:</strong> ${detail.acmpyTypeCd || '정보 없음'}</p>
+                <p><strong>관련 시설:</strong> ${detail.relaPosesFclty || '정보 없음'}</p>
+                <p><strong>기타 동반 정보:</strong> ${detail.etcAcmpyInfo || '정보 없음'}</p>
+                <p><strong>동반 가능 여부:</strong> ${detail.acmpyPsblCpam || '정보 없음'}</p>
+                <p><strong>동반 필요 사항:</strong> ${detail.acmpyNeedMtr || '정보 없음'}</p>
+              `;
+            }).join("");
 
             const content = `
-            <div class="customoverlay-content festival">
-              <h4>${festivalInfo.title}</h4>
-              ${imageContent}
-              <p><strong>문의처:</strong> ${festivalInfo.tel || '전화번호 없음'}</p>
-              <p><strong>주소:</strong> ${address}</p>
-              <p><strong>축제 기간:</strong> ${festivalInfo.eventStartDate} ~ ${festivalInfo.eventEndDate}</p>
-            </div>
-          `;
+              <div class="customoverlay-content pet">
+                <h4>${petInfo.title}</h4>
+                ${imageContent}
+                <p><strong>문의처:</strong> ${petInfo.tel || '전화번호 없음'}</p>
+                <p><strong>주소:</strong> ${address}</p>
+                <p><strong>등록일:</strong> ${petInfo.createdtime ? new Date(petInfo.createdtime).toLocaleDateString() : '정보 없음'}</p>
+              </div>
+            `;
             const contentDescription = `
-            <div class="customoverlay-content description">
-              <p>${detailContent}</p>
-            </div>
-          `;
+              <div class="customoverlay-content description">
+                ${detailContent}
+              </div>
+            `;
             const mergedContent = `
                 ${content}
                 ${contentDescription}
-          `;
+            `;
+
+            // detailContent이 undefined가 아닌지 확인
+            console.log("Merged Content:", mergedContent);
 
             overlayRef.current.setContent(mergedContent);
             overlayRef.current.setPosition(position);
@@ -548,7 +574,7 @@ function MapComponentFestival() {
         overlayRef.current.setMap(null);
       }
     }
-  }, [activeOverlayKey, festivalInfos]);
+  }, [activeOverlayKey, petInfos]);
 
   // 커스텀 레이아웃 표시 여부
   const [customOverlayVisible, setCustomOverlayVisible] = useState(false);
@@ -603,13 +629,13 @@ function MapComponentFestival() {
       {/* 지도 중앙에 항상 표시될 타겟 아이콘 */}
       <img src="/markers/aim.png" alt="Center Marker" className="map-center-icon" />
 
-      {/* 상시 축제 정보 모달창 */}
+      {/* 상시 반려동물 정보 모달창 */}
       <div className="persistent-modal">
-        <h3>축제 목록</h3>
-        {festivalInfos.length > 0 ? (
-          festivalInfos.map((festivalInfo, index) => {
+        <h3>반려동물 목록</h3>
+        {petInfos.length > 0 ? (
+          petInfos.map((petInfo, index) => {
             // 고유한 키 생성
-            const key = festivalInfo.uniqueKey;
+            const key = petInfo.uniqueKey;
 
             const handleClick = () => {
               // 지도 중심 이동
@@ -628,14 +654,14 @@ function MapComponentFestival() {
             return (
               <div
                 key={key}
-                className="tour-item"
+                className="pet-item"
                 onClick={handleClick} // 클릭 핸들러
               >
-                {festivalInfo.firstimage ? (
+                {petInfo.firstimage ? (
                   <img
-                    src={festivalInfo.firstimage}
-                    alt={festivalInfo.title}
-                    className="tour-item-image"
+                    src={petInfo.firstimage}
+                    alt={petInfo.title}
+                    className="pet-item-image"
                     onError={(e) => {
                       e.target.onerror = null;
                       e.target.src = '/markers/default.png'; // 대체 이미지 경로
@@ -646,16 +672,17 @@ function MapComponentFestival() {
                     이미지 없음
                   </div>
                 )}
-                <span className="tour-item-title">{festivalInfo.title}</span>
+                <span className="pet-item-title">{petInfo.title}</span>
               </div>
             );
           })
         ) : (
-          <p className="no-tours">축제가 없습니다.</p>
+          // 메시지 변경 부분
+          <p className="no-pets">반려동물 동반 여행지가 없습니다.</p>
         )}
       </div>
     </div>
   );
 }
 
-export default MapComponentFestival;
+export default MapComponentPet;
