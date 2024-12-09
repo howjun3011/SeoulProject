@@ -15,8 +15,10 @@ function CultureMuseumSearch(props) {
                                 <div className={styles.bestsellerFrameNo}>{index + 1}.</div>
                                 <div>
                                     <img
-                                        src={ data.referenceIdentifier ? `https://${data.referenceIdentifier}` : '/images/culture/noImage.png' }
+                                        src={ data.referenceIdentifier ? ( !data.referenceIdentifier.includes('https://') ? `https://${data.referenceIdentifier}` : data.referenceIdentifier )
+                                            : '/images/culture/noImage.png' }
                                         alt={data.title}
+                                        onError={(e) => {e.target.src = '/images/culture/noImage.png';}}
                                         style={{
                                             width: '80px',
                                             height: '100px'
