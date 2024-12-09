@@ -365,3 +365,14 @@
 .currentLocationButton:hover {
     background-color: #0056b3;
 }
+
+.hospName {
+    margin-bottom:5px;
+    cursor: pointer;
+    font-weight: bold;
+    text-decoration: none;
+}
+
+.hospName:hover {
+    color: cornflowerblue;
+}
