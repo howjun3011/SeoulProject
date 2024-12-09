@@ -47,9 +47,6 @@ public class KindergartenService {
 		int rowEnd = searchVO.getRowEnd();
 		List<KindergartenNameDto> items =
 				eduDao.KindergartenName(query, areas_array,(rowStart-1),8);
-		System.out.println("리스트 파라미터 : " + query);
-		System.out.println("리스트 파라미터 : " + areas_array);
-		System.out.println("리스트 파라미터 : " + (rowStart-1));
 		return new PageInfoDto<>(items,total,searchVO);
 	}
 }
