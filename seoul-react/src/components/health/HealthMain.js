@@ -90,6 +90,11 @@ function HealthMain() {
             window.kakao.maps.event.addListener(map, "dragstart", () => {
                 setSelectedMarker(null);
             });
+            // 지도 클릭 시 선택된 마커 해제
+            window.kakao.maps.event.addListener(map, "click", () => {
+                setSelectedMarker(null);
+            })
+            
             // 지도 드래그 종료 시 새로운 중심 좌표 설정
             window.kakao.maps.event.addListener(map, "mouseup", () => {
                 const center = map.getCenter();
