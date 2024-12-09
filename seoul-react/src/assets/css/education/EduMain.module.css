@@ -7,6 +7,8 @@
     position: relative; 
     width: 100%; 
     height: 100%;
+    z-index: 0;
+    font-family: '맑은 고딕', 'Malgun Gothic', sans-serif;
 }
 .educationFrame {
     width: 100%; 
@@ -93,12 +95,22 @@
     cursor: pointer;
 }
 
-
 .searchBox{
     height: 50px;
     width:100%;
     margin:10px 0;
     padding: 0 5px;
+    align-items: center;
+}
+.searchLine{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 0 auto;
+}
+.searchBtn{
+    width: 40px;
+    height: 30px;
 }
 .searchBox select,
 .searchBox input[type="text"] {
@@ -140,17 +152,32 @@
 .kinderResultListBox{
     padding: 0 0 10px 0;
 }
-
-.resultItem{
+.kinderResultList li{
     cursor: pointer;
-    margin: 10px 0 0 10px;
-    list-style-type: none;
 }
+
+.resultItem {
+    align-items: center; /* 세로(수직) 방향 가운데 정렬 */
+    padding: 10px 0; /* 리스트 아이템 간 위아래 여백 추가 */
+    position: relative; /* 위치 조정 가능하도록 설정 */
+    list-style-type:none ;
+}
+.resultItem p{
+    font-size: 0.8em;
+}
+.resultItem::after {
+    content: ""; /* 가상 요소 생성 */
+    position: absolute; /* 부모를 기준으로 위치 지정 */
+    bottom: 0; /* 내용물에서 3px 아래로 선 배치 */
+    left: 0;
+    right: 0;
+    border-bottom: 1px solid #ddd; /* 수평선 스타일 */
+}
+
 .footPage {
     display: flex; /* 수평 정렬 */
     justify-content: center; /* 중앙 정렬 */
     align-items: center; /* 세로 정렬 */
-    margin-top: 20px; /* 버튼과 다른 콘텐츠 간 간격 */
 }
 
 .pagination {
@@ -159,19 +186,178 @@
     display: flex;
     justify-content: center;
     gap: 1rem;
-  
+
     > * {
-      cursor: pointer;
+        cursor: pointer;
     }
-  }
-  
-  .pagination__link {
+}
+
+.pagination__link {
     transition: all 0.25s;
     padding: 0.2rem 0.6rem;
     border-radius: 0.3rem;
-  }
-  
-  .pagination__link__active {
+}
+
+.pagination__link__active {
     background-color: #bbb;
     color: #fefefe;
-  }
+}
+/* 
+                지도 오버레이
+*/
+.markerInfo p{
+    font-size: 0.8em;
+    overflow:hidden;
+    height:auto;
+}
+
+.markerInfo {
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1); /* 약간의 그림자 추가 */
+    white-space: nowrap; /* 글씨가 너무 길 경우 한 줄로 유지 */
+    font-size: 14px; /* 글씨 크기 */
+    background-color: white; /* 배경을 흰색으로 설정 */
+    line-height: 1.5; /* 줄 간격 */
+    text-align: center; /* 내용 정렬 */
+    border: 1px solid #ccc; /* 테두리를 추가해 구분 가능하게 */
+    border-radius: 8px; /* 모서리를 둥글게 */
+    padding: 5px;
+    transform: translateY(-75px);
+    cursor: pointer;
+}
+.marker-container {
+    position: relative; /* 상대 위치 설정 */
+    z-index: 1; /* 기본 z-index */
+}
+
+.markerSet,
+.customO {
+    position: absolute; /* 오버레이와 마커 위치 */
+    z-index: 1; /* 기본 z-index */
+}
+
+
+/* 
+        유치원 상세정보
+ */
+
+ .infoBackground {
+    position: absolute; /* 화면에 고정 위치 */
+    width: 600px; /* 가로 크기 */
+    height: 80%; /* 세로 크기 */
+    left: 40%; /* 화면의 왼쪽에서 40% 위치 */
+    top: 50%; /* 화면의 세로 중앙 */
+    transform: translate(-50%, -50%); /* 위치를 중앙으로 조정 */
+    background-color: rgba(255, 255, 255); /* 배경 흰색, 약간의 투명도 */
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2); /* 그림자 추가 */
+    border-radius: 3px; /* 모서리 둥글게 */
+    padding: 10px; /* 내부 여백 */
+    overflow-y: auto; /* 내용이 넘치면 스크롤 */
+    z-index: 999999; /* 다른 요소 위로 올라오도록 설정 */
+    scrollbar-width: thin; /* Firefox에서 스크롤바 얇게 */
+    scrollbar-color: #cccccc #f0f0f0; /* Firefox 스크롤바 색상 */
+}
+
+.infoBaseTitle{
+    margin-top: 30px;
+    border: solid 5px #ddd;
+    border-radius: 20px;
+    padding: 10px 0;
+}
+.semiTitle{
+    text-align: center;
+}
+.infoBaseUl{
+    margin-top: 10px;
+    margin-left: 50px;
+}
+
+.infoBaseLi{
+    list-style-type: none;
+    line-height: 2rem;
+    position: relative;
+    display: flex;
+    align-items: center; 
+}
+.infoBaseLi i{
+    min-width: 100px;
+    display: table-cell;
+    font-style: normal;
+    font-size: 0.8em;
+    line-height: 1.6rem;
+}
+.infoBaseLi h5{
+    min-width: 100px;
+    display: table-cell;
+    font-style: normal;
+    font-size: 0.8em;
+    line-height: 1.6rem;
+}
+.infoBaseLi span{
+    margin-left: 20px;
+    font-style: normal;
+    font-size: 0.8em;
+    
+}
+
+.closeInfoButton{
+    float: right;
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-family: Arial, Helvetica, sans-serif;
+    font-weight: normal;
+    font-size: 30px;
+}
+
+.infoChartBox {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 50px;
+    justify-content: center;
+    overflow: hidden;
+    height: 800px;
+    margin: 10px 0;
+}
+
+.chartjs-legend {
+    display: block !important; /* 범례가 숨겨지지 않도록 설정 */
+    visibility: visible !important;
+}
+.cycleChart{
+    text-align: center;
+    height: 200px; 
+    width: 200px; 
+}
+
+.legendList {
+    align-items: left;
+    list-style: none; /* 기본 리스트 스타일 제거 */
+    padding: 0;
+    margin: 10px 0 0;
+    display: flex;
+    flex-direction: column; /* 세로 정렬 */
+    gap: 5px; /* 항목 간 간격 */
+}
+
+.legendItem {
+    display: flex;
+    align-items: center; /* 텍스트와 색상 정렬 */
+    font-size: 14px; /* 글씨 크기 */
+    color: #333; /* 글씨 색상 */
+}
+
+.legendCol {
+    display: inline-block;
+    width: 16px; /* 원하는 크기로 조정 */
+    height: 16px;
+    border-radius: 4px; /* 둥근 모서리 */
+    margin-right: 8px; /* 텍스트와 간격 */
+}
+.legendText{
+    text-align: left;
+    min-width: 130px;
+}
+canvas{
+    margin-top: 10px;
+}
+

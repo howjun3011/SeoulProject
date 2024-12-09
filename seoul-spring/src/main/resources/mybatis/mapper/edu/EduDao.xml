@@ -3,18 +3,6 @@
   PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
   "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.tech.seoul.edu.models.EduDao">
-	<select id="KindergartenNormal" resultType="com.tech.seoul.edu.models.KindergartenDto">
-		SELECT 
-			kindergarten_name 
-		FROM 
-			kids_normal_now
-		WHERE 
-			x_coordinate &gt; ${swLng} 
-			AND x_coordinate &lt; ${neLng}
-			AND y_coordinate &gt; ${swLat} 
-			AND y_coordinate &lt; (${neLat}-((${neLat}-${neLat})/3) )
-	</select>
-	
 	<sql id="includeKinderName" >
 		<choose>
 			<when test="query != null">
@@ -58,4 +46,119 @@
 			<include refid="includeKinderName" />
 			<include refid="includeKinderAddress" />
 	</select>
+	
+    <select id="selectKinderInfo" resultType="com.tech.seoul.edu.models.KinderDetailInfoDto">
+        SELECT 
+            knn.office_education,
+            knn.kindergarten_name,
+            knn.kindergarten_type,
+            knn.address,
+            
+            knn.hearder,
+            knn.director,
+            knn.birth,
+            knn.start,
+            knn.tel,
+            knn.home_page,
+            knn.operating_hours,
+            knn.class_count_3,
+            knn.class_count_4,
+            knn.class_count_5,
+            knn.class_count_mix,
+            knn.class_count_special,
+            knn.students_max_total,
+            knn.students_max_3,
+            knn.students_max_4,
+            knn.students_max_5,
+            knn.students_max_mix,
+            knn.students_max_special,
+            knn.students_now_3,
+            knn.students_now_4,
+            knn.students_now_5,
+            knn.students_now_mix,
+            knn.students_now_special,
+            knn.y_coordinate,
+            knn.x_coordinate,
+
+            kca.classroom_count,
+            kca.area_classroom,
+            kca.area_gym,
+            kca.area_clean,
+            kca.area_cook,
+            kca.area_etc,
+
+            ksm.management_method,
+            ksm.management_company,
+            ksm.students_total_count,
+            ksm.students_meals_count,
+            ksm.dietitian_check,
+            ksm.dietitian_single_count,
+            ksm.dietitian_multi_count,
+            ksm.dietitian_multi_name,
+            ksm.chef_count,
+            ksm.cook_count,
+            ksm.catering_report_check,
+
+            kas.start_time,
+            kas.end_time,
+            kas.class_independent_count,
+            kas.class_afternoon_count,
+            kas.class_total_count,
+            kas.students_independent_count,
+            kas.students_afternoon_count,
+            kas.students_total_count,
+            kas.teacher_regular_count,
+            kas.teacher_temporary_count,
+            kas.teacher_Dedicated_count,
+            kas.teacher_total_count,
+
+            ksi.play_goods_check,
+            ksi.play_goods_check_date,
+            ksi.play_goods_check_result,
+            ksi.cctv_have,
+            ksi.cctv_in,
+            ksi.cctv_out,
+            ksi.cctv_total,
+
+            kc.car_check,
+            kc.car_active_total_count,
+            kc.car_report_total_count,
+            kc.car_9,
+            kc.car_12,
+            kc.car_15,
+            
+            ktc.total_teacher_count
+
+        FROM 
+            kids_normal_now knn
+        LEFT JOIN 
+            kids_classroom_area kca 
+            ON knn.kindergarten_name = kca.kindergarten_name 
+            AND knn.address = kca.address
+        LEFT JOIN 
+            kids_school_meals ksm 
+            ON knn.kindergarten_name = ksm.kindergarten_name 
+            AND knn.address = ksm.address
+        LEFT JOIN 
+            kids_after_school kas 
+            ON knn.kindergarten_name = kas.kindergarten_name 
+            AND knn.address = kas.address
+        LEFT JOIN 
+            kids_safety_inspection ksi 
+            ON knn.kindergarten_name = ksi.kindergarten_name 
+            AND knn.address = ksi.address
+        LEFT JOIN 
+            kids_car kc 
+            ON knn.kindergarten_name = kc.kindergarten_name 
+            AND knn.address = kc.address
+        LEFT JOIN 
+            kids_teacher_count ktc
+            ON knn.kindergarten_name = ktc.kindergarten_name 
+            AND knn.address = ktc.address
+        WHERE 
+            knn.kindergarten_name = #{kindergarten_name}
+            AND knn.address = #{address}
+    </select>
+
+	
 </mapper>
