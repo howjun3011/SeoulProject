@@ -623,6 +623,13 @@ function MapComponent() {
     navigate('/seoul/tour/festival');
   };
 
+  /**
+   * 펫 페이지로 이동하는 함수
+   */
+  const navigateToPet = () => {
+    navigate('/seoul/tour/pet');
+  };
+
   // 커스텀 레이아웃 표시 여부
   const [customOverlayVisible, setCustomOverlayVisible] = useState(false);
 
@@ -663,6 +670,15 @@ function MapComponent() {
         style={{ position: 'absolute', top: '10px', left: '10px', zIndex: 5 }}
       >
         축제 보기
+      </button>
+
+      {/* 펫 페이지로 이동하는 버튼 */}
+      <button
+        onClick={navigateToPet}
+        className="navigate-festival-button"
+        style={{ position: 'absolute', top: '60px', left: '10px', zIndex: 5 }}
+      >
+        펫 보기
       </button>
 
       {/* 커스텀 레이아웃 닫기 버튼 */}
