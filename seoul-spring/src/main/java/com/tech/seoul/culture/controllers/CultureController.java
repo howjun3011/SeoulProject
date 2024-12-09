@@ -1,5 +1,7 @@
 package com.tech.seoul.culture.controllers;
 
+import java.util.Calendar;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 
@@ -9,7 +11,6 @@ import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 
 import com.tech.seoul.culture.service.CultureService;
-import org.springframework.web.client.RestTemplate;
 
 @RestController
 @RequestMapping("/culture")
@@ -71,5 +72,31 @@ public class CultureController {
 	@GetMapping(value = "/getExhibitionInfo", produces = MediaType.APPLICATION_JSON_VALUE)
 	public String getExhibitionInfoMain() throws Exception {
 		return cultureService.getXmlToJsonService("http://api.kcisa.kr/openapi/API_CCA_145/request?serviceKey="+nationalExhibitionKey+"&numOfRows=400&pageNo=1");
+	}
+
+	// 문화재 정보
+	@GetMapping(value = "/getCulturalAssetsInfo", produces = MediaType.APPLICATION_JSON_VALUE)
+	public String getCulturalAssetsInfoMain(@RequestParam HashMap<String, Object> map) throws Exception {
+		return cultureService.getXmlToJsonService("https://www.khs.go.kr/cha/SearchKindOpenapiList.do?ccbaKdcd="+map.get("sort").toString()+"&ccbaCtcd=11&pageUnit=1000");
+	}
+
+	// 문화재 상세 정보
+	@GetMapping(value = "/getCulturalAssetsDetail", produces = MediaType.APPLICATION_JSON_VALUE)
+	public String getCulturalAssetsDetailMain(@RequestParam HashMap<String, Object> map) throws Exception {
+		return cultureService.getXmlToJsonService("http://www.khs.go.kr/cha/SearchKindOpenapiDt.do?ccbaKdcd="+map.get("sort").toString()+"&ccbaCtcd=11&ccbaAsno="+map.get("code").toString());
+	}
+
+	// 문화재 행사 정보
+	@GetMapping(value = "/getCulturalAssetsEvent", produces = MediaType.APPLICATION_JSON_VALUE)
+	public String getCulturalAssetsEventMain() throws Exception {
+		Calendar now = Calendar.getInstance();
+
+		return cultureService.getXmlToJsonService("https://www.khs.go.kr/cha/openapi/selectEventListOpenapi.do?searchYear="+now.get(Calendar.YEAR)+"&searchMonth="+(now.get(Calendar.MONTH)+1));
+	}
+
+	// 문화재 검색
+	@GetMapping(value = "/getCulturalAssetsSearch", produces = MediaType.APPLICATION_JSON_VALUE)
+	public String getCulturalAssetsSearchMain(@RequestParam HashMap<String, Object> map) throws Exception {
+		return cultureService.getXmlToJsonService("http://www.khs.go.kr/cha/SearchKindOpenapiList.do?ccbaMnm1="+map.get("name").toString()+"&ccbaCtcd=11&pageUnit=50");
 	}
 }

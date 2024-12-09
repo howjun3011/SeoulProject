@@ -40,3 +40,7 @@
 .cultureBookStoreName {display: flex; margin: 0 20px; padding: 35px 0 25px 5px; font-size: 20px; border-bottom: 1px solid #e2e2e2;}
 .cultureBookStoreCenter {padding: 30px 25px; font-size: 15px;}
 .cultureBookStoreInfo {line-height: 20px; white-space: normal; word-wrap: break-word;}
+
+.cultureAssetFileName:hover {font-weight: 600;}
+.assetSearchFrame {padding: 4px; border-radius: 4px;}
+.assetSearchFrame:hover {background: #e2e2e2; cursor: pointer;}
