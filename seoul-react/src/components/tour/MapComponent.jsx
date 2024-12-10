@@ -13,6 +13,12 @@ function MapComponent() {
   const [isMapLoaded, setIsMapLoaded] = useState(false); // 지도 로드 상태
   const [tourInfos, setTourInfos] = useState([]); // 현재 표시된 관광지 정보
 
+  // 클러스터 마커를 위한 상태
+  const [clusters, setClusters] = useState([]);
+
+  // 클러스터 팝업 상태
+  const [clusterPopup, setClusterPopup] = useState({ visible: false, tours: [], position: null });
+
   // useRef 훅을 사용하여 변수 관리
   const mapRef = useRef(null); // 지도 인스턴스 저장
   const overlayRef = useRef(null); // 오버레이 인스턴스 저장
@@ -93,8 +99,6 @@ function MapComponent() {
 
   /**
    * 관광지 정보를 가져와 마커를 업데이트합니다.
-   * @param {number} centerLat - 지도 중심의 위도
-   * @param {number} centerLng - 지도 중심의 경도
    */
   const fetchTourInfo = async (centerLat, centerLng) => {
     try {
@@ -107,11 +111,11 @@ function MapComponent() {
         },
       });
 
-      // 기존 마커 제거
-      markersRef.current.forEach((marker) => {
+      // 기존 마커 제거 (단일 마커만)
+      markersRef.current.forEach((marker, key) => {
         marker.setMap(null);
+        markersRef.current.delete(key);
       });
-      markersRef.current.clear(); // Map 객체 비우기
 
       // 중복 제거: title과 좌표를 기준으로 중복된 항목 필터링
       const uniqueTours = response.data.filter((tour, index, self) =>
@@ -126,38 +130,99 @@ function MapComponent() {
         uniqueKey: tour.id || `${tour.mapX}-${tour.mapY}-${index}`, // 고유 키 생성
       }));
 
-      // 새로운 마커 추가
-      uniqueToursWithKeys.forEach((tourInfo) => {
-        const position = new window.kakao.maps.LatLng(tourInfo.mapY, tourInfo.mapX);
+      // 좌표별로 그룹화 (간단히 동일 좌표로 그룹화)
+      const groupedTours = uniqueToursWithKeys.reduce((groups, tour) => {
+        const key = `${tour.mapY.toFixed(5)}_${tour.mapX.toFixed(5)}`; // 소수점 5자리까지 반올림하여 그룹화
+        if (!groups[key]) {
+          groups[key] = [];
+        }
+        groups[key].push(tour);
+        return groups;
+      }, {});
 
-        // 카테고리에 따른 마커 이미지 선택
-        const markerImageSrc = markerImages[tourInfo.cat1] || markerImages.default; // 기본 마커 이미지 경로
-        const imageSize = new window.kakao.maps.Size(33, 44); // 마커 이미지 크기
-        const markerImage = new window.kakao.maps.MarkerImage(markerImageSrc, imageSize);
+      const clusterData = [];
 
-        const marker = new window.kakao.maps.Marker({
-          position: position,
-          image: markerImage, // 마커 이미지 설정
-          map: mapRef.current,
-          zIndex: 3, // 마커의 zIndex 설정
-        });
+      Object.keys(groupedTours).forEach((groupKey) => {
+        const tours = groupedTours[groupKey];
+        if (tours.length === 1) {
+          // 단일 마커
+          const tourInfo = tours[0];
+          const position = new window.kakao.maps.LatLng(tourInfo.mapY, tourInfo.mapX);
 
-        // 마커를 Map에 저장
-        const markerKey = tourInfo.uniqueKey;
-        markersRef.current.set(markerKey, marker);
+          // 카테고리에 따른 마커 이미지 선택
+          const markerImageSrc = markerImages[tourInfo.cat1] || markerImages.default; // 기본 마커 이미지 경로
+          const imageSize = new window.kakao.maps.Size(33, 44); // 마커 이미지 크기
+          const markerImage = new window.kakao.maps.MarkerImage(markerImageSrc, imageSize);
 
-        // 마커 클릭 이벤트 등록
-        window.kakao.maps.event.addListener(marker, 'click', () => {
-          // 활성화된 오버레이 키 설정
-          setActiveOverlayKey(markerKey);
-        });
+          const marker = new window.kakao.maps.Marker({
+            position: position,
+            image: markerImage, // 마커 이미지 설정
+            map: mapRef.current,
+            zIndex: 3, // 마커의 zIndex 설정
+          });
+
+          // 마커를 Map에 저장
+          const markerKey = tourInfo.uniqueKey;
+          markersRef.current.set(markerKey, marker);
+
+          // 마커 클릭 이벤트 등록
+          window.kakao.maps.event.addListener(marker, 'click', () => {
+            // 활성화된 오버레이 키 설정
+            setActiveOverlayKey(markerKey);
+          });
+        } else {
+          // 클러스터 마커
+          const firstTour = tours[0];
+          const position = new window.kakao.maps.LatLng(firstTour.mapY, firstTour.mapX);
+
+          const clusterMarker = new window.kakao.maps.Marker({
+            position: position,
+            map: mapRef.current,
+            zIndex: 5, // 클러스터 마커의 zIndex 설정
+            image: new window.kakao.maps.MarkerImage(
+              `/markers/cluster.png`, // 클러스터 마커 이미지 경로 (숫자가 표시된 이미지 필요)
+              new window.kakao.maps.Size(40, 40)
+            ),
+          });
+
+          // 숫자 표시를 위한 커스텀 오버레이 생성
+          const clusterOverlay = new window.kakao.maps.CustomOverlay({
+            content: `<div class="cluster-overlay">${tours.length}</div>`,
+            position: position,
+            map: mapRef.current,
+            yAnchor: 0.5,
+            xAnchor: 0.5,
+            zIndex: 6,
+          });
+
+          // 클러스터 마커 클릭 시 팝업 표시
+          window.kakao.maps.event.addListener(clusterMarker, 'click', () => {
+            setClusterPopup({
+              visible: true,
+              tours: tours,
+              position: position,
+            });
+          });
+
+          // 클러스터 데이터를 저장
+          clusterData.push({ marker: clusterMarker, overlay: clusterOverlay, tours: tours });
+        }
       });
+
+      setClusters(clusterData); // 클러스터 상태 업데이트
 
       // 관광지 정보를 상태에 저장
       setTourInfos(uniqueToursWithKeys);
     } catch (error) {
       console.error('Error fetching tour info:', error);
     }
+  };
+
+  /**
+   * 클러스터 팝업을 닫는 함수
+   */
+  const closeClusterPopup = () => {
+    setClusterPopup({ visible: false, tours: [], position: null });
   };
 
   /**
@@ -195,7 +260,7 @@ function MapComponent() {
      * 지도를 초기화하고 현재 위치를 표시합니다.
      */
     const initializeMap = () => {
-      const kakao = window.kakao;
+      const kakao = window.kakao; // kakao 정의
 
       // 위치 정보 요청 및 지도 초기화
       if (navigator.geolocation) {
@@ -223,7 +288,7 @@ function MapComponent() {
      * @param {number} lng - 초기 지도 중심의 경도
      */
     const setupMap = (lat, lng) => {
-      const kakao = window.kakao;
+      const kakao = window.kakao; // kakao 정의
       const container = document.getElementById('map'); // 지도를 표시할 div
       const options = {
         center: new kakao.maps.LatLng(lat, lng), // 초기 지도 중심좌표
@@ -289,7 +354,7 @@ function MapComponent() {
    * @description seoulGeoJSON 데이터의 좌표를 사용하여 서울의 구 단위 경계선을 그립니다.
    */
   const createSeoulPolygon = () => {
-    const kakao = window.kakao;
+    const kakao = window.kakao; // kakao 정의
     const polygons = [];
 
     // GeoJSON 파일이 제대로 로드되었는지 확인
@@ -358,7 +423,7 @@ function MapComponent() {
    * @description seoulBoundary GeoJSON 데이터를 사용하여 서울의 최외곽 경계선을 그립니다.
    */
   const createSeoulBoundaryPolygon = () => {
-    const kakao = window.kakao;
+    const kakao = window.kakao; // kakao 정의
     console.log('createSeoulBoundaryPolygon 호출 시 seoulBoundary:', seoulBoundary);
     const polygons = [];
 
@@ -430,7 +495,7 @@ function MapComponent() {
   useEffect(() => {
     if (!isMapLoaded || !mapRef.current) return;
 
-    const kakao = window.kakao;
+    const kakao = window.kakao; // kakao 정의
 
     /**
      * 'idle' 이벤트 리스너를 추가하여 지도가 이동 완료될 때마다 호출됩니다.
@@ -465,7 +530,7 @@ function MapComponent() {
   useEffect(() => {
     if (!isMapLoaded || !mapRef.current) return;
 
-    const kakao = window.kakao;
+    const kakao = window.kakao; // kakao 정의
 
     // 현재 지도 중심 좌표 가져오기
     const center = mapRef.current.getCenter();
@@ -485,7 +550,7 @@ function MapComponent() {
         function (position) {
           const lat = position.coords.latitude;
           const lng = position.coords.longitude;
-          const kakao = window.kakao;
+          const kakao = window.kakao; // kakao 정의
           const newCenter = new kakao.maps.LatLng(lat, lng);
           mapRef.current.setCenter(newCenter);
           setActiveOverlayKey(null); // 오버레이 닫기
@@ -511,7 +576,7 @@ function MapComponent() {
    * 활성화된 오버레이를 업데이트할 때 호출되는 useEffect
    */
   useEffect(() => {
-    const kakao = window.kakao;
+    const kakao = window.kakao; // kakao 정의
 
     const fetchTourDetail = async (contentId) => {
       const serviceKey = "yUAPog6Rgt2Os0UIFDpFja5DVD0qzGn6j1PHTeXT5QkxuaK4FjVPHFSNLlVeQ9lD2Gv5P6fsJyUga4R5zA0osA==";
@@ -542,71 +607,69 @@ function MapComponent() {
     };
 
     if (activeOverlayKey) {
-      const marker = markersRef.current.get(activeOverlayKey);
-      if (marker) {
-        const position = marker.getPosition();
-        const tourInfo = tourInfos.find(t => t.uniqueKey === activeOverlayKey);
+      const tourInfo = tourInfos.find(t => t.uniqueKey === activeOverlayKey);
+      if (tourInfo) {
+        // API 호출
+        fetchTourDetail(tourInfo.contentid).then((detailData) => {
+          if (detailData) {
+            // 추가로 detailInfo 데이터 가져오기
+            fetchTourDetailInfo(tourInfo.contentid, detailData.contenttypeid).then((detailInfo) => {
+              const address = detailData.addr1
+                ? detailData.addr2
+                  ? `${detailData.addr1}, ${detailData.addr2}`
+                  : detailData.addr1
+                : "주소 정보 없음";
 
-        if (tourInfo) {
-          // API 호출
-          fetchTourDetail(tourInfo.contentid).then((detailData) => {
-            if (detailData) {
-              // 추가로 detailInfo 데이터 가져오기
-              fetchTourDetailInfo(tourInfo.contentid, detailData.contenttypeid).then((detailInfo) => {
-                const address = detailData.addr1
-                  ? detailData.addr2
-                    ? `${detailData.addr1}, ${detailData.addr2}`
-                    : detailData.addr1
-                  : "주소 정보 없음";
+              // 가져온 데이터를 조건부로 표시
+              const extraInfo = `
+                ${detailInfo?.infocenterfood ? `<p><strong>식당 문의처:</strong> ${detailInfo.infocenterfood}</p>` : ""}
+                ${detailInfo?.opentimefood ? `<p><strong>영업시간:</strong> ${detailInfo.opentimefood}</p>` : ""}
+                ${detailInfo?.infocentershopping ? `<p><strong>쇼핑 문의처:</strong> ${detailInfo.infocentershopping}</p>` : ""}
+                ${detailInfo?.opentime ? `<p><strong>운영 시간:</strong> ${detailInfo.opentime}</p>` : ""}
+                ${detailInfo?.infocenterlodging ? `<p><strong>숙소 문의처:</strong> ${detailInfo.infocenterlodging}</p>` : ""}
+                ${detailInfo?.checkintime && detailInfo?.checkouttime
+                ? `<p><strong>체크인:</strong> ${detailInfo.checkintime}, <strong>체크아웃:</strong> ${detailInfo.checkouttime}</p>`
+                : ""}
+                ${detailInfo?.infocenterleports ? `<p><strong>레포츠 문의처:</strong> ${detailInfo.infocenterleports}</p>` : ""}
+                ${detailInfo?.usetimeleports ? `<p><strong>레포츠 이용 시간:</strong> ${detailInfo.usetimeleports}</p>` : ""}
+                ${detailInfo?.infocenter ? `<p><strong>일반 문의:</strong> ${detailInfo.infocenter}</p>` : ""}
+                ${detailInfo?.usetime ? `<p><strong>이용 시간:</strong> ${detailInfo.usetime}</p>` : ""}
+                ${detailInfo?.infocenterculture ? `<p><strong>문화 문의처:</strong> ${detailInfo.infocenterculture}</p>` : ""}
+                ${detailInfo?.sponsor1tel ? `<p><strong>스폰서 연락처:</strong> ${detailInfo.sponsor1tel}</p>` : ""}
+                ${detailInfo?.playtime ? `<p><strong>운영 시간:</strong> ${detailInfo.playtime}</p>` : ""}
+              `;
 
-                // 가져온 데이터를 조건부로 표시
-                const extraInfo = `
-                  ${detailInfo?.infocenterfood ? `<p><strong>식당 문의처:</strong> ${detailInfo.infocenterfood}</p>` : ""}
-                  ${detailInfo?.opentimefood ? `<p><strong>영업시간:</strong> ${detailInfo.opentimefood}</p>` : ""}
-                  ${detailInfo?.infocentershopping ? `<p><strong>쇼핑 문의처:</strong> ${detailInfo.infocentershopping}</p>` : ""}
-                  ${detailInfo?.opentime ? `<p><strong>운영 시간:</strong> ${detailInfo.opentime}</p>` : ""}
-                  ${detailInfo?.infocenterlodging ? `<p><strong>숙소 문의처:</strong> ${detailInfo.infocenterlodging}</p>` : ""}
-                  ${detailInfo?.checkintime && detailInfo?.checkouttime
-                          ? `<p><strong>체크인:</strong> ${detailInfo.checkintime}, <strong>체크아웃:</strong> ${detailInfo.checkouttime}</p>`
-                          : ""}
-                  ${detailInfo?.infocenterleports ? `<p><strong>레포츠 문의처:</strong> ${detailInfo.infocenterleports}</p>` : ""}
-                  ${detailInfo?.usetimeleports ? `<p><strong>레포츠 이용 시간:</strong> ${detailInfo.usetimeleports}</p>` : ""}
-                  ${detailInfo?.infocenter ? `<p><strong>일반 문의:</strong> ${detailInfo.infocenter}</p>` : ""}
-                  ${detailInfo?.usetime ? `<p><strong>이용 시간:</strong> ${detailInfo.usetime}</p>` : ""}
-                  ${detailInfo?.infocenterculture ? `<p><strong>문화 문의처:</strong> ${detailInfo.infocenterculture}</p>` : ""}
-                  ${detailInfo?.sponsor1tel ? `<p><strong>스폰서 연락처:</strong> ${detailInfo.sponsor1tel}</p>` : ""}
-                  ${detailInfo?.playtime ? `<p><strong>운영 시간:</strong> ${detailInfo.playtime}</p>` : ""}
-                `;
+              const content = `
+                <div class="customoverlay-content">
+                  <h4>${detailData.title}</h4>
+                  ${detailData.firstimage ? `<img src="${detailData.firstimage}" alt="${detailData.title}" onerror="this.src='/markers/default.png'" />` : `<p>이미지가 없습니다.</p>`}
+                  <p><strong>주소:</strong> ${address}</p>
+                  ${extraInfo} <!-- 추가 정보 표시 -->
+                </div>
+              `;
 
-                const content = `
-                  <div class="customoverlay-content">
-                    <h4>${detailData.title}</h4>
-                    ${detailData.firstimage ? `<img src="${detailData.firstimage}" alt="${detailData.title}" onerror="this.src='/markers/default.png'" />` : `<p>이미지가 없습니다.</p>`}
-                    <p><strong>주소:</strong> ${address}</p>
-                    ${extraInfo} <!-- 추가 정보 표시 -->
-                  </div>
-                `;
+              const contentDescription = `
+                <div class="customoverlay-content description">
+                  <p><strong>설명:</strong> ${detailData.overview || "설명 없음"}</p>
+                </div>
+              `;
 
-                const contentDescription = `
-                  <div class="customoverlay-content description">
-                    <p><strong>설명:</strong> ${detailData.overview || "설명 없음"}</p>
-                  </div>
-                `;
+              const mergedContent = `
+                ${content}
+                ${contentDescription}
+              `;
 
-                const mergedContent = `
-                  ${content}
-                  ${contentDescription}
-                `;
+              // 관광지의 위치를 LatLng 객체로 생성
+              const position = new kakao.maps.LatLng(tourInfo.mapY, tourInfo.mapX);
 
-                overlayRef.current.setContent(mergedContent);
-                overlayRef.current.setPosition(position);
-                overlayRef.current.setZIndex(100);
-                overlayRef.current.setMap(mapRef.current);
-              });
-            }
-          });
-        }
-
+              // 오버레이 설정
+              overlayRef.current.setContent(mergedContent);
+              overlayRef.current.setPosition(position);
+              overlayRef.current.setZIndex(100);
+              overlayRef.current.setMap(mapRef.current);
+            });
+          }
+        });
       }
     } else {
       // 오버레이 숨기기
@@ -675,11 +738,52 @@ function MapComponent() {
       {/* 펫 페이지로 이동하는 버튼 */}
       <button
         onClick={navigateToPet}
-        className="navigate-festival-button"
+        className="navigate-pet-button"
         style={{ position: 'absolute', top: '60px', left: '10px', zIndex: 5 }}
       >
-        펫 보기
+        애견동반지 보기
       </button>
+
+      {/* 클러스터 팝업 */}
+      {clusterPopup.visible && (
+        <div
+          className="cluster-popup"
+          style={{
+            position: 'absolute',
+            top: '50%',
+            left: '50%',
+            transform: 'translate(-50%, -50%)',
+            backgroundColor: 'white',
+            padding: '20px',
+            borderRadius: '8px',
+            boxShadow: '0 2px 8px rgba(0,0,0,0.3)',
+            zIndex: 1002,
+          }}
+        >
+          <h4>관광지 목록</h4>
+          <ul>
+            {clusterPopup.tours.map((tour) => (
+              <li key={tour.uniqueKey}>
+                <button
+                  className="cluster-tour-button"
+                  onClick={() => {
+                    const kakao = window.kakao; // kakao 정의
+                    // 지도 중심 이동 및 오버레이 표시
+                    mapRef.current.panTo(new kakao.maps.LatLng(tour.mapY, tour.mapX));
+                    setActiveOverlayKey(tour.uniqueKey);
+                    closeClusterPopup();
+                  }}
+                >
+                  {tour.title}
+                </button>
+              </li>
+            ))}
+          </ul>
+          <button onClick={closeClusterPopup} className="close-cluster-popup">
+            닫기
+          </button>
+        </div>
+      )}
 
       {/* 커스텀 레이아웃 닫기 버튼 */}
       {customOverlayVisible && (
@@ -731,17 +835,12 @@ function MapComponent() {
             const key = tourInfo.uniqueKey;
 
             const handleClick = () => {
+              const kakao = window.kakao; // kakao 정의
               // 지도 중심 이동
-              const marker = markersRef.current.get(key);
-              if (marker) {
-                const position = marker.getPosition();
-                mapRef.current.panTo(position); // 지도 중심 이동
+              mapRef.current.panTo(new kakao.maps.LatLng(tourInfo.mapY, tourInfo.mapX));
 
-                // 활성화된 오버레이 설정
-                setActiveOverlayKey(key);
-              } else {
-                console.warn(`Marker not found for key: ${key}`);
-              }
+              // 활성화된 오버레이 설정
+              setActiveOverlayKey(key);
             };
 
             return (
