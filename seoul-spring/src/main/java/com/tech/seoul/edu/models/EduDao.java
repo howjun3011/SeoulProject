@@ -19,4 +19,16 @@ public interface EduDao {
 			@Param("kindergarten_name") String kindergarten_name,
 			@Param("address") String address);
 	
+	public int LocalCenterNameCnt(
+			@Param("query") String query,
+			@Param("areas") String[] areas );
+	public List<KidsLocalCenterNameDto> LocalCenterName(
+			@Param("query") String query,
+			@Param("areas") String[] areas,
+			@Param("start") int start,
+			@Param("end") int end);
+	public KidsLocalCenterDetailDto selectCenterInfo(
+			@Param("center_name") String center_name,
+			@Param("address") String address);
+	
 }

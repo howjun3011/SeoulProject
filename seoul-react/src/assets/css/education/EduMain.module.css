@@ -94,7 +94,11 @@
     text-align: center;
     cursor: pointer;
 }
-
+.educationTab .tab.active{
+    background-color: #e0e0e0; /* 선택된 탭의 배경색 */
+    font-weight: bold; /* 글씨 굵게 */
+    color: #111; /* 글씨 색상 */
+}
 .searchBox{
     height: 50px;
     width:100%;
