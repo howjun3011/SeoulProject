@@ -4,6 +4,7 @@ import CommonMap from "../common/CommonMap";
 import React, { useEffect, useState } from "react";
 import { MapMarker, CustomOverlayMap } from "react-kakao-maps-sdk";
 import HospitalDetail from "./HospitalDetail";
+import WeatherInfo from "./WeatherInfo";
 
 function HealthMain() {
     const [searchKeyword, setSearchKeyword] = useState(""); // 검색어 입력 상태
@@ -434,6 +435,8 @@ function HealthMain() {
                         </React.Fragment>
                     );
                 })}
+                {/* 날씨 정보 컴포넌트 */}
+                <WeatherInfo />
             </CommonMap>
             {/* 사이드 탭 컴포넌트 */}
             <SideTab>
