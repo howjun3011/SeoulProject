@@ -376,3 +376,40 @@
 .hospName:hover {
     color: cornflowerblue;
 }
+
+/* 날씨 정보 */
+.weatherTmp {
+    display: flex;
+    justify-content: center;
+}
+
+.weatherStat img {
+    width: 55px;
+    height: 55px;
+}
+
+.weatherStatTmp {
+    display: block;
+}
+
+.weatherPm1025 {
+    display: flex;
+    margin-left: 5px;
+    font-size: 16px;
+    gap: 15px;
+}
+
+.weatherPm10, .weatherPm25 {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 2px;
+    font-size: 14px;
+    margin-top: 4px;
+}
+
+.weatherPm10Img img, .weatherPm25Img img {
+    width: 45px;
+    height: 45px;
+}
