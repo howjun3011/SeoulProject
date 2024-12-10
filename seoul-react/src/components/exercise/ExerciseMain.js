@@ -10,10 +10,27 @@ function ExerciseMain() {
     const [currentTabType, setCurrentTabType] = useState([true, false, false, false, false]);
     const [currentType, setCurrentType] = useState('수영'); // 기본값 수영
     const [facilities, setFacilities] = useState([]);
-
-    const [currentLat, setCurrentLat] = useState(37.5665);
-    const [currentLng, setCurrentLng] = useState(126.9780);
+    
+    const [currentLat, setCurrentLat] = useState(37.55576761);
+    const [currentLng, setCurrentLng] = useState(126.97209840);
     const [radius, setRadius] = useState(3); // 반경 5km 예시
+
+    useEffect(() => {
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(
+                (position) => {
+                    setCurrentLat(position.coords.latitude);
+                    setCurrentLng(position.coords.longitude);
+                },
+                (error) => {
+                    console.error('Error getting location', error);
+                    // 위치 권한 거부 시 기본값 사용
+                }
+            );
+        } else {
+            console.error('Geolocation not supported by this browser.');
+        }
+    }, []);
 
     useEffect(() => {
         axios.get('http://localhost:9002/seoul/exercise/nearby', {
@@ -56,11 +73,7 @@ function ExerciseMain() {
                         {tabNames.map((tabName, index) => (
                             <div
                                 key={tabName}
-                                className={`${styles.exerciseHeaderCompontent} ${styles.flexCenter}`}
-                                style={{
-                                    backgroundColor: currentTabType[index] ? '#a0a0a0' : '#b8b8b8',
-                                    fontWeight: currentTabType[index] ? '600' : '400'
-                                }}
+                                className={`${styles.exerciseHeaderCompontent} ${styles.flexCenter} ${currentTabType[index] ? styles.active : ''}`}
                                 onClick={() => {
                                     let temp = [false, false, false, false, false];
                                     temp[index] = true;
