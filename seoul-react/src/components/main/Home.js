@@ -1,5 +1,6 @@
 import { useEffect } from 'react';
 import styles from '../../assets/css/main/Home.module.css';
+import WeatherInfo from "../health/WeatherInfo";
 import { useNavigate } from 'react-router-dom';
 
 function Home(props) {
@@ -30,31 +31,36 @@ function Home(props) {
 
     return (
         <>
-            <div className={ `${ styles.mainHeader } ${ styles.flexCenter }` }>
-                <div className={ styles.headerFontSetting }>I ❤︎ SEOUL</div>
+            <div className={`${styles.mainHeader} ${styles.flexCenter}`}>
+                <div className={styles.headerFontSetting}>I ❤︎ SEOUL</div>
             </div>
-            <div className={ styles.mainCenter }>
-                <div className={ styles.mainExplanation }>서울시 관련 공공 데이터 제공 서비스</div>
-                { props.menuNames.map((menuName, index) => {
+            <div className={styles.mainWeather}>
+                <WeatherInfo/>
+            </div>
+            <div className={styles.mainCenter}>
+                <div className={styles.mainExplanation}>서울시 관련 공공 데이터 제공 서비스</div>
+                {props.menuNames.map((menuName, index) => {
                     return (
-                        <div key={ index } className={ `${styles.mainComponent}` }
-                             onClick={() => { navigate(`${props.addressNames[index]}`); }}>
-                            <div className={ styles.componentFontSetting }>
-                                { menuName }
-                                <div className={ styles.componentEngFontSetting }>
-                                    { props.addressNames[index].charAt(0).toUpperCase() + props.addressNames[index].slice(1) }
+                        <div key={index} className={`${styles.mainComponent}`}
+                             onClick={() => {
+                                 navigate(`${props.addressNames[index]}`);
+                             }}>
+                            <div className={styles.componentFontSetting}>
+                                {menuName}
+                                <div className={styles.componentEngFontSetting}>
+                                    {props.addressNames[index].charAt(0).toUpperCase() + props.addressNames[index].slice(1)}
                                 </div>
                             </div>
-                            <div className={ `${styles.componentImgContainer} ${styles.flexCenter}` }>
+                            <div className={`${styles.componentImgContainer} ${styles.flexCenter}`}>
                                 <img
-                                    className={ styles.componentImg }
-                                    src={ `/images/main/${props.addressNames[index]}.png` }
-                                    alt={ menuName }
+                                    className={styles.componentImg}
+                                    src={`/images/main/${props.addressNames[index]}.png`}
+                                    alt={menuName}
                                 />
                             </div>
                         </div>
                     );
-                }) }
+                })}
             </div>
         </>
     );
