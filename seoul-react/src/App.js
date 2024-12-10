@@ -9,11 +9,13 @@ import MainLayout from "./components/main/MainLayout";
 
 // Component
 import CultureMain from "./components/culture/CultureMain";
-import HealthMain from './components/health/HealthMain';
 import EducationMain from './components/education/EducationMain';
 import ExerciseMain from './components/exercise/ExerciseMain';
 
 import InsertDB from './components/db/InsertDB';
+
+// Health Component
+import HealthMain from './components/health/HealthMain';
 
 // Tour Component
 import TourInfo from './components/tour/MapComponent';
