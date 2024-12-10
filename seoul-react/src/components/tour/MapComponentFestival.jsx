@@ -1,7 +1,8 @@
 // src/components/tour/MapComponentFestival.jsx
 import React, { useEffect, useState, useRef } from 'react';
 import axios from 'axios';
-import './MapComponentFestival.css';
+import './MapComponent.css';
+import { useNavigate } from 'react-router-dom';
 
 function MapComponentFestival() {
   // 상태 변수 선언
@@ -18,6 +19,9 @@ function MapComponentFestival() {
   const seoulDistrictPolygonsRef = useRef([]); // 서울 구 단위 폴리곤 인스턴스 배열 저장
   const seoulBoundaryPolygonsRef = useRef([]); // 서울 최외곽 폴리곤 인스턴스 배열 저장
   const idleListenerRef = useRef(null); // 'idle' 이벤트 리스너 저장
+
+  // React Router의 네비게이션 훅
+  const navigate = useNavigate();
 
   // 축제 카테고리 옵션 배열 (필요시 추가 가능)
   const festivalCatOptions = [
@@ -573,6 +577,20 @@ function MapComponentFestival() {
     }
   }, [activeOverlayKey]);
 
+  /**
+   * 관광 페이지로 이동하는 함수
+   */
+  const navigateToTour = () => {
+    navigate('/seoul/tour');
+  };
+
+  /**
+   * 축제 페이지로 이동하는 함수
+   */
+  const navigateToPet = () => {
+    navigate('/seoul/tour/pet');
+  };
+
   return (
     <div style={{ position: 'relative' }}>
 
@@ -593,6 +611,24 @@ function MapComponentFestival() {
           설명 닫기
         </button>
       )}
+
+      {/* 관광 페이지로 이동하는 버튼 */}
+      <button
+        onClick={navigateToTour}
+        className="navigate-tour-button"
+        style={{ position: 'absolute', top: '10px', left: '10px', zIndex: 5 }}
+      >
+        관광지 보기
+      </button>
+
+      {/* 축제 페이지로 이동하는 버튼 */}
+      <button
+        onClick={navigateToPet}
+        className="navigate-pet-button"
+        style={{ position: 'absolute', top: '60px', left: '10px', zIndex: 5 }}
+      >
+        애견동반지 보기
+      </button>
 
       {/* 지도 표시 */}
       <div

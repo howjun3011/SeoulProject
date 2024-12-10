@@ -675,10 +675,10 @@ function MapComponent() {
       {/* 펫 페이지로 이동하는 버튼 */}
       <button
         onClick={navigateToPet}
-        className="navigate-festival-button"
+        className="navigate-pet-button"
         style={{ position: 'absolute', top: '60px', left: '10px', zIndex: 5 }}
       >
-        펫 보기
+        애견동반지 보기
       </button>
 
       {/* 커스텀 레이아웃 닫기 버튼 */}

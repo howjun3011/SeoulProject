@@ -36,7 +36,7 @@
     position: relative;
     bottom: 50px;
     padding: 5px 10px;
-    background-color: #007BFF; /* 파란색 배경 */
+    background-color: #007BFF;
     border-radius: 20px;
     color: white;
     font-size: 13px;
@@ -51,7 +51,7 @@
     bottom: -6px;
     left: 50%;
     margin-left: -6px;
-    border-top: 6px solid #007BFF; /* 삼각형 색상 */
+    border-top: 6px solid #007BFF;
     border-left: 6px solid transparent;
     border-right: 6px solid transparent;
     pointer-events: none;
@@ -67,7 +67,7 @@
     align-items: center;
     justify-content: center;
     color: #888;
-    font-size: 16px; /* 텍스트 크기 조정 */
+    font-size: 16px;
     margin-top: 10px;
     text-align: center;
 }
@@ -77,16 +77,16 @@
     position: absolute;
     top: 10px;
     right: 15px;
-    font-size: 18px;
+    font-size: 24px;
+    font-weight: bold;
     color: #aaa;
     cursor: pointer;
     transition: color 0.3s;
 }
 
 .close:hover {
-    color: #333;
+    color: #000;
 }
-
 
 /* 애니메이션 */
 @keyframes slide-down {
@@ -112,7 +112,7 @@
     padding: 10px 15px;
     border: 1px solid #ccc;
     border-radius: 25px;
-    appearance: none; /* 기본 드롭다운 화살표 제거 */
+    appearance: none;
     background-color: #fff;
     background-image: url('data:image/svg+xml;charset=UTF-8,<svg fill="%23888" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><path d="M7 10l5 5 5-5z"/></svg>');
     background-repeat: no-repeat;
@@ -134,10 +134,9 @@
 }
 
 /* 현재 위치로 돌아가는 버튼 스타일링 */
-.current-location-button {
+.current-location-button,
+.close-overlay-button {
     position: absolute;
-    top: 20px;
-    right: 20px;
     padding: 10px 15px;
     background-color: #fff;
     border: 1px solid #ccc;
@@ -149,9 +148,20 @@
     transition: background-color 0.3s, border-color 0.3s;
 }
 
-.current-location-button:hover {
+.current-location-button:hover,
+.close-overlay-button:hover {
     background-color: #f0f0f0;
     border-color: #999;
+}
+
+.current-location-button {
+    top: 20px;
+    right: 20px;
+}
+
+.close-overlay-button {
+    top: 80px;
+    right: 20px;
 }
 
 /* 상시 관광지 정보 모달창 스타일링 */
@@ -162,10 +172,10 @@
     width: 400px;
     height: 500px;
     overflow-y: auto;
-    background-color: #ffffff; /* 순백 배경 */
-    border-radius: 12px; /* 둥근 모서리 */
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2); /* 더 부드러운 그림자 */
-    padding: 20px; /* 여백 증가 */
+    background-color: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+    padding: 20px;
     z-index: 1000;
     display: flex;
     flex-direction: column;
@@ -174,11 +184,11 @@
 
 .persistent-modal h3 {
     text-align: center;
-    font-size: 20px; /* 큰 제목 폰트 */
+    font-size: 20px;
     font-weight: bold;
     margin: 0;
-    color: #333; /* 진한 텍스트 */
-    border-bottom: 2px solid #f0f0f0; /* 얇은 밑줄 */
+    color: #333;
+    border-bottom: 2px solid #f0f0f0;
     padding-bottom: 10px;
 }
 
@@ -203,42 +213,142 @@
     background: linear-gradient(180deg, #a8a8a8, #8c8c8c);
 }
 
-.tour-item {
+.tour-item,
+.pet-item {
     display: flex;
     align-items: center;
-    gap: 10px;
-    padding: 10px;
-    border-radius: 10px;
-    background-color: #f9f9f9;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    transition: background-color 0.3s, transform 0.2s;
     cursor: pointer;
+    transition: background-color 0.3s;
+    padding: 5px;
+    border-radius: 5px;
 }
 
-
-.tour-item:hover {
-    background-color: #f0f4ff;
-    transform: translateY(-2px);
+.tour-item:hover,
+.pet-item:hover {
+    background-color: #f9f9f9;
 }
 
-.tour-item-image {
-    width: 60px;
-    height: 60px;
+.tour-item-image,
+.pet-item-image {
+    width: 50px;
+    height: 50px;
     object-fit: cover;
-    border-radius: 8px;
+    border-radius: 4px;
+    margin-right: 10px;
 }
 
-.tour-item-title {
-    font-size: 16px;
-    font-weight: bold;
+.persistent-modal .no-image {
+    width: 50px;
+    height: 50px;
+    background-color: #f0f0f0;
+    border-radius: 4px;
+    margin-right: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #888;
+    font-size: 12px;
+    margin-top: 0;
+}
+
+.tour-item-title,
+.pet-item-title {
+    font-size: 14px;
     color: #333;
-    margin: 0;
 }
 
 .no-tours {
     text-align: center;
-    color: #999;
+    color: #888;
+}
+
+/* Responsive Design */
+@media (max-width: 600px) {
+    .persistent-modal {
+        width: 90%;
+        right: 5%;
+    }
+
+    .category-select {
+        width: 90%;
+    }
+}
+
+/* CustomOverlay 내용 스타일 */
+.customoverlay-content,
+.customoverlay-content-festival {
+    position: absolute;
+    bottom: 55px;
+    left: 50%;
+    transform: translateX(-50%);
+    padding: 15px;
+    background-color: #ffffff;
+    border-radius: 10px;
+    border: 1px solid #e0e0e0;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
     font-size: 14px;
+    color: #333;
+    text-align: center;
+    pointer-events: none;
+    z-index: 100;
+    min-width: 400px;
+    height: fit-content;
+    min-height: 200px;
+    white-space: normal;
+}
+
+.customoverlay-content img,
+.customoverlay-content-festival img {
+    width: 50%;
+    height: fit-content;
+    border-radius: 3px;
+}
+
+/* 지도 중앙 타겟 아이콘 */
+.map-center-icon {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    pointer-events: none;
+    z-index: 1001;
+    width: 35px;
+    height: 35px;
+}
+
+/* 버튼 스타일 */
+.navigate-festival-button,
+.navigate-pet-button,
+.navigate-tour-button {
+    padding: 10px 15px;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.navigate-festival-button {
+    background-color: #ff7f50;
+}
+
+.navigate-festival-button:hover {
+    background-color: #e06b3d;
+}
+
+.navigate-pet-button {
+    background-color: #354183;
+}
+
+.navigate-pet-button:hover {
+    background-color: #222853;
+}
+
+.navigate-tour-button {
+    background-color: #454545;
+}
+
+.navigate-tour-button:hover {
+    background-color: #202020;
 }
 
 .center-box {
@@ -285,18 +395,6 @@
 /* 탭 버튼 클릭 시 잠깐 효과 */
 .tab-button:active {
     transform: scale(0.98);
-}
-
-/* Responsive Design (선택 사항) */
-@media (max-width: 600px) {
-    .persistent-modal {
-        width: 90%;
-        right: 5%;
-    }
-
-    .category-select {
-        width: 90%;
-    }
 }
 
 /* CustomOverlay 내용 스타일 */
@@ -377,6 +475,10 @@
     color: #007bdf;
 }
 
+.customoverlay-content.description {
+    transform: translate(50%, 0%);
+}
+
 /* 지도 중앙에 항상 표시될 타겟 아이콘 스타일 */
 .map-center-icon {
     position: absolute;
@@ -387,18 +489,4 @@
     z-index: 1001; /* 다른 요소들보다 높은 z-index 설정 */
     width: 35px; /* 아이콘의 크기를 조절할 수 있습니다 */
     height: 35px;
-}
-
-/* 축제 보기 버튼 스타일 */
-.navigate-festival-button {
-    padding: 10px 15px;
-    background-color: #ff7f50;
-    color: white;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-}
-
-.navigate-festival-button:hover {
-    background-color: #e06b3d;
 }
