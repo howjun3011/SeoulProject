@@ -274,36 +274,6 @@
     }
 }
 
-/* CustomOverlay 내용 스타일 */
-.customoverlay-content,
-.customoverlay-content-festival {
-    position: absolute;
-    bottom: 55px;
-    left: 50%;
-    transform: translateX(-50%);
-    padding: 15px;
-    background-color: #ffffff;
-    border-radius: 10px;
-    border: 1px solid #e0e0e0;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-    font-size: 14px;
-    color: #333;
-    text-align: center;
-    pointer-events: none;
-    z-index: 100;
-    min-width: 400px;
-    height: fit-content;
-    min-height: 200px;
-    white-space: normal;
-}
-
-.customoverlay-content img,
-.customoverlay-content-festival img {
-    width: 50%;
-    height: fit-content;
-    border-radius: 3px;
-}
-
 /* 지도 중앙 타겟 아이콘 */
 .map-center-icon {
     position: absolute;
@@ -413,7 +383,7 @@
     text-align: center;
     pointer-events: none;
     z-index: 100; /* 마커보다 위에 표시 */
-    min-width: 400px;
+    min-width: 250px;
     height: fit-content;
     min-height: 200px;
     word-wrap: break-word; /* 단어가 길 경우 자동으로 줄바꿈 */
@@ -460,6 +430,7 @@
     border-radius: 8px;
     margin-bottom: 10px;
     object-fit: cover; /* 이미지 비율 유지 */
+    max-height: 200px;
 }
 
 .customoverlay-content p {
@@ -489,4 +460,75 @@
     z-index: 1001; /* 다른 요소들보다 높은 z-index 설정 */
     width: 35px; /* 아이콘의 크기를 조절할 수 있습니다 */
     height: 35px;
+}
+
+/* 클러스터 오버레이 숫자 스타일 */
+.cluster-overlay {
+    width: 20px;
+    height: 20px;
+    background-color: rgba(0, 123, 223, 0.8);
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    font-weight: bold;
+    cursor: pointer;
+    transform: translateY(-250%);
+}
+
+/* 클러스터 팝업 스타일 */
+.cluster-popup {
+    width: 300px;
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+.cluster-popup h4 {
+    margin-top: 0;
+    text-align: center;
+    color: #333;
+}
+
+.cluster-popup ul {
+    list-style: none;
+    padding: 0;
+    margin: 10px 0;
+}
+
+.cluster-popup li {
+    margin-bottom: 10px;
+}
+
+.cluster-tour-button {
+    background-color: #007bdf;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    padding: 8px 12px;
+    cursor: pointer;
+    width: 100%;
+    text-align: left;
+    transition: background-color 0.3s;
+}
+
+.cluster-tour-button:hover {
+    background-color: #005bb5;
+}
+
+.close-cluster-popup {
+    background-color: #ccc;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    padding: 8px 12px;
+    cursor: pointer;
+    width: 100%;
+    margin-top: 10px;
+    transition: background-color 0.3s;
+}
+
+.close-cluster-popup:hover {
+    background-color: #999;
 }
