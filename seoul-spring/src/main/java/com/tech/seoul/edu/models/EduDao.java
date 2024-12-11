@@ -19,15 +19,27 @@ public interface EduDao {
 			@Param("kindergarten_name") String kindergarten_name,
 			@Param("address") String address);
 	
-	public int LocalCenterNameCnt(
+	public int localCenterNameCnt(
 			@Param("query") String query,
 			@Param("areas") String[] areas );
-	public List<KidsLocalCenterNameDto> LocalCenterName(
+	public List<KidsLocalCenterNameDto> localCenterName(
 			@Param("query") String query,
 			@Param("areas") String[] areas,
 			@Param("start") int start,
 			@Param("end") int end);
 	public KidsLocalCenterDetailDto selectCenterInfo(
+			@Param("center_name") String center_name,
+			@Param("address") String address);
+	
+	public int playNameCnt(
+			@Param("query") String query,
+			@Param("areas") String[] areas );
+	public List<PlayNameDto> playName(
+			@Param("query") String query,
+			@Param("areas") String[] areas,
+			@Param("start") int start,
+			@Param("end") int end);
+	public PlayDetailInfoDto selectPlayInfo(
 			@Param("center_name") String center_name,
 			@Param("address") String address);
 	

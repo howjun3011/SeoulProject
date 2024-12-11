@@ -179,7 +179,7 @@
 			</when>
 		</choose>
 	</sql>
-	<select id="LocalCenterName" resultType="com.tech.seoul.edu.models.KidsLocalCenterNameDto" >
+	<select id="localCenterName" resultType="com.tech.seoul.edu.models.KidsLocalCenterNameDto" >
 		SELECT 
 			center_name,
 			address,
@@ -196,7 +196,7 @@
 		LIMIT #{start}, #{end}
 	</select>
 	
-	<select id="LocalCenterNameCnt" resultType="int" >
+	<select id="localCenterNameCnt" resultType="int" >
 		SELECT 
 			COUNT(*)
 		FROM
@@ -209,6 +209,60 @@
 	<select id="selectCenterInfo" resultType="com.tech.seoul.edu.models.KidsLocalCenterDetailDto">
 		SELECT * FROM kids_local_center
 		WHERE center_name = #{center_name} AND address LIKE CONCAT('%', #{address}, '%')
+	</select>
+	
+	<!-- 
+	
+	 -->
+	 
+	 <sql id="includePlayName" >
+		<choose>
+			<when test="query != null">
+				AND facility_name LIKE CONCAT('%', #{query}, '%')
+			</when>
+		</choose>
+	</sql>
+	<sql id="includePlayAddress" >
+		<choose>
+			<when test="areas != null and areas.length > 0">
+				AND (
+				<foreach item="area" collection="areas" separator=" OR " >
+				 	address LIKE CONCAT('%', #{area},'%')
+				</foreach>
+				)
+			</when>
+		</choose>
+	</sql>
+	<select id="playName" resultType="com.tech.seoul.edu.models.PlayNameDto" >
+		SELECT 
+			facility_name,
+			address,
+			y_coordinate,
+			x_coordinate
+		FROM
+			kids_cafe
+		WHERE 1=1
+			<include refid="includePlayName" />
+			<include refid="includePlayAddress" />
+		ORDER BY 
+			SUBSTRING(address, 1, 8) ASC,
+			x_coordinate
+		LIMIT #{start}, #{end}
+	</select>
+	
+	<select id="playNameCnt" resultType="int" >
+		SELECT 
+			COUNT(*)
+		FROM
+			kids_cafe
+		WHERE 1=1
+			<include refid="includePlayName" />
+			<include refid="includePlayAddress" />
+	</select>
+	
+	<select id="selectPlayInfo" resultType="com.tech.seoul.edu.models.PlayDetailInfoDto">
+		SELECT * FROM kids_cafe
+		WHERE facility_name = #{center_name} AND address LIKE CONCAT('%', #{address}, '%')
 	</select>
 	
 </mapper>

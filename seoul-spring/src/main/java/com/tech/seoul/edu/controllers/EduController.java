@@ -11,10 +11,14 @@ import com.tech.seoul.edu.models.KidsLocalCenterNameDto;
 import com.tech.seoul.edu.models.KinderDetailInfoDto;
 import com.tech.seoul.edu.models.KindergartenNameDto;
 import com.tech.seoul.edu.models.PageInfoDto;
+import com.tech.seoul.edu.models.PlayDetailInfoDto;
+import com.tech.seoul.edu.models.PlayNameDto;
 import com.tech.seoul.edu.service.KinderInfoService;
 import com.tech.seoul.edu.service.KindergartenService;
 import com.tech.seoul.edu.service.LocalCenterInfoService;
 import com.tech.seoul.edu.service.LocalCenterService;
+import com.tech.seoul.edu.service.PlayInfoService;
+import com.tech.seoul.edu.service.PlayService;
 import com.tech.seoul.edu.util.EduSearchVO;
 
 import lombok.RequiredArgsConstructor;
@@ -28,6 +32,8 @@ public class EduController {
 	private final KinderInfoService kinderInfoService;
 	private final LocalCenterService localCenterService;
 	private final LocalCenterInfoService localCenterInfoService;
+	private final PlayService playService;
+	private final PlayInfoService playInfoService;
 	
 	@GetMapping("/eduGardenSearch")
 	public PageInfoDto<KindergartenNameDto> eduGardenSearch(
@@ -39,7 +45,13 @@ public class EduController {
 	public PageInfoDto<KidsLocalCenterNameDto> eduLocalCenterSearch(
 			HttpServletRequest request,
 			EduSearchVO searchVO){
-		return localCenterService.LocalCenterInfo(request,searchVO);
+		return localCenterService.localCenterInfo(request,searchVO);
+	}
+	@GetMapping("/eduPlaySearch")
+	public PageInfoDto<PlayNameDto> eduPlaySearch(
+			HttpServletRequest request,
+			EduSearchVO searchVO){
+		return playService.playInfo(request,searchVO);
 	}
 	
 	
@@ -52,6 +64,11 @@ public class EduController {
 	public KidsLocalCenterDetailDto eduLocalCenterInfo(
 			HttpServletRequest request){
 		return localCenterInfoService.DetailInfo(request);
+	}
+	@GetMapping("/eduPlayInfo")
+	public PlayDetailInfoDto eduPlayInfo(
+			HttpServletRequest request){
+		return playInfoService.DetailInfo(request);
 	}
 	
 	

@@ -107,6 +107,17 @@ function KindergartenList({currentTabType, results, error, page, setPage, totalP
                 <p>{item.address}</p>
             </li>
             )
+        } else if(currentTabType?.[2]) {
+            return(
+                <li
+                key={index} 
+                className={styles.resultItem}
+                onClick={() => onSelect(item)}
+            >
+                <h4>{item.facility_name}</h4>
+                <p>{item.address}</p>
+            </li>
+            )
         };
         return null;
     }
@@ -363,7 +374,7 @@ function Infotab({currentTabType, searchInfo, isVisible, setIsVisible }) {
         if(currentTabType?.[0]) {
             return(
                 <>
-                <div className={styles.infoBackground}>
+                <div className={styles.infoBackground0}>
                     <button
                         type="button"
                         className={styles.closeInfoButton}
@@ -379,7 +390,7 @@ function Infotab({currentTabType, searchInfo, isVisible, setIsVisible }) {
                             <ul className={styles.infoBaseUl}>
                                 <li className={styles.infoBaseLi}>
                                     <i>유치원이름</i>
-                                    <span>{searchInfo.kindergarten_name}</span>
+                                    <span><a href={"https://search.naver.com/search.naver?where=nexearch&sm=top_hty&fbm=0&ie=utf8&query="+searchInfo.kindergarten_name} target="_blank" rel="noopener noreferrer">{searchInfo.kindergarten_name}</a></span>
                                 </li>
                                 <li className={styles.infoBaseLi}>
                                     <i>전화번호</i>
@@ -465,7 +476,6 @@ function Infotab({currentTabType, searchInfo, isVisible, setIsVisible }) {
                                                     {chartData[chartIndex][index] === 0 || chartIndex === 2
                                                         ? '' 
                                                         : `${(chartData[chartIndex][index] / rowSums[chartIndex] * 100).toFixed(1)}%`}
-    
                                                 </li>
                                             ))}
                                         </ul>
@@ -480,7 +490,7 @@ function Infotab({currentTabType, searchInfo, isVisible, setIsVisible }) {
         } else if(currentTabType?.[1]) {
             return(
                 <>
-                <div className={styles.infoBackground}>
+                <div className={styles.infoBackground1}>
                     <button
                         type="button"
                         className={styles.closeInfoButton}
@@ -496,11 +506,15 @@ function Infotab({currentTabType, searchInfo, isVisible, setIsVisible }) {
                             <ul className={styles.infoBaseUl}>
                                 <li className={styles.infoBaseLi}>
                                     <i>센터이름</i>
-                                    <span>{searchInfo.center_name}</span>
+                                    <span><a href={"https://search.naver.com/search.naver?where=nexearch&sm=top_hty&fbm=0&ie=utf8&query="+searchInfo.center_name} target="_blank" rel="noopener noreferrer">{searchInfo.center_name}</a></span>
                                 </li>
                                 <li className={styles.infoBaseLi}>
                                     <i>주소</i>
                                     <span>{searchInfo.address}</span>
+                                </li>
+                                <li className={styles.infoBaseLi}>
+                                    <i>전화번호</i>
+                                    <span>{searchInfo.tel}</span>
                                 </li>
                                 <li className={styles.infoBaseLi}>
                                     <i>연령층</i>
@@ -522,8 +536,80 @@ function Infotab({currentTabType, searchInfo, isVisible, setIsVisible }) {
                                     <i>토요일</i>
                                     <span>{searchInfo.format_saturday}</span>
                                 </li>
-                               
                             </ul>
+                        </div>
+                    </div>
+                </div>
+            </>
+            )
+        } else if(currentTabType?.[2]) {
+            return(
+                <>
+                <div className={styles.infoBackground2}>
+                    <button
+                        type="button"
+                        className={styles.closeInfoButton}
+                        onClick={() => closeInfoButton()}
+                    >
+                        x
+                    </button>
+                    <div className={styles.infoBaseBox}>
+                        <div className={styles.infoBaseTitle}>
+                            <h2 className={styles.semiTitle}>
+                                기본정보
+                            </h2>
+                            <ul className={styles.infoBaseUl}>
+                                <li className={styles.infoBaseLi}>
+                                    <i>시설이름</i>
+                                    <span><a 
+                                        href={"https://search.naver.com/search.naver?where=nexearch&sm=top_hty&fbm=0&ie=utf8&query="+searchInfo.facility_name} 
+                                        target="_blank" 
+                                        rel="noopener noreferrer"
+                                    >
+                                        {searchInfo.facility_name}
+                                    </a></span>
+                                </li>
+                                <li className={styles.infoBaseLi}>
+                                    <i>주소</i>
+                                    <span>{searchInfo.address}</span>
+                                </li>
+                                <li className={styles.infoBaseLi}>
+                                    <i>상세주소</i>
+                                    <span>{searchInfo.address_detail}</span>
+                                </li>
+                                <li className={styles.infoBaseLi}>
+                                    <i>전화번호</i>
+                                    <span>{searchInfo.tel}</span>
+                                </li>
+                                <li className={styles.infoBaseLi}>
+                                    <i>연령층</i>
+                                    <span>{searchInfo.age_range}</span>
+                                </li>
+                                <li className={styles.infoBaseLi}>
+                                    <i>무료여부</i>
+                                    <span>{searchInfo.free_price}</span>
+                                </li>
+                                <li className={styles.infoBaseLi}>
+                                    <i>운영일</i>
+                                    <span>{searchInfo.open_day}</span>
+                                </li>
+                                <li className={styles.infoBaseLi}>
+                                    <i>휴관일</i>
+                                    <span>{searchInfo.break_day}</span>
+                                </li>
+                            </ul>
+                        </div>
+                        <div className={styles.footBlank}>
+                            <button 
+                                onClick={() => window.open(
+                                    `https://icare.seoul.go.kr/icare/user/kidsCafe/BD_selectKidsCafeList.do?q_hiddenVal=1&q_fcltyId=&q_rowPerPage=5&q_currPage=1&q_sortName=&q_sortOrder=&q_searchVal=${searchInfo.facility_name}&q_useAge=`, 
+                                    '_blank', 
+                                    'noopener,noreferrer'
+                                )}
+                                className={styles.reserveBtn}
+                            >
+                                이용안내 및 예약이동
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -538,7 +624,7 @@ function Infotab({currentTabType, searchInfo, isVisible, setIsVisible }) {
 function EducationMain() {
     const mapRef = useRef(null);
     const [markers, setMarkers] = useState([]);
-    const educationCategories = ["유치원", "지역아동센터", "유원시설"];
+    const educationCategories = ["유치원", "돌봄시설", "놀이시설"];
     const [currentTabType, setCurrentTabType] = useState([true, false, false]);
     //검색어
     const [query, setQuery] = useState("");
@@ -583,7 +669,7 @@ function EducationMain() {
                 });
                 setResults(response.data);
             } else if(currentTabType[2]) {
-                response = await axios.get('http://localhost:9002/seoul/education/eduFacilitySearch', {
+                response = await axios.get('http://localhost:9002/seoul/education/eduPlaySearch', {
                     params: {
                         query,
                         areas: areas.join(","),
@@ -624,7 +710,7 @@ function EducationMain() {
                         lat: parseFloat(item.y_coordinate),
                         lng: parseFloat(item.x_coordinate)
                     },
-                    content: item.kindergarten_name || "오류",
+                    content: item.facility_name || "오류",
                     category: item.address || "오류",
                     index: index
                 }));
@@ -676,10 +762,10 @@ function EducationMain() {
                     },
                 });
             } else if(currentTabType[2]){
-                response = await axios.get('http://localhost:9002/seoul/education/eduKinderInfo',{
+                response = await axios.get('http://localhost:9002/seoul/education/eduPlayInfo',{
                     params: {
-                        kinderName: marker.content,
-                        kinderAddress: marker.category,
+                        playName: marker.content,
+                        playAddress: marker.category,
                     },
                 });
             }

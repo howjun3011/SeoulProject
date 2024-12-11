@@ -9,20 +9,21 @@ import org.springframework.stereotype.Service;
 import com.tech.seoul.edu.models.EduDao;
 import com.tech.seoul.edu.models.KidsLocalCenterNameDto;
 import com.tech.seoul.edu.models.PageInfoDto;
+import com.tech.seoul.edu.models.PlayNameDto;
 import com.tech.seoul.edu.util.EduSearchVO;
 
 @Service
-public class LocalCenterService {
-
+public class PlayService {
+	
 	private EduDao eduDao;
 	
-	public LocalCenterService(EduDao eduDao) {
+	public PlayService(EduDao eduDao) {
 		this.eduDao = eduDao;
-	}
+	};
 	
-	public PageInfoDto<KidsLocalCenterNameDto> localCenterInfo(
+	public PageInfoDto<PlayNameDto> playInfo(
 			HttpServletRequest request,
-			EduSearchVO searchVO){
+			EduSearchVO searchVO) {
 		String query = request.getParameter("query");
 		String areas = request.getParameter("areas");
 		String[] areas_array = areas.split(",");
@@ -32,7 +33,7 @@ public class LocalCenterService {
 		}
 		
 		int total = 0;
-		total = eduDao.localCenterNameCnt(query, areas_array);
+		total = eduDao.playNameCnt(query, areas_array);
 		String strPage = request.getParameter("page");
 		if(strPage == null || strPage.isEmpty()) {
  			strPage="1";
@@ -44,8 +45,8 @@ public class LocalCenterService {
 		
 		int rowStart = searchVO.getRowStart();
 		int rowEnd = searchVO.getRowEnd();
-		List<KidsLocalCenterNameDto> items =
-				eduDao.localCenterName(query, areas_array,(rowStart-1),8);
+		List<PlayNameDto> items =
+				eduDao.playName(query, areas_array,(rowStart-1),8);
 		return new PageInfoDto<>(items,total,searchVO);
 	}
 }
