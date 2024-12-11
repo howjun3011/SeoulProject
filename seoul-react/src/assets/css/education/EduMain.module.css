@@ -94,7 +94,11 @@
     text-align: center;
     cursor: pointer;
 }
-
+.educationTab .tab.active{
+    background-color: #e0e0e0; /* 선택된 탭의 배경색 */
+    font-weight: bold; /* 글씨 굵게 */
+    color: #111; /* 글씨 색상 */
+}
 .searchBox{
     height: 50px;
     width:100%;
@@ -212,8 +216,9 @@
 }
 
 .markerInfo {
+    max-width: 250px; 
+    width: 220px; /* 고정 너비 220px */
     box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1); /* 약간의 그림자 추가 */
-    white-space: nowrap; /* 글씨가 너무 길 경우 한 줄로 유지 */
     font-size: 14px; /* 글씨 크기 */
     background-color: white; /* 배경을 흰색으로 설정 */
     line-height: 1.5; /* 줄 간격 */
@@ -223,7 +228,13 @@
     padding: 5px;
     transform: translateY(-75px);
     cursor: pointer;
+
+    /* 줄바꿈 관련 속성 추가 */
+    white-space: normal; /* 공백에서 줄바꿈을 허용 */
+    word-break: keep-all; /* 단어 단위로 줄바꿈 (단어가 너무 길면 전체 단어 줄바꿈) */
+    overflow-wrap: break-word; /* 긴 단어 줄바꿈 */
 }
+
 .marker-container {
     position: relative; /* 상대 위치 설정 */
     z-index: 1; /* 기본 z-index */
@@ -240,10 +251,42 @@
         유치원 상세정보
  */
 
- .infoBackground {
+ .infoBackground0 {
     position: absolute; /* 화면에 고정 위치 */
     width: 600px; /* 가로 크기 */
     height: 80%; /* 세로 크기 */
+    left: 40%; /* 화면의 왼쪽에서 40% 위치 */
+    top: 50%; /* 화면의 세로 중앙 */
+    transform: translate(-50%, -50%); /* 위치를 중앙으로 조정 */
+    background-color: rgba(255, 255, 255); /* 배경 흰색, 약간의 투명도 */
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2); /* 그림자 추가 */
+    border-radius: 3px; /* 모서리 둥글게 */
+    padding: 10px; /* 내부 여백 */
+    overflow-y: auto; /* 내용이 넘치면 스크롤 */
+    z-index: 999999; /* 다른 요소 위로 올라오도록 설정 */
+    scrollbar-width: thin; /* Firefox에서 스크롤바 얇게 */
+    scrollbar-color: #cccccc #f0f0f0; /* Firefox 스크롤바 색상 */
+}
+ .infoBackground1 {
+    position: absolute; /* 화면에 고정 위치 */
+    width: 600px; /* 가로 크기 */
+    height: 45%; /* 세로 크기 */
+    left: 40%; /* 화면의 왼쪽에서 40% 위치 */
+    top: 50%; /* 화면의 세로 중앙 */
+    transform: translate(-50%, -50%); /* 위치를 중앙으로 조정 */
+    background-color: rgba(255, 255, 255); /* 배경 흰색, 약간의 투명도 */
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2); /* 그림자 추가 */
+    border-radius: 3px; /* 모서리 둥글게 */
+    padding: 10px; /* 내부 여백 */
+    overflow-y: auto; /* 내용이 넘치면 스크롤 */
+    z-index: 999999; /* 다른 요소 위로 올라오도록 설정 */
+    scrollbar-width: thin; /* Firefox에서 스크롤바 얇게 */
+    scrollbar-color: #cccccc #f0f0f0; /* Firefox 스크롤바 색상 */
+}
+ .infoBackground2 {
+    position: absolute; /* 화면에 고정 위치 */
+    width: 600px; /* 가로 크기 */
+    height: 45%; /* 세로 크기 */
     left: 40%; /* 화면의 왼쪽에서 40% 위치 */
     top: 50%; /* 화면의 세로 중앙 */
     transform: translate(-50%, -50%); /* 위치를 중앙으로 조정 */
@@ -296,7 +339,11 @@
     margin-left: 20px;
     font-style: normal;
     font-size: 0.8em;
-    
+    display: inline-block; /* 블록처럼 동작하여 고정 너비를 적용 */
+    width: 360px; /* 너비를 360px로 고정 */
+    word-wrap: break-word; /* 단어를 끊어서 줄 바꿈 */
+    word-break: break-word; /* 긴 단어도 줄 바꿈 */
+    white-space: normal; /* 텍스트가 길어질 경우 자동 줄 바꿈 */
 }
 
 .closeInfoButton{
@@ -361,3 +408,25 @@ canvas{
     margin-top: 10px;
 }
 
+/* 
+            놀이시설 info창 
+*/
+.footBlank{
+    margin-top: 10px;
+    display: flex; 
+    justify-content: center; 
+    align-items: center; 
+}
+.reserveBtn{
+    background-color: #ffffff; /* 흰색 배경 */
+    border: 1px solid #ddd; /* 선택 사항: 테두리를 추가 */
+    border-radius: 5px; /* 모서리를 둥글게 */
+    padding: 10px 20px; /* 버튼의 안쪽 여백 (상하 10px, 좌우 20px) */
+    font-size: 15px; /* 버튼 글자 크기 */
+    cursor: pointer; /* 마우스 포인터 변경 */
+    text-align: center; 
+    transition: background-color 0.3s ease; /* 버튼에 애니메이션 효과 추가 */
+}
+.reserveBtn:hover {
+    background-color: #f0f0f0; /* 마우스 올렸을 때 색상 변화 */
+}

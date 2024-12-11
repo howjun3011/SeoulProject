@@ -77,13 +77,50 @@ const Pagination = ({ currentPage, totalPages, onPageChange }) => {
     );
 };
 
-function KindergartenList({ results, error, page, setPage, totalPages, fetchData, query, areas, onSelect }) {
+function KindergartenList({currentTabType, results, error, page, setPage, totalPages, fetchData, query, areas, onSelect }) {
 
     // 페이지 변경 핸들러
     const handlePageChange = (newPage) => {
         setPage(newPage);
         fetchData(query, areas, newPage);
     };
+    const kinder = (item, index) =>{
+        if(currentTabType?.[0]){
+            return(
+                <li
+                key={index} 
+                className={styles.resultItem}
+                onClick={() => onSelect(item)}
+            >
+                <h4>{item.kindergarten_name}</h4>
+                <p>{item.address}</p>
+            </li>
+            )
+        } else if(currentTabType?.[1]) {
+            return(
+                <li
+                key={index} 
+                className={styles.resultItem}
+                onClick={() => onSelect(item)}
+            >
+                <h4>{item.center_name}</h4>
+                <p>{item.address}</p>
+            </li>
+            )
+        } else if(currentTabType?.[2]) {
+            return(
+                <li
+                key={index} 
+                className={styles.resultItem}
+                onClick={() => onSelect(item)}
+            >
+                <h4>{item.facility_name}</h4>
+                <p>{item.address}</p>
+            </li>
+            )
+        };
+        return null;
+    }
 
     return (
         <div className={styles.kinderResultListBox}>
@@ -93,14 +130,7 @@ function KindergartenList({ results, error, page, setPage, totalPages, fetchData
                 <div className={styles.kinderResultPageing}>
                     <ul className={styles.kinderResultList}>
                         {results.items.map((item, index) => (
-                            <li
-                                key={index} 
-                                className={styles.resultItem}
-                                onClick={() => onSelect(item)}
-                            >
-                                <h4>{item.kindergarten_name}</h4>
-                                <p>{item.address}</p>
-                            </li>
+                            kinder(item,index)
                         ))}
                     </ul>
                     <div className={styles.footPage}>
@@ -118,7 +148,7 @@ function KindergartenList({ results, error, page, setPage, totalPages, fetchData
     );
 }
 
-function EduSearchBox({ onSearch, selectedItems, setSelectedItems, error, query, setQuery, setResults, setError }){
+function EduSearchBox({setPage, setMarkers, setSelectedDetailInfo, onSearch, selectedItems, setSelectedItems, error, query, setQuery, setResults, setError }){
 
     const options = [
         "강남구", "강동구", "강북구", "강서구", "관악구", "광진구", "구로구",
@@ -145,6 +175,7 @@ function EduSearchBox({ onSearch, selectedItems, setSelectedItems, error, query,
     const handleRemove = (item) => {
         const updatedItems = selectedItems.filter((selected) => selected !== item);
         setSelectedItems(updatedItems);
+        setPage(1);
         if (updatedItems.length === 0) {
             // 선택된 지역이 없을 때 결과 초기화 및 에러 메시지 설정
             setResults({
@@ -154,6 +185,8 @@ function EduSearchBox({ onSearch, selectedItems, setSelectedItems, error, query,
                     totPage: 1,
                 },
             });
+            setMarkers([]);
+            setSelectedDetailInfo({});
             setError("지역선택 또는 검색어를 입력하세요.");
         } else if (query !== "") {
             // 남아있는 지역이 있고 검색어가 존재할 때 검색 결과 갱신
@@ -186,7 +219,7 @@ function EduSearchBox({ onSearch, selectedItems, setSelectedItems, error, query,
                         className={styles.searchInput}
                         name="searchQuery"
                         id="searchQuery"
-                        placeholder="유치원 검색"
+                        placeholder="검색어 입력"
                         value={query}
                         onChange={handleQueryChange}
                     />
@@ -212,12 +245,7 @@ function EduSearchBox({ onSearch, selectedItems, setSelectedItems, error, query,
     );
 }
 
-function Infotab({ kinderInfo, isVisible, setIsVisible }) {
-
-    // const smallTitle = [
-    //     "전화번호","운영시간","대표자명","원장명","설립일","개원일",
-    //     "관할기관","주소","홈페이지"
-    // ]
+function Infotab({currentTabType, searchInfo, isVisible, setIsVisible }) {
 
     const closeInfoButton = () => {
         setIsVisible(false);
@@ -225,48 +253,37 @@ function Infotab({ kinderInfo, isVisible, setIsVisible }) {
 
     if (!isVisible) return null;
 
-    //char 데이터
-    // const chartData = {
-    //     labels: ["교사수", "학생수"], //데이터이름
-    //     datasets:[
-    //         {
-    //             label: "인원분포", //제목
-    //             data: [kinderInfo.teacher_total_count, kinderInfo.students_total_count],
-    //             backgroundColor: ["#FF6384", "#36A2EB"],
-    //         },
-    //     ],
-    // };
     const chartData = [
         [
-            kinderInfo.class_count_3, 
-            kinderInfo.class_count_4, 
-            kinderInfo.class_count_5, 
-            kinderInfo.class_count_mix,
-            kinderInfo.class_count_special
+            searchInfo.class_count_3, 
+            searchInfo.class_count_4, 
+            searchInfo.class_count_5, 
+            searchInfo.class_count_mix,
+            searchInfo.class_count_special
         ],
         [
-            kinderInfo.students_now_3,
-            kinderInfo.students_now_4,
-            kinderInfo.students_now_5,
-            kinderInfo.students_now_mix,
-            kinderInfo.students_now_special
+            searchInfo.students_now_3,
+            searchInfo.students_now_4,
+            searchInfo.students_now_5,
+            searchInfo.students_now_mix,
+            searchInfo.students_now_special
         ],
         [
-            (kinderInfo.students_total_count/kinderInfo.total_teacher_count).toFixed(1),
-            (kinderInfo.students_total_count/(
-                kinderInfo.class_count_3+
-                kinderInfo.class_count_4+
-                kinderInfo.class_count_5+
-                kinderInfo.class_count_mix+
-                kinderInfo.class_count_special
+            (searchInfo.students_total_count/searchInfo.total_teacher_count).toFixed(1),
+            (searchInfo.students_total_count/(
+                searchInfo.class_count_3+
+                searchInfo.class_count_4+
+                searchInfo.class_count_5+
+                searchInfo.class_count_mix+
+                searchInfo.class_count_special
             )).toFixed(1),
         ],
         [
-            kinderInfo.area_classroom,
-            kinderInfo.area_gym,
-            kinderInfo.area_clean,
-            kinderInfo.area_cook,
-            kinderInfo.area_etc
+            searchInfo.area_classroom,
+            searchInfo.area_gym,
+            searchInfo.area_clean,
+            searchInfo.area_cook,
+            searchInfo.area_etc
         ],
         
     ];
@@ -322,7 +339,7 @@ function Infotab({ kinderInfo, isVisible, setIsVisible }) {
             y: {
                 beginAtZero: true,
                 grid: {
-                    display: false // Y축의 그리드 라인을 제거
+                    display: false
                 },
                 title: {
                     display: false,
@@ -334,7 +351,7 @@ function Infotab({ kinderInfo, isVisible, setIsVisible }) {
         },
         plugins: {
             legend: {
-                display: false, // 범례를 숨김
+                display: false,
                 position: "bottom",
             },
         },
@@ -352,135 +369,272 @@ function Infotab({ kinderInfo, isVisible, setIsVisible }) {
             },
         },
     };
-
-    return (
-        <>
-            <div className={styles.infoBackground}>
-                <button
-                    type="button"
-                    className={styles.closeInfoButton}
-                    onClick={() => closeInfoButton()}
-                >
-                    x
-                </button>
-                <div className={styles.infoBaseBox}>
-                    <div className={styles.infoBaseTitle}>
-                        <h2 className={styles.semiTitle}>
-                            기본정보
-                        </h2>
-                        <ul className={styles.infoBaseUl}>
-                            <li className={styles.infoBaseLi}>
-                                <i>유치원이름</i>
-                                <span>{kinderInfo.kindergarten_name}</span>
-                            </li>
-                            <li className={styles.infoBaseLi}>
-                                <i>전화번호</i>
-                                <span>{kinderInfo.tel}</span>
-                            </li>
-                            <li className={styles.infoBaseLi}>
-                                <i>운영시간</i>
-                                <span>{kinderInfo.operating_hours}</span>
-                            </li>
-                            <li className={styles.infoBaseLi}>
-                                <i>대표자명</i>
-                                <span>{kinderInfo.hearder}</span>
-                            </li>
-                            <li className={styles.infoBaseLi}>
-                                <i>원장명</i>
-                                <span>{kinderInfo.director}</span>
-                            </li>
-                            <li className={styles.infoBaseLi}>
-                                <i>설립일</i>
-                                <span>{kinderInfo.birth}</span>
-                            </li>
-                            <li className={styles.infoBaseLi}>
-                                <i>개원일</i>
-                                <span>{kinderInfo.start}</span>
-                            </li>
-                            <li className={styles.infoBaseLi}>
-                                <i>관할기관</i>
-                                <span>{kinderInfo.office_education}</span>
-                            </li>
-                            <li className={styles.infoBaseLi}>
-                                <i>주소</i>
-                                <span>{kinderInfo.address}</span>
-                            </li>
-                            <li className={styles.infoBaseLi}>
-                                <i>홈페이지</i>
-                                <span><a href={kinderInfo.home_page} target="_blank" rel="noopener noreferrer">
-                                    {kinderInfo.home_page}
-                                </a></span>
-                            </li>
-                            <li className={styles.infoBaseLi}>
-                                <i>통학차량</i>
-                                <span>{kinderInfo.car_check}</span>
-                            </li>
-                        </ul>
-                    </div>
-                    <br/>
-                    <div className={styles.infoBaseTitle}>
-                        <h2 className={styles.semiTitle}>
-                            현황
-                        </h2>
-                        <div className={styles.infoChartBox}>
-                            {chartData.map((data, chartIndex) => (
-                                <div key={chartIndex} className={styles.cycleChart}>
-                                    <h4>{chartLabel[chartIndex]}</h4> {/* 차트별 제목 */}
-                                    {chartIndex === 2 ? (
-                                        <Bar
-                                            data={createChartData(chartLabels[chartIndex], chartLabel[chartIndex], chartData[chartIndex])}
-                                            options={barChartOptions}
-                                            height={700}
-                                        />
-                                    ) : (
-                                        <Doughnut
-                                            data={createChartData(chartLabels[chartIndex], chartLabel[chartIndex], chartData[chartIndex])}
-                                            options={chartOptions}
-                                        />
-                                    )}
-                                    <ul className={styles.legendList}>
-                                        {chartLabels[chartIndex].map((label, index) => (
-                                            
-                                            <li key={index} className={styles.legendItem}>
-                                                <span
-                                                    className={styles.legendCol}
-                                                    style={{
-                                                        backgroundColor: backCol(chartData[chartIndex])[index], // 해당 차트의 색상
-                                                    }}
-                                                ></span>
-                                                <span 
-                                                    className={styles.legendText}
-                                                    style={chartData[chartIndex][index] === 0 ? {color: "#bbb"} : {}}
-                                                >
-                                                    {label}: {chartData[chartIndex][index] || "0"}
-                                                </span> 
-                                                {chartData[chartIndex][index] === 0 || chartIndex === 2
-                                                    ? '' 
-                                                    : `${(chartData[chartIndex][index] / rowSums[chartIndex] * 100).toFixed(1)}%`}
-
-                                            </li>
-                                        ))}
-                                    </ul>
-                                </div>
-                            ))}
+    console.log("searchInfo 인포탭", searchInfo);
+    const kinder = () =>{
+        if(currentTabType?.[0]) {
+            return(
+                <>
+                <div className={styles.infoBackground0}>
+                    <button
+                        type="button"
+                        className={styles.closeInfoButton}
+                        onClick={() => closeInfoButton()}
+                    >
+                        x
+                    </button>
+                    <div className={styles.infoBaseBox}>
+                        <div className={styles.infoBaseTitle}>
+                            <h2 className={styles.semiTitle}>
+                                기본정보
+                            </h2>
+                            <ul className={styles.infoBaseUl}>
+                                <li className={styles.infoBaseLi}>
+                                    <i>유치원이름</i>
+                                    <span><a href={"https://search.naver.com/search.naver?where=nexearch&sm=top_hty&fbm=0&ie=utf8&query="+searchInfo.kindergarten_name} target="_blank" rel="noopener noreferrer">{searchInfo.kindergarten_name}</a></span>
+                                </li>
+                                <li className={styles.infoBaseLi}>
+                                    <i>전화번호</i>
+                                    <span>{searchInfo.tel}</span>
+                                </li>
+                                <li className={styles.infoBaseLi}>
+                                    <i>운영시간</i>
+                                    <span>{searchInfo.operating_hours}</span>
+                                </li>
+                                <li className={styles.infoBaseLi}>
+                                    <i>대표자명</i>
+                                    <span>{searchInfo.hearder}</span>
+                                </li>
+                                <li className={styles.infoBaseLi}>
+                                    <i>원장명</i>
+                                    <span>{searchInfo.director}</span>
+                                </li>
+                                <li className={styles.infoBaseLi}>
+                                    <i>설립일</i>
+                                    <span>{searchInfo.birth}</span>
+                                </li>
+                                <li className={styles.infoBaseLi}>
+                                    <i>개원일</i>
+                                    <span>{searchInfo.start}</span>
+                                </li>
+                                <li className={styles.infoBaseLi}>
+                                    <i>관할기관</i>
+                                    <span>{searchInfo.office_education}</span>
+                                </li>
+                                <li className={styles.infoBaseLi}>
+                                    <i>주소</i>
+                                    <span>{searchInfo.address}</span>
+                                </li>
+                                <li className={styles.infoBaseLi}>
+                                    <i>홈페이지</i>
+                                    <span><a href={searchInfo.home_page} target="_blank" rel="noopener noreferrer">
+                                        {searchInfo.home_page}
+                                    </a></span>
+                                </li>
+                                <li className={styles.infoBaseLi}>
+                                    <i>통학차량</i>
+                                    <span>{searchInfo.car_check}</span>
+                                </li>
+                            </ul>
+                        </div>
+                        <br/>
+                        <div className={styles.infoBaseTitle}>
+                            <h2 className={styles.semiTitle}>
+                                현황
+                            </h2>
+                            <div className={styles.infoChartBox}>
+                                {chartData.map((data, chartIndex) => (
+                                    <div key={chartIndex} className={styles.cycleChart}>
+                                        <h4>{chartLabel[chartIndex]}</h4> {/* 차트별 제목 */}
+                                        {chartIndex === 2 ? (
+                                            <Bar
+                                                data={createChartData(chartLabels[chartIndex], chartLabel[chartIndex], chartData[chartIndex])}
+                                                options={barChartOptions}
+                                                height={700}
+                                            />
+                                        ) : (
+                                            <Doughnut
+                                                data={createChartData(chartLabels[chartIndex], chartLabel[chartIndex], chartData[chartIndex])}
+                                                options={chartOptions}
+                                            />
+                                        )}
+                                        <ul className={styles.legendList}>
+                                            {chartLabels[chartIndex].map((label, index) => (
+                                                
+                                                <li key={index} className={styles.legendItem}>
+                                                    <span
+                                                        className={styles.legendCol}
+                                                        style={{
+                                                            backgroundColor: backCol(chartData[chartIndex])[index], // 해당 차트의 색상
+                                                        }}
+                                                    ></span>
+                                                    <span 
+                                                        className={styles.legendText}
+                                                        style={chartData[chartIndex][index] === 0 ? {color: "#bbb"} : {}}
+                                                    >
+                                                        {label}: {chartData[chartIndex][index] || "0"}
+                                                    </span> 
+                                                    {chartData[chartIndex][index] === 0 || chartIndex === 2
+                                                        ? '' 
+                                                        : `${(chartData[chartIndex][index] / rowSums[chartIndex] * 100).toFixed(1)}%`}
+                                                </li>
+                                            ))}
+                                        </ul>
+                                    </div>
+                                ))}
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
-        </>
-    );
+            </>
+            )
+        } else if(currentTabType?.[1]) {
+            return(
+                <>
+                <div className={styles.infoBackground1}>
+                    <button
+                        type="button"
+                        className={styles.closeInfoButton}
+                        onClick={() => closeInfoButton()}
+                    >
+                        x
+                    </button>
+                    <div className={styles.infoBaseBox}>
+                        <div className={styles.infoBaseTitle}>
+                            <h2 className={styles.semiTitle}>
+                                기본정보
+                            </h2>
+                            <ul className={styles.infoBaseUl}>
+                                <li className={styles.infoBaseLi}>
+                                    <i>센터이름</i>
+                                    <span><a href={"https://search.naver.com/search.naver?where=nexearch&sm=top_hty&fbm=0&ie=utf8&query="+searchInfo.center_name} target="_blank" rel="noopener noreferrer">{searchInfo.center_name}</a></span>
+                                </li>
+                                <li className={styles.infoBaseLi}>
+                                    <i>주소</i>
+                                    <span>{searchInfo.address}</span>
+                                </li>
+                                <li className={styles.infoBaseLi}>
+                                    <i>전화번호</i>
+                                    <span>{searchInfo.tel}</span>
+                                </li>
+                                <li className={styles.infoBaseLi}>
+                                    <i>연령층</i>
+                                    <span>{searchInfo.age_range}</span>
+                                </li>
+                                <li className={styles.infoBaseLi}>
+                                    <i>사용료</i>
+                                    <span>{searchInfo.price}</span>
+                                </li>
+                                <li className={styles.infoBaseLi}>
+                                    <i>학기중</i>
+                                    <span>{searchInfo.format_regular}</span>
+                                </li>
+                                <li className={styles.infoBaseLi}>
+                                    <i>방학중</i>
+                                    <span>{searchInfo.format_vacation}</span>
+                                </li>
+                                <li className={styles.infoBaseLi}>
+                                    <i>토요일</i>
+                                    <span>{searchInfo.format_saturday}</span>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </>
+            )
+        } else if(currentTabType?.[2]) {
+            return(
+                <>
+                <div className={styles.infoBackground2}>
+                    <button
+                        type="button"
+                        className={styles.closeInfoButton}
+                        onClick={() => closeInfoButton()}
+                    >
+                        x
+                    </button>
+                    <div className={styles.infoBaseBox}>
+                        <div className={styles.infoBaseTitle}>
+                            <h2 className={styles.semiTitle}>
+                                기본정보
+                            </h2>
+                            <ul className={styles.infoBaseUl}>
+                                <li className={styles.infoBaseLi}>
+                                    <i>시설이름</i>
+                                    <span><a 
+                                        href={"https://search.naver.com/search.naver?where=nexearch&sm=top_hty&fbm=0&ie=utf8&query="+searchInfo.facility_name} 
+                                        target="_blank" 
+                                        rel="noopener noreferrer"
+                                    >
+                                        {searchInfo.facility_name}
+                                    </a></span>
+                                </li>
+                                <li className={styles.infoBaseLi}>
+                                    <i>주소</i>
+                                    <span>{searchInfo.address}</span>
+                                </li>
+                                <li className={styles.infoBaseLi}>
+                                    <i>상세주소</i>
+                                    <span>{searchInfo.address_detail}</span>
+                                </li>
+                                <li className={styles.infoBaseLi}>
+                                    <i>전화번호</i>
+                                    <span>{searchInfo.tel}</span>
+                                </li>
+                                <li className={styles.infoBaseLi}>
+                                    <i>연령층</i>
+                                    <span>{searchInfo.age_range}</span>
+                                </li>
+                                <li className={styles.infoBaseLi}>
+                                    <i>무료여부</i>
+                                    <span>{searchInfo.free_price}</span>
+                                </li>
+                                <li className={styles.infoBaseLi}>
+                                    <i>운영일</i>
+                                    <span>{searchInfo.open_day}</span>
+                                </li>
+                                <li className={styles.infoBaseLi}>
+                                    <i>휴관일</i>
+                                    <span>{searchInfo.break_day}</span>
+                                </li>
+                            </ul>
+                        </div>
+                        <div className={styles.footBlank}>
+                            <button 
+                                onClick={() => window.open(
+                                    `https://icare.seoul.go.kr/icare/user/kidsCafe/BD_selectKidsCafeList.do?q_hiddenVal=1&q_fcltyId=&q_rowPerPage=5&q_currPage=1&q_sortName=&q_sortOrder=&q_searchVal=${searchInfo.facility_name}&q_useAge=`, 
+                                    '_blank', 
+                                    'noopener,noreferrer'
+                                )}
+                                className={styles.reserveBtn}
+                            >
+                                이용안내 및 예약이동
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </>
+            )
+        }
+    }
+
+    return kinder();
 }
 
 function EducationMain() {
     const mapRef = useRef(null);
     const [markers, setMarkers] = useState([]);
-    const educationCategories = ["유치원", "키즈카페", "유원시설"];
+    const educationCategories = ["유치원", "돌봄시설", "놀이시설"];
     const [currentTabType, setCurrentTabType] = useState([true, false, false]);
-
+    //검색어
     const [query, setQuery] = useState("");
+    //검색지역
     const [areas, setAreas] = useState([]);
+    //에러문구
     const [error, setError] = useState("");
+    //페이징
     const [page, setPage] = useState(1);
+    //스프링에서 검색해온 데이터
     const [results, setResults] = useState({
         items: [],
         total: 0,
@@ -488,31 +642,79 @@ function EducationMain() {
             totPage: 1
         }
     });
-    const [selectedKinderInfo, setselectedKinderInfo] = useState({});
+    //클릭한 유치원
+    const [selectedDetailInfo, setSelectedDetailInfo] = useState({});
+    //인포창 열림,닫힘
     const [isVisible, setIsVisible] = useState(false);
     
     const fetchData = async (query, areas, page = 1) => {
+        let response;
         try {
-            const response = await axios.get('http://localhost:9002/seoul/education/eduGardenSearch', {
-                params: {
-                    query,
-                    areas: areas.join(","),
-                    page,
-                },
-            });
-            setResults(response.data);
+            if(currentTabType[0]){
+                response = await axios.get('http://localhost:9002/seoul/education/eduGardenSearch', {
+                    params: {
+                        query,
+                        areas: areas.join(","),
+                        page,
+                    },
+                });
+                setResults(response.data);
+            } else if(currentTabType[1]) {
+                response = await axios.get('http://localhost:9002/seoul/education/eduLocalCenterSearch', {
+                    params: {
+                        query,
+                        areas: areas.join(","),
+                        page,
+                    },
+                });
+                setResults(response.data);
+            } else if(currentTabType[2]) {
+                response = await axios.get('http://localhost:9002/seoul/education/eduPlaySearch', {
+                    params: {
+                        query,
+                        areas: areas.join(","),
+                        page,
+                    },
+                });
+                setResults(response.data);
+            }
             
             // 마커 생성
-            const multiMarker = response.data.items
-            .map((item, index) => ({
-                position: {
-                    lat: parseFloat(item.y_coordinate),
-                    lng: parseFloat(item.x_coordinate)
-                },
-                content: item.kindergarten_name || "오류",
-                category: item.address || "오류",
-                index: index
-            }));
+            let multiMarker;
+            if(currentTabType[0]) {
+                multiMarker = response.data.items
+                .map((item, index) => ({
+                    position: {
+                        lat: parseFloat(item.y_coordinate),
+                        lng: parseFloat(item.x_coordinate)
+                    },
+                    content: item.kindergarten_name || "오류",
+                    category: item.address || "오류",
+                    index: index
+                }));
+            }else if (currentTabType[1]) {
+                multiMarker = response.data.items
+                .map((item, index) => ({
+                    position: {
+                        lat: parseFloat(item.y_coordinate),
+                        lng: parseFloat(item.x_coordinate)
+                    },
+                    content: item.center_name || "오류",
+                    category: item.address || "오류",
+                    index: index
+                }));
+            }else if(currentTabType[2]) {
+                multiMarker = response.data.items
+                .map((item, index) => ({
+                    position: {
+                        lat: parseFloat(item.y_coordinate),
+                        lng: parseFloat(item.x_coordinate)
+                    },
+                    content: item.facility_name || "오류",
+                    category: item.address || "오류",
+                    index: index
+                }));
+            };
             setMarkers(multiMarker);
             //0번 마커로 이동
             if (multiMarker.length > 0) {
@@ -543,37 +745,55 @@ function EducationMain() {
     }, [query, areas, page]);
 
     const markerKinderinfo = async (marker) => {
+        let response;
         try {
-            const response = await axios.get('http://localhost:9002/seoul/education/eduKinderInfo',{
-                params: {
-                    kinderName: marker.content,
-                    kinderAddress: marker.category,
-                },
-            });
-            setselectedKinderInfo(response.data);
+            if(currentTabType[0]){
+                response = await axios.get('http://localhost:9002/seoul/education/eduKinderInfo',{
+                    params: {
+                        kinderName: marker.content,
+                        kinderAddress: marker.category,
+                    },
+                });
+            } else if(currentTabType[1]){
+                response = await axios.get('http://localhost:9002/seoul/education/eduLocalCenterInfo',{
+                    params: {
+                        centerName: marker.content,
+                        centerAddress: marker.category,
+                    },
+                });
+            } else if(currentTabType[2]){
+                response = await axios.get('http://localhost:9002/seoul/education/eduPlayInfo',{
+                    params: {
+                        playName: marker.content,
+                        playAddress: marker.category,
+                    },
+                });
+            }
+            setSelectedDetailInfo(response.data);
             setIsVisible(true);
             setError("");
+            console.log("setSelectedDetailInfo", setSelectedDetailInfo);
         } catch (err) {
             console.error("데이터 로드 오류:", err);
             setError("데이터 불러오기 중 오류 발생");
         }
     }
     const selectKinderInfo = async (item) => {
-        try {
-            // const response = await axios.get('http://localhost:9002/seoul/education/eduKinderInfo', {
-            //     params: {
-            //         kinderName: item.kindergarten_name,
-            //         kinderAddress: item.address,
-            //     },
-            // });
-            // setselectedKinderInfo(response.data);
-            const center = new window.kakao.maps.LatLng(item.y_coordinate, item.x_coordinate);
-            mapRef.current.setCenter(center);
-            setError("");
-        } catch (err) {
-            console.error("데이터 로드 오류:", err);
-            setError("데이터 불러오기 중 오류 발생");
-        }
+        const center = new window.kakao.maps.LatLng(item.y_coordinate, item.x_coordinate);
+        mapRef.current.setCenter(center);
+    }
+    const tabReset = () =>{
+        setResults({
+            items: [],
+            total: 0,
+            searchVO: {
+                totPage: 1,
+            },
+        });
+        setAreas([]);
+        setMarkers([]);
+        setSelectedDetailInfo({});
+        setIsVisible(false);
     }
 
     return (
@@ -611,7 +831,8 @@ function EducationMain() {
                 ))}
             </CommonMap>
             <Infotab 
-                kinderInfo={selectedKinderInfo}
+                currentTabType={currentTabType}
+                searchInfo={selectedDetailInfo}
                 setIsVisible={setIsVisible}
                 isVisible={isVisible}
             />
@@ -625,6 +846,7 @@ function EducationMain() {
                                 const newTabType = Array(educationCategories.length).fill(false);
                                 newTabType[index] = true;
                                 setCurrentTabType(newTabType);
+                                tabReset();
                             }}
                         >
                             {category}
@@ -633,6 +855,9 @@ function EducationMain() {
                 </div>
                 <div className={styles.searchBox}>
                     <EduSearchBox
+                        setPage={setPage}
+                        setMarkers={setMarkers}
+                        setSelectedDetailInfo={setSelectedDetailInfo}
                         onSearch={handleSearch}
                         selectedItems={areas}
                         setSelectedItems={setAreas}
@@ -642,6 +867,7 @@ function EducationMain() {
                         setError={setError}
                     /><br/>
                     <KindergartenList 
+                        currentTabType={currentTabType}
                         results={results} 
                         error={error} 
                         page={page}
