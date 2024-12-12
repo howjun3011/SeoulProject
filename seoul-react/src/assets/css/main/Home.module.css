@@ -4,7 +4,7 @@
 .headerFontSetting {height: 100%; font-size: 140px; font-weight: 600; letter-spacing: 1px; opacity: 0.6; user-select: none;}
 .mainCenter {position: relative; display: flex; justify-content: space-around; align-items: center; width: 100%;}
 .mainExplanation {position: absolute; top: 12px; right: 30px; font-size: 18px; font-weight: 400; letter-spacing: 0.1px; opacity: 0.6;}
-.mainComponent {display: flex; flex-direction: column; align-items: center; width: 13%; height: 70%; border-top: 1px solid #e2e2e2; cursor: pointer;}
+.mainComponent {display: flex; flex-direction: column; align-items: center; width: 15%; height: 70%; border-top: 1px solid #e2e2e2; cursor: pointer;}
 .componentFontSetting {width: 100%; height: 15%; padding: 14px 0 0 10px; font-size: 26px; font-weight: 600; letter-spacing: 0.1px; opacity: 0.6;}
 .componentFontSetting:hover {color: #000;}
 .componentEngFontSetting {margin-top: 5px; font-size: 17px;}

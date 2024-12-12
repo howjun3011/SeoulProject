@@ -21,6 +21,12 @@ import CultureAssetsMain from './CultureAssetsMain';
 import CultureAssetsInfo from './CultureAssetsInfo';
 import CultureAssetsSearch from './CultureAssetsSearch';
 
+import CultureSpaceMain from './CultureSpaceMain';
+import CultureSpaceInfo from './CultureSpaceInfo';
+import CultureMovieInfo from './CultureMovieInfo';
+import CulturePerformSearch from './CulturePerformSearch';
+import CultureMovieSearch from './CultureMovieSearch';
+
 function CultureMain() {
     // 카카오 맵 기본 설정
     const { kakao } = window;
@@ -45,6 +51,7 @@ function CultureMain() {
         const x = await getData(url);
 
         if (x !== undefined && x.item) {setMarkers(x.item);}
+        else if (x !== undefined && x.body) {setMarkers(x.body.items.item);}
         else if (x !== undefined) {setMarkers(x);}
     }
 
@@ -55,7 +62,7 @@ function CultureMain() {
     }, []);
 
     // 검색 기능
-    const searchPlaceholderName = ['국립중앙도서관 소장자료를 검색해보세요.','국립박물관의 소장유물을 검색해보세요.','서울의 국가 유산을 검색해보세요.'];
+    const searchPlaceholderName = ['국립중앙도서관 소장자료를 검색해보세요.','국립박물관의 소장유물을 검색해보세요.','서울의 국가 유산을 검색해보세요.','서울의 공연 정보를 검색해보세요.','영화진흥위원회의 영화 정보를 검색해보세요.'];
     const [searchPlaceholder, setSearchPlaceholder] = useState(searchPlaceholderName[0]);
     const [searchValue, setSearchValue] = useState('');
     const saveSearchValue = (event) => {setSearchValue(event.target.value);}
@@ -65,6 +72,8 @@ function CultureMain() {
         if (x.result) {setDetailContents(x.result.item);}
         else if (x.response) {setDetailContents(x.response.body.items.item);}
         else if (x.item) {setDetailContents(x.item);}
+        else if (x.db) {setDetailContents(x.db);}
+        else if (x.movieListResult) {setDetailContents(x.movieListResult.movieList);}
         setIsSearched(true);
         setIsClicked(false);
     }
@@ -73,7 +82,7 @@ function CultureMain() {
         <div className={ styles.cultureContainer }>
             <CommonMap setMap={ setMap } mapLevel={ 4 }>
                 <MarkerClusterer
-                    key={`${markers.length}-${Math.random()}`}
+                    key={`${markers.length}`}
                     averageCenter={true}
                     minLevel={6}
                     gridSize={120}
@@ -90,8 +99,16 @@ function CultureMain() {
                             if (currentTabType[2]) {
                                 const x = await getData(`http://localhost:9002/seoul/culture/getCulturalAssetsDetail?sort=${marker.ccbaKdcd}&code=${marker.ccbaAsno}`);
                                 setDetailContents(x.item);
+                            } else if (currentTabType[3] && currentSubTabType[0]) {
+                                const x = await getData(`http://localhost:9002/seoul/culture/getCulturalSpaceDetail?seq=${marker.seq}`);
+                                setDetailContents(x.body.items.item);
+                            } else if (currentTabType[3] && currentSubTabType[1]) {
+                                const x = await getData(`http://localhost:9002/seoul/culture/getCulturalMovieDetailInfo?name=${encodeURIComponent(marker.poi_nm)}&address=${encodeURIComponent(`${marker.ctprvn_nm} ${marker.signgu_nm} ${marker.rdnmadr_nm} ${marker.buld_no}`)}`);
+                                if (x.result && x.result.name.includes(marker.poi_nm)) {x.result.cl_nm = marker.cl_nm; setDetailContents(x.result);}
+                                else {setDetailContents(marker);}
+                            } else {
+                                setDetailContents(marker);
                             }
-                            else {setDetailContents(marker);}
                         };
 
                         if (currentTabType[0] && currentSubTabType[0]) {
@@ -162,6 +179,40 @@ function CultureMain() {
                                     />
                                 </CustomOverlayMap>
                             );
+                        } else if (currentTabType[3] && currentSubTabType[0]) {
+                            return (
+                                <CustomOverlayMap
+                                    key={`marker-${marker.seq}-${index}`}
+                                    position={{
+                                        lat: marker.gpsY,
+                                        lng: marker.gpsX,
+                                    }}
+                                    zIndex={0}
+                                    onCreate={(x) => {customOverlayMap = x;}}
+                                >
+                                    <OverLay
+                                        marker={marker}
+                                        onClick={() => {handleOverlayIndex(overlayZIndex)}}
+                                    />
+                                </CustomOverlayMap>
+                            );
+                        } else if (currentTabType[3] && currentSubTabType[1]) {
+                            return (
+                                <CustomOverlayMap
+                                    key={`marker-${marker.movie_id}-${index}`}
+                                    position={{
+                                        lat: marker.lc_la,
+                                        lng: marker.lc_lo,
+                                    }}
+                                    zIndex={0}
+                                    onCreate={(x) => {customOverlayMap = x;}}
+                                >
+                                    <OverLay
+                                        marker={marker}
+                                        onClick={() => {handleOverlayIndex(overlayZIndex)}}
+                                    />
+                                </CustomOverlayMap>
+                            );
                         }
                     })}
                 </MarkerClusterer>
@@ -195,7 +246,7 @@ function CultureMain() {
                                             if (index === 0) {clickMarkerBtn(`http://localhost:9002/seoul/culture/getBookData`); setCurrentSubTabType([true,false]);}
                                             else if (index === 1) {clickMarkerBtn(`http://localhost:9002/seoul/culture/getMuseumInfo`); setCurrentSubTabType([true,false]);}
                                             else if (index === 2) {clickMarkerBtn(`http://localhost:9002/seoul/culture/getCulturalAssetsInfo?sort=11`); setCurrentSubTabType([true,false,false]);}
-                                            else if (index === 3) {setMarkers([]);}
+                                            else if (index === 3) {clickMarkerBtn(`http://localhost:9002/seoul/culture/getCulturalSpaceInfo`); setCurrentSubTabType([true,false]);}
                                         }}
                                     >
                                         {tabName}
@@ -409,6 +460,84 @@ function CultureMain() {
                     { currentTabType[2] && !isClicked && !isSearched && <CultureAssetsMain /> }
                     { currentTabType[2] && !isClicked && isSearched && <CultureAssetsSearch assetContents={detailContents} map={map} setMarkers={(data) => {setMarkers(data)}} key={detailContents.length} /> }
                     { currentTabType[2] && isClicked && <CultureAssetsInfo assetContents={detailContents} /> }
+                    {
+                        currentTabType[3] && <div className={ styles.cultureBookHeader }>
+                            <div className={`${styles.cultureBookSearch} ${styles.flexCenter}`} style={{ width: '58%' }}>
+                                <button
+                                    className={styles.searchBtn}
+                                    onClick={async () => {
+                                        if (currentSubTabType[0]) {
+                                            goSearch(`http://localhost:9002/seoul/culture/getCulturalPerformanceInfo?q=${encodeURIComponent(searchValue)}`);
+                                        } else {
+                                            goSearch(`http://localhost:9002/seoul/culture/getCulturalMovieSearch?q=${encodeURIComponent(searchValue)}`);
+                                        }
+                                    }}
+                                >
+                                    <img src="/images/culture/searchBtn.png"
+                                        alt="Search Button" height="14px" />
+                                </button>
+                                <input
+                                    className={styles.headerInput}
+                                    placeholder={searchPlaceholder}
+                                    onClick={() => {
+                                        setSearchPlaceholder('');
+                                    }}
+                                    onBlur={() => {
+                                        if (currentSubTabType[0]) {setSearchPlaceholder(searchPlaceholderName[3]);}
+                                        else {setSearchPlaceholder(searchPlaceholderName[4]);}
+                                    }}
+                                    value={searchValue}
+                                    onChange={saveSearchValue}
+                                    onKeyDown={async (e) => {
+                                        if (e.key === "Enter") {
+                                            if (currentSubTabType[0]) {
+                                                goSearch(`http://localhost:9002/seoul/culture/getCulturalPerformanceInfo?q=${encodeURIComponent(searchValue)}`);
+                                            } else {
+                                                goSearch(`http://localhost:9002/seoul/culture/getCulturalMovieSearch?q=${encodeURIComponent(searchValue)}`);
+                                            }
+                                        }
+                                    }}
+                                />
+                            </div>
+                            <div
+                                className={`${ styles.cultureBookHeaderBtn } ${ styles.flexCenter }`}
+                                style={{
+                                    marginRight: '20px',
+                                    backgroundColor: currentSubTabType[1] ? '#e2e2e2' : '',
+                                }}
+                                onClick={() => {
+                                    setCurrentSubTabType([false,true]);
+                                    setIsClicked(false);
+                                    setIsSearched(false);
+                                    setSearchPlaceholder(searchPlaceholderName[4]);
+                                    clickMarkerBtn(`http://localhost:9002/seoul/culture/getMovieInfo`);
+                                }}
+                            >
+                                영화관
+                            </div>
+                            <div
+                                className={`${ styles.cultureBookHeaderBtn } ${ styles.flexCenter }`}
+                                style={{
+                                    backgroundColor: currentSubTabType[0] ? '#e2e2e2' : '',
+                                }}
+                                onClick={() => {
+                                    setCurrentSubTabType([true,false]);
+                                    setIsClicked(false);
+                                    setIsSearched(false);
+                                    setSearchPlaceholder(searchPlaceholderName[3]);
+                                    clickMarkerBtn(`http://localhost:9002/seoul/culture/getCulturalSpaceInfo`);
+                                }}
+                            >
+                                공연장
+                            </div>
+                            <div className={`${ styles.cultureBookHeaderBtn } ${ styles.flexCenter }`} onClick={() => {setIsClicked(false); setIsSearched(false);}}>홈</div>
+                        </div>
+                    }
+                    { currentTabType[3] && !isClicked && !isSearched && <CultureSpaceMain /> }
+                    { currentTabType[3] && !isClicked && isSearched && currentSubTabType[0] && <CulturePerformSearch spaceContents={detailContents} /> }
+                    { currentTabType[3] && !isClicked && isSearched && currentSubTabType[1] && <CultureMovieSearch spaceContents={detailContents} /> }
+                    { currentTabType[3] && isClicked && currentSubTabType[0] && <CultureSpaceInfo spaceContents={detailContents} /> }
+                    { currentTabType[3] && isClicked && currentSubTabType[1] && <CultureMovieInfo spaceContents={detailContents} /> }
                 </div>
             </SideTab>
         </div>
@@ -473,6 +602,36 @@ function OverLay(props) {
             >
                 <div className={ `${styles.boxtitle} ${styles.flexCenter}` }>{props.marker.ccmaName}{`(${props.marker.ccsiName})`}</div>
                 <div className={ `${styles.overlayContent} ${styles.flexCenter}` }>{props.marker.ccbaMnm1}</div>
+            </div>
+        );
+    } else if (props.marker.seq !== undefined) {
+        return (
+            <div
+                className={styles.overlaybox}
+                style={{
+                    filter: props.marker.culGrpName === '공연장' ? 'opacity(0.8) drop-shadow(0 0 0 #8AB78A)' : ''
+                }}
+                onClick={props.onClick}
+            >
+                <div className={ `${styles.boxtitle} ${styles.flexCenter}` }>{props.marker.culGrpName}</div>
+                <div className={ `${styles.overlayContent} ${styles.flexCenter}` }>{props.marker.culName}</div>
+            </div>
+        );
+    } else if (props.marker.movie_id !== undefined) {
+        return (
+            <div
+                className={styles.overlaybox}
+                style={{
+                    filter: props.marker.cl_nm === 'CGV' ? 'opacity(0.8) drop-shadow(0 0 0 #FF9473)' :
+                            props.marker.cl_nm === '롯데시네마' ? 'opacity(0.8) drop-shadow(0 0 0 #0064FF)' :
+                            props.marker.cl_nm === '메가박스' ? 'opacity(0.8) drop-shadow(0 0 0 #8AB78A)' : '',
+                    backgroundSize: '120px 120px',
+                    width: '120px'
+                }}
+                onClick={props.onClick}
+            >
+                <div className={ `${styles.boxtitle} ${styles.flexCenter}` } style={{ fontSize: '14px' }}>{props.marker.cl_nm}</div>
+                <div className={ `${styles.overlayContent} ${styles.flexCenter}` }>{props.marker.poi_nm}</div>
             </div>
         );
     }

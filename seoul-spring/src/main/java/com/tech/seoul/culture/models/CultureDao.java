@@ -11,14 +11,17 @@ public interface CultureDao {
 	public Integer selectCultureBookLibraryPKCnt(int lbrry_cd);
 	public Integer selectCultureMuseumInfoPKCnt(String id);
 	public Integer selectCultureArtMuseumInfoPKCnt(String id);
+	public Integer selectCultureMovieInfoPKCnt(String movie_id);
 	public List<CultureBookDto> selectCultureBook();
 	public List<CultureBestsellerDto> selectCultureBestseller();
 	public List<CultureBookLibraryDto> selectCultureBookLibrary();
 	public List<CultureMuseumInfoDto> selectCultureMuseumInfo();
 	public List<CultureArtMuseumInfoDto> selectCultureArtMuseumInfo();
+	public List<CultureMovieInfoDto> selectCultureMovieInfo();
 	public void insertCultureBook(CultureBookDto cultureBookDto);
 	public void insertCultureBestseller(CultureBestsellerDto cultureBestsellerDto);
 	public void insertCultureBookLibrary(CultureBookLibraryDto cultureBookLibraryDto);
 	public void insertCultureMuseumInfo(CultureMuseumInfoDto cultureMuseumInfoDto);
 	public void insertCultureArtMuseumInfo(CultureArtMuseumInfoDto cultureArtMuseumInfoDto);
+	public void insertCultureMovieInfo(CultureMovieInfoDto cultureMovieInfoDto);
 }
