@@ -1,4 +1,4 @@
-package com.tech.seoul;
+package com.tech.seoul.tour;
 
 import java.io.*;
 import java.net.HttpURLConnection;
@@ -24,7 +24,29 @@ public class ApiExplorerTourInfo {
             con.setAutoCommit(false);
             System.out.println("MySQL에 연결 성공!");
 
-            String sql = "INSERT INTO tour_info (tour_info_addr1, tour_info_addr2, tour_info_areacode, tour_info_booktour, tour_info_cat1, tour_info_cat2, tour_info_cat3, tour_info_contentid, tour_info_contenttypeid, tour_info_createdtime, tour_info_firstimage, tour_info_firstimage2, tour_info_cpyrhtDivCd, tour_info_mapx, tour_info_mapy, tour_info_mlevel, tour_info_modifiedtime, tour_info_sigungucode, tour_info_tel, tour_info_title, tour_info_zipcode) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+            String sql = "INSERT INTO tour_info (" +
+                    "tour_info_addr1," +
+                    "tour_info_addr2," +
+                    "tour_info_areacode," +
+                    "tour_info_booktour," +
+                    "tour_info_cat1," +
+                    "tour_info_cat2," +
+                    "tour_info_cat3," +
+                    "tour_info_contentid," +
+                    "tour_info_contenttypeid," +
+                    "tour_info_createdtime," +
+                    "tour_info_firstimage," +
+                    "tour_info_firstimage2," +
+                    "tour_info_cpyrhtDivCd," +
+                    "tour_info_mapx," +
+                    "tour_info_mapy," +
+                    "tour_info_mlevel," +
+                    "tour_info_modifiedtime," +
+                    "tour_info_sigungucode," +
+                    "tour_info_tel," +
+                    "tour_info_title," +
+                    "tour_info_zipcode" +
+                    ") VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
             pstmt = con.prepareStatement(sql);
 
             int batchSize = 1000;

@@ -667,7 +667,14 @@ function MapComponentPet() {
 
       {/* 상시 반려동물 정보 모달창 */}
       <div className="persistent-modal">
-        <h3>반려동물 목록</h3>
+        <h3>반려동물 동반 여행지 목록</h3>
+        {/* 커스텀 레이아웃 닫기 버튼 */}
+        <button
+          onClick={hideCustomOverlay}
+          className="close-overlay-button xBtn"
+        >
+          X
+        </button>
         {petInfos.length > 0 ? (
           petInfos.map((petInfo, index) => {
             // 고유한 키 생성

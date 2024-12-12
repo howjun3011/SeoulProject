@@ -627,7 +627,7 @@ function MapComponentFestival() {
         className="navigate-pet-button"
         style={{ position: 'absolute', top: '60px', left: '10px', zIndex: 5 }}
       >
-        애견동반지 보기
+        반려동물 동반 여행지 보기
       </button>
 
       {/* 지도 표시 */}
@@ -642,6 +642,13 @@ function MapComponentFestival() {
       {/* 상시 축제 정보 모달창 */}
       <div className="persistent-modal">
         <h3>축제 목록</h3>
+        {/* 커스텀 레이아웃 닫기 버튼 */}
+        <button
+          onClick={hideCustomOverlay}
+          className="close-overlay-button xBtn"
+        >
+          X
+        </button>
         {festivalInfos.length > 0 ? (
           festivalInfos.map((festivalInfo, index) => {
             // 고유한 키 생성

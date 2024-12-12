@@ -40,6 +40,7 @@ function App() {
             <Route path="/seoul/tour" element={ <TourInfo /> }></Route>
             <Route path="/seoul/tour/festival" element={ <TourFestival /> }></Route>
             <Route path="/seoul/tour/pet" element={ <TourPet /> }></Route>
+
             <Route path="/seoul/db" element={ <InsertDB /> }></Route>
           </Routes>
         </MainLayout>
