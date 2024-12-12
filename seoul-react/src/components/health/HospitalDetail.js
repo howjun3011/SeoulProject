@@ -1,8 +1,9 @@
-import React from "react";
+import React, {useEffect, useState} from "react";
 import styles from "../../assets/css/health/HealthMain.module.css";
 
 // 병원 상세정보 컴포넌트
 function HospitalDetail({ hospital, onBack, setMarkers, hospitalList, groupByCoordinates, parseOpenCloseTimeAll, getHospitalSbjDisplay }) {
+    // 병원 운영시간
     const days = [
         {label: '일요일', field: 'hosp_sun_oc'},
         {label: '월요일', field: 'hosp_mon_oc'},
@@ -13,7 +14,23 @@ function HospitalDetail({ hospital, onBack, setMarkers, hospitalList, groupByCoo
         {label: '토요일', field: 'hosp_sat_oc'},
     ];
 
+    // 약국 운영시간
+    const day = [
+        {label: '일요일', field: 'pharm_sun_oc'},
+        {label: '월요일', field: 'pharm_mon_oc'},
+        {label: '화요일', field: 'pharm_tue_oc'},
+        {label: '수요일', field: 'pharm_wed_oc'},
+        {label: '목요일', field: 'pharm_thu_oc'},
+        {label: '금요일', field: 'pharm_fri_oc'},
+        {label: '토요일', field: 'pharm_sat_oc'},
+    ]
+
     const todayIndex = new Date().getDay();
+
+    const todayPharmDay = day[todayIndex]; // 오늘 요일에 해당하는 객체
+
+    // 가장 가까운 약국 3개를 저장할 state
+    const [nearbyPharmacies, setnearbyPharmacies] = useState([]);
 
     // 뒤로가기 버튼 클릭 시, 마커 초기화 및 리스트로 돌아가기
     const handleBackClick = () => {
@@ -26,6 +43,31 @@ function HospitalDetail({ hospital, onBack, setMarkers, hospitalList, groupByCoo
         });
         onBack();
     };
+
+    // hospital 변경될 때마다, 현재 병원 기준 반경 0.1km 이내에 있는 약국 3개 조회
+    useEffect(() => {
+        if(!hospital) return;
+
+        const fetchNearbyPharmacies = async () => {
+            try {
+                const params = new URLSearchParams();
+                params.append('lat', hospital.hosp_lat);
+                params.append('lon', hospital.hosp_lon);
+                params.append('radius', 0.2);
+
+                const response = await fetch(`http://localhost:9002/seoul/health/pharmSearch?${params.toString()}`);
+                if(!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                const data = await response.json();
+                setnearbyPharmacies(data);
+            } catch(error) {
+                console.error("Error fetching nearby pharmacies:", error);
+                setnearbyPharmacies([]);
+            }
+        };
+        fetchNearbyPharmacies();
+    }, [hospital]);
 
     return (
         <div className={styles.hospitalScrollable}>
@@ -63,7 +105,7 @@ function HospitalDetail({ hospital, onBack, setMarkers, hospitalList, groupByCoo
                             </div>
                         </div>
                     )}
-                    {/* 운영 시간 */}
+                    {/* 병원 운영 시간 */}
                     <div className={styles.hospitalTimeDetail}>
                         <img className={styles.hospitalHoursImg} src={`/images/health/hours.png`} alt="hours"/>
                         <div className={styles.hospitalTime}>
@@ -78,7 +120,7 @@ function HospitalDetail({ hospital, onBack, setMarkers, hospitalList, groupByCoo
                             <div className={styles.hospitalTimeItem}>{hospital.hosp_lunchtime}</div>
                         </div>
                     </div>
-                    {/* 전화번호 */}
+                    {/* 병원 전화번호 */}
                     <div className={styles.hospitalCall}>
                         <img className={styles.hospitalCallImg} src={`/images/health/call.png`} alt={"call"}/>
                         <div className={styles.hospitalNumber}>
@@ -86,7 +128,7 @@ function HospitalDetail({ hospital, onBack, setMarkers, hospitalList, groupByCoo
                         </div>
                     </div>
                 </div>
-                {/* 진료과목 리스트 */}
+                {/* 병원 진료과목 리스트 */}
                 <div className={styles.sbjDetail}>
                     <div className={styles.hospitalSbjText}>진료과목</div>
                     <div className={styles.hospitalSbjList}>
@@ -102,6 +144,40 @@ function HospitalDetail({ hospital, onBack, setMarkers, hospitalList, groupByCoo
                     </div>
                 </div>
             </div>
+            {/* 선택된 병원으로부터 가까운 약국 3개 리스트 */}
+            {nearbyPharmacies && nearbyPharmacies.length > 0 && (
+                <div className={styles.nearbyPharmacies}>
+                    <div className={styles.pharmacyText}>근처 약국</div>
+                    {nearbyPharmacies.map((pharm, index) => (
+                        <div key={index} className={styles.nearbyPharmacyItem}>
+                            {/* 약국 이름 */}
+                            <div className={styles.hospitalNameSbjDetail}>
+                                <div className={styles.hospitalName}>
+                                    {pharm.pharm_name}
+                                </div>
+                            </div>
+                            {/* 약국 주소 */}
+                            <div className={styles.pharmLocation}>
+                                <img className={styles.pharmacyLocationImg} src={`/images/health/location.png`}
+                                     alt="location"/>
+                                <div className={styles.pharmacyAddressText}>{pharm.pharm_address}</div>
+                            </div>
+                            {/* 약국 운영 시간 */}
+                            <div className={styles.hospitalTimeDetail}>
+                                <img className={styles.hospitalHoursImg} src={`/images/health/hours.png`} alt="hours"/>
+                                <div className={styles.hospitalTimeItem}>
+                                    {todayPharmDay.label} {parseOpenCloseTimeAll(pharm[todayPharmDay.field])}
+                                </div>
+                            </div>
+                            {/* 약국 전화번호 */}
+                            <div className={styles.pharmacyCall}>
+                                <img className={styles.pharmacyCallImg} src={`/images/health/call.png`} alt={"call"}/>
+                                <div className={styles.pharmacyNumber}>{pharm.pharm_pnumber || '정보 없음'}</div>
+                            </div>
+                        </div>
+                    ))}
+                </div>
+            )}
         </div>
     );
 }

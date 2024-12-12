@@ -23,6 +23,8 @@ function HealthMain() {
     const [selectedWeekFilter, setSelectedWeekFilter] = useState('전체'); // 주말/공휴일 선택된 필터 값
     const [weekFilterButtonText, setWeekFilterButtonText] = useState('주말/공휴일'); // 주말/공휴일 필터 버튼에 표시될 텍스트
     const [selectedHospitalDetail, setSelectedHospitalDetail] = useState(null); // 선택된 병원 상세 정보
+    const [pharmacyMarkers, setPharmacyMarkers] = useState([]);
+    const [selectedPharmacyMarker, setSelectedPharmacyMarker] = useState(null);
 
     // 사용자 현재 위치 가져오기
     // 컴포넌트가 마운트될 때 사용자의 현재 위치를 가져와서 userLocation과 currentCenter를 설정하고, 현재 위치를 표시하는 마커 추가
@@ -166,7 +168,7 @@ function HealthMain() {
 
             // API 호출
             const response = await fetch(
-                `http://localhost:9002/seoul/health/search?${params.toString()}`
+                `http://localhost:9002/seoul/health/hospSearch?${params.toString()}`
             );
 
             if (!response.ok) {
@@ -196,7 +198,7 @@ function HealthMain() {
                 newParams.set('radius', 1.0); // 반경 1.0km로 확대
 
                 const responseExpanded = await fetch(
-                    `http://localhost:9002/seoul/health/search?${newParams.toString()}`
+                    `http://localhost:9002/seoul/health/hospSearch?${newParams.toString()}`
                 );
 
                 if(!responseExpanded.ok) {
@@ -339,7 +341,7 @@ function HealthMain() {
                 >
                     현재 위치로 이동
                 </button>
-
+                {/* 병원 정보 오버레이 */}
                 {markers.map((marker, index) => {
                     const isCurrentLocation = marker.isCurrentLocation;
                     const count = marker.hospitals ? marker.hospitals.length : 0;

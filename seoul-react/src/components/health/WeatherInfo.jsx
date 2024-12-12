@@ -22,12 +22,14 @@ function WeatherInfo() {
                 let hour = String(now.getHours()).padStart(2, '0');
                 let minute = now.getMinutes();
                 let baseTime = '';
+
                 if (minute < 45) {
                     const newHour = hour === 0 ? 23 : hour - 1;
                     baseTime = (newHour < 10 ? ('0' + newHour) : newHour) + '30';
                 } else {
                     baseTime = (hour < 10 ? ('0' + hour) : hour) + '30';
                 }
+                console.log('기온, 하늘상태 :', baseTime);
 
                 // 격자 좌표 (nx, ny)
                 const nx = 58;
