@@ -19,8 +19,8 @@ public class PlayInfoService {
 	
 	public PlayDetailInfoDto DetailInfo(
 			HttpServletRequest request) {
-		String center_name = request.getParameter("playName");
-		String address = request.getParameter("playAddress");
+		String center_name = request.getParameter("selectName");
+		String address = request.getParameter("selectAddress");
 		PlayDetailInfoDto playInfo = 
 				eduDao.selectPlayInfo(center_name, address);
 		if(playInfo.getFree_price() == "N") {

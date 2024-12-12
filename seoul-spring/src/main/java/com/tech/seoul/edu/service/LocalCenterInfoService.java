@@ -15,11 +15,17 @@ public class LocalCenterInfoService {
 	public LocalCenterInfoService(EduDao eduDao) {
 		this.eduDao = eduDao;
 	}
-	
+	//
+	//  /////////////////      동적 리턴타입? 사용해서 지역센터 키움센터 전달.
+	//
 	public KidsLocalCenterDetailDto DetailInfo(
 			HttpServletRequest request) {
-		String center_name = request.getParameter("centerName");
-		String address = request.getParameter("centerAddress");
+		String service_type = request.getParameter("service_type");
+		if(service_type == "지역아동센터") {
+			
+		}
+		String center_name = request.getParameter("selectName");
+		String address = request.getParameter("selectAddress");
 		KidsLocalCenterDetailDto centerInfo = 
 				eduDao.selectCenterInfo(center_name, address);
 		

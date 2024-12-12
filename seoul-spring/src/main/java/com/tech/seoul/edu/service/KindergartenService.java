@@ -27,13 +27,15 @@ public class KindergartenService {
 		String query = request.getParameter("query");
 		String areas = request.getParameter("areas");
 		String[] areas_array = areas.split(",");
+		String filters = request.getParameter("filters");
+		String[] filters_array = filters.split(",");
 		
 		if (searchVO == null) {
 		    searchVO = new EduSearchVO();
 		}
 		
 		int total = 0;
-		total = eduDao.KindergartenNameCnt(query, areas_array);
+		total = eduDao.KindergartenNameCnt(query, areas_array,filters_array);
 		String strPage = request.getParameter("page");
 		if(strPage == null || strPage.isEmpty()) {
  			strPage="1";
@@ -46,7 +48,7 @@ public class KindergartenService {
 		int rowStart = searchVO.getRowStart();
 		int rowEnd = searchVO.getRowEnd();
 		List<KindergartenNameDto> items =
-				eduDao.KindergartenName(query, areas_array,(rowStart-1),8);
+				eduDao.KindergartenName(query, areas_array,filters_array,(rowStart-1),8);
 		return new PageInfoDto<>(items,total,searchVO);
 	}
 }
