@@ -150,7 +150,7 @@ function HealthMain() {
             const params = new URLSearchParams();
             params.append('lat', center.lat);
             params.append('lon', center.lng);
-            params.append('radius', 0.4); // 초기 반경 0.4km
+            params.append('radius', 0.3); // 초기 반경 0.3km
 
             if (keyword && keyword.trim() !== '') {
                 params.append('keyword', keyword);
@@ -193,7 +193,7 @@ function HealthMain() {
                 // 결과 없을 시 반경 확대
                 console.log("현재 지도 범위 내에 결과 없음, 반경을 1.5km로 확대하여 재검색");
                 const newParams = new URLSearchParams(params);
-                newParams.set('radius', 1.5); // 반경 1.5km로 확대
+                newParams.set('radius', 1.0); // 반경 1.0km로 확대
 
                 const responseExpanded = await fetch(
                     `http://localhost:9002/seoul/health/search?${newParams.toString()}`
