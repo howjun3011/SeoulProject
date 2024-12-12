@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
-import styles from '../../assets/css/culture/CultureMain.module.css';
-import GetFetch from '../../hooks/getFetch';
+import styles from '../../../assets/css/culture/CultureMain.module.css';
+import GetFetch from '../../../hooks/getFetch';
 
 function CultureSpaceMain(props) {
     // 공연 정보를 획득하는 함수

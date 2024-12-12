@@ -1,4 +1,4 @@
-import styles from '../../assets/css/culture/CultureMain.module.css';
+import styles from '../../../assets/css/culture/CultureMain.module.css';
 
 function CultureSpaceInfo(props) {
     return (

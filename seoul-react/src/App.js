@@ -6,13 +6,16 @@ import { BrowserRouter, Navigate, Routes, Route } from 'react-router-dom';
 // Common Component
 import Home from "./components/main/Home";
 import MainLayout from "./components/main/MainLayout";
-
-// Component
-import CultureMain from "./components/culture/CultureMain";
-import EducationMain from './components/education/EducationMain';
-import ExerciseMain from './components/exercise/ExerciseMain';
-
 import InsertDB from './components/db/InsertDB';
+
+// Culture Component
+import CultureMain from "./components/culture/CultureMain";
+
+// Education Component
+import EducationMain from './components/education/EducationMain';
+
+// Exercise Component
+import ExerciseMain from './components/exercise/ExerciseMain';
 
 // Health Component
 import HealthMain from './components/health/HealthMain';
