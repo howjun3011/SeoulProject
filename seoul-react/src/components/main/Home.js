@@ -32,7 +32,7 @@ function Home(props) {
     return (
         <>
             <div className={`${styles.mainHeader} ${styles.flexCenter}`}>
-                <div className={styles.headerFontSetting}>I ❤︎ SEOUL</div>
+                <div className={`${styles.headerFontSetting} ${styles.flexCenter}`}>I ❤︎ SEOUL</div>
             </div>
             <div className={styles.mainWeather}>
                 <WeatherInfo/>

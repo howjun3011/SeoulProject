@@ -1,5 +1,5 @@
-import styles from '../../assets/css/culture/CultureMain.module.css';
-import GetFetch from '../../hooks/getFetch';
+import styles from '../../../assets/css/culture/CultureMain.module.css';
+import GetFetch from '../../../hooks/getFetch';
 
 function CultureAssetsSearch(props) {
     return (

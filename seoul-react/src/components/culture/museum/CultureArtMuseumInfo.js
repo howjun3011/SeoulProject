@@ -1,4 +1,4 @@
-import styles from '../../assets/css/culture/CultureMain.module.css';
+import styles from '../../../assets/css/culture/CultureMain.module.css';
 
 function CultureArtMuseumInfo(props) {
     const arr = props.museumContents.hmpg_addr.replace(' ','').split(',');

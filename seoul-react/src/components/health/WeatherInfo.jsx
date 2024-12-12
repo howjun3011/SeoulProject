@@ -46,7 +46,7 @@ function WeatherInfo() {
 
                 const weatherResponse = await fetch(weatherUrl);
                 const weatherJson = await weatherResponse.json(); // 바로 JSON으로 변환
-                console.log('기상청 데이터:', weatherJson); // JSON 데이터를 출력
+                // console.log('기상청 데이터:', weatherJson); // JSON 데이터를 출력
 
                 if (weatherJson.response && weatherJson.response.body && weatherJson.response.body.items && weatherJson.response.body.items.item) {
                     const items = weatherJson.response.body.items.item;
@@ -100,12 +100,12 @@ function WeatherInfo() {
                     }
 
                     const responseText = await dustResponse.text();
-                    console.log("미세먼지 API 응답 텍스트:", responseText);
+                    // console.log("미세먼지 API 응답 텍스트:", responseText);
 
                     let dustJson;
                     try {
                         dustJson = JSON.parse(responseText);
-                        console.log('미세먼지 API JSON 응답:', dustJson);
+                        // console.log('미세먼지 API JSON 응답:', dustJson);
                     } catch (e) {
                         console.error("응답을 JSON으로 파싱하지 못했습니다. 응답 내용:", responseText);
                         throw new Error("미세먼지 API 응답이 JSON 형식이 아님");
@@ -114,7 +114,7 @@ function WeatherInfo() {
                     if (dustJson.response && dustJson.response.body && dustJson.response.body.items) {
                         const dustItems = dustJson.response.body.items;
                         const guroData = dustItems.find(item => item.stationName === '구로구');
-                        console.log(guroData);
+                        // console.log(guroData);
 
                         if (guroData) {
                             newWeatherData.pm10 = parseInt(guroData.pm10Grade, 10);
@@ -223,7 +223,7 @@ function WeatherInfo() {
             marginBottom: '10px',
             marginLeft: '10px',
             gap: '10px',
-            zIndex: 9999
+            zIndex: 9999,
         }}>
             <div className={styles.weatherStatTmp}>
                 <div className={styles.weatherStat}><img src={weatherData.skyImg} alt="skyStatusImg" /></div>

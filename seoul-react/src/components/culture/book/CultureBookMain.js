@@ -1,5 +1,5 @@
-import styles from '../../assets/css/culture/CultureMain.module.css';
-import GetFetch from '../../hooks/getFetch';
+import styles from '../../../assets/css/culture/CultureMain.module.css';
+import GetFetch from '../../../hooks/getFetch';
 
 function CultureBooKMain(props) {
     // 국립중앙도서관 사서 추천 도서 정보를 획득하는 함수
