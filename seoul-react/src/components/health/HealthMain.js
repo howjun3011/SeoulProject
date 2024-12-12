@@ -92,6 +92,8 @@ function HealthMain() {
             // 지도 드래그 시작 시 선택된 마커 해제
             window.kakao.maps.event.addListener(map, "dragstart", () => {
                 setSelectedMarker(null);
+                // setSelectedPharmacyMarker(null);
+                setPharmacyMarkers([]);
             });
 
             // 지도 드래그 종료 시 새로운 중심 좌표 설정
@@ -296,6 +298,16 @@ function HealthMain() {
         }
     };
 
+    // 약국 마커 추가
+    const handlePharmacySelect = (pharmacy) => {
+        setPharmacyMarkers(prev => [
+            {
+                position: { lat: pharmacy.pharm_lat, lng: pharmacy.pharm_lon },
+                pharmacy: pharmacy
+            }
+        ]);
+    };
+
     // 현재 위치로 돌아가기 함수
     // 사용자의 현재 위치로 지도를 이동시키고, 현재 위치 마커를 업데이트
     const returnToCurrentLocation = () => {
@@ -437,6 +449,21 @@ function HealthMain() {
                         </React.Fragment>
                     );
                 })}
+                {/* 약국 마커 */}
+                {pharmacyMarkers.map((marker, index) => {
+                    const markerImage = {
+                        src: '/images/health/pharmacy-marker.png',
+                        size: { width: 38, height: 38 },
+                        option: { offset: { x: 12, y: 38 }},
+                    };
+                    return (
+                        <MapMarker
+                            key={`pharm-marker-${index}`}
+                            position={marker.position}
+                            image={markerImage}
+                        />
+                    );
+                })}
                 {/* 날씨 정보 컴포넌트 */}
                 <WeatherInfo />
             </CommonMap>
@@ -499,6 +526,7 @@ function HealthMain() {
                             groupByCoordinates={groupByCoordinates}
                             parseOpenCloseTimeAll={parseOpenCloseTimeAll}
                             getHospitalSbjDisplay={getHospitalSbjDisplay}
+                            onPharmacySelect={handlePharmacySelect}
                         />
                     ) : (
                         /* 병원 리스트 표시 */

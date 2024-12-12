@@ -2,7 +2,7 @@ import React, {useEffect, useState} from "react";
 import styles from "../../assets/css/health/HealthMain.module.css";
 
 // 병원 상세정보 컴포넌트
-function HospitalDetail({ hospital, onBack, setMarkers, hospitalList, groupByCoordinates, parseOpenCloseTimeAll, getHospitalSbjDisplay }) {
+function HospitalDetail({ hospital, onBack, setMarkers, hospitalList, groupByCoordinates, parseOpenCloseTimeAll, getHospitalSbjDisplay, onPharmacySelect }) {
     // 병원 운영시간
     const days = [
         {label: '일요일', field: 'hosp_sun_oc'},
@@ -59,8 +59,24 @@ function HospitalDetail({ hospital, onBack, setMarkers, hospitalList, groupByCoo
                 if(!response.ok) {
                     throw new Error(`HTTP error! status: ${response.status}`);
                 }
-                const data = await response.json();
-                setnearbyPharmacies(data);
+
+                let data = await response.json();
+
+                // pharm_lat, pharm_lon을 이용한 중복 제거
+                const uniquePharmacies = [];
+                const seen = new Set();
+
+                for (const pharm of data) {
+                    // 소수점 처리 또는 문자열 변환을 통해 정확히 같은 좌표를 비교
+                    // 예: lat, lon을 문자열로 변환 후 키로 사용
+                    const key = `${pharm.pharm_lat.toFixed(6)}-${pharm.pharm_lon.toFixed(6)}`;
+                    if(!seen.has(key)) {
+                        seen.add(key);
+                        uniquePharmacies.push(pharm);
+                    }
+                }
+
+                setnearbyPharmacies(uniquePharmacies);
             } catch(error) {
                 console.error("Error fetching nearby pharmacies:", error);
                 setnearbyPharmacies([]);
@@ -68,6 +84,7 @@ function HospitalDetail({ hospital, onBack, setMarkers, hospitalList, groupByCoo
         };
         fetchNearbyPharmacies();
     }, [hospital]);
+
 
     return (
         <div className={styles.hospitalScrollable}>
@@ -149,7 +166,7 @@ function HospitalDetail({ hospital, onBack, setMarkers, hospitalList, groupByCoo
                 <div className={styles.nearbyPharmacies}>
                     <div className={styles.pharmacyText}>근처 약국</div>
                     {nearbyPharmacies.map((pharm, index) => (
-                        <div key={index} className={styles.nearbyPharmacyItem}>
+                        <div key={index} className={styles.nearbyPharmacyItem} onClick={() => onPharmacySelect(pharm)} style={{cursor: 'pointer'}}>
                             {/* 약국 이름 */}
                             <div className={styles.hospitalNameSbjDetail}>
                                 <div className={styles.hospitalName}>
