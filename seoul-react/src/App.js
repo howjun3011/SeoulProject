@@ -19,7 +19,6 @@ import InsertDB from './components/db/InsertDB';
 import TourInfo from './components/tour/MapComponent';
 import TourFestival from './components/tour/MapComponentFestival';
 import TourPet from './components/tour/MapComponentPet';
-// import TourCamping from './components/tour/MapComponentCamping';
 
 function App() {
   const menuNames = [ '어린이', '문화', '체육', '환경', '건강', '관광' ];
@@ -40,7 +39,6 @@ function App() {
             <Route path="/seoul/tour" element={ <TourInfo /> }></Route>
             <Route path="/seoul/tour/festival" element={ <TourFestival /> }></Route>
             <Route path="/seoul/tour/pet" element={ <TourPet /> }></Route>
-            {/*<Route path="/seoul/tour/camping" element={ <TourCamping /> }></Route>*/}
 
             <Route path="/seoul/db" element={ <InsertDB /> }></Route>
           </Routes>
