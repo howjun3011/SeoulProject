@@ -9,7 +9,7 @@ function WeatherInfo() {
         const fetchWeather = async () => {
             try {
                 // 서비스 키 (이미 인코딩된 형태)
-                const serviceKey = 'yUAPog6Rgt2Os0UIFDpFja5DVD0qzGn6j1PHTeXT5QkxuaK4FjVPHFSNLlVeQ9lD2Gv5P6fsJyUga4R5zA0osA%3D%3D';
+                const serviceKey = 'yS7P3EDpV941DaSS0Kr%2B9FWPTS03AjXqaKoV89OHZjKVuRgXnQwngjiestfD%2BtV8YWmVMqK2DSwkQlxUZK0jJw%3D%3D';
 
                 // 현재 시간 가져오기 (날씨용)
                 const now = new Date();
@@ -22,16 +22,16 @@ function WeatherInfo() {
                 let hour = String(now.getHours()).padStart(2, '0');
                 let minute = now.getMinutes();
                 let baseTime = '';
-                if (minute < 30) {
-                    baseTime = (hour - 1) + '00';
+                if (minute < 45) {
+                    const newHour = hour === 0 ? 23 : hour - 1;
+                    baseTime = (newHour < 10 ? ('0' + newHour) : newHour) + '30';
                 } else {
-                    baseTime = hour + '00';
+                    baseTime = (hour < 10 ? ('0' + hour) : hour) + '30';
                 }
-                console.log(baseTime);
 
-                // 격자 좌표 (nx, ny) - 서울특별시 강남구
-                const nx = 59;
-                const ny = 124;
+                // 격자 좌표 (nx, ny)
+                const nx = 58;
+                const ny = 125;
 
                 // 초단기예보조회 (기상청 API)
                 const weatherUrl = `https://apis.data.go.kr/1360000/VilageFcstInfoService_2.0/getUltraSrtFcst` +
@@ -113,7 +113,7 @@ function WeatherInfo() {
 
                     if (dustJson.response && dustJson.response.body && dustJson.response.body.items) {
                         const dustItems = dustJson.response.body.items;
-                        const guroData = dustItems.find(item => item.stationName === '금천구');
+                        const guroData = dustItems.find(item => item.stationName === '구로구');
                         console.log(guroData);
 
                         if (guroData) {
@@ -154,7 +154,7 @@ function WeatherInfo() {
                             newWeatherData.pm10Img = pm10ImgPath;
                             newWeatherData.pm25Img = pm25ImgPath;
                         } else {
-                            console.warn('강남구 미세먼지 데이터가 없습니다.');
+                            console.warn('미세먼지 데이터가 없습니다.');
                         }
                     } else {
                         console.warn('미세먼지 데이터 구조 이상.');
