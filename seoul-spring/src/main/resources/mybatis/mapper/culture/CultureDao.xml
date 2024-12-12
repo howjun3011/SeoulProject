@@ -181,5 +181,31 @@
                 #{etc_specl_viewng_dscnt_rt}, #{etc_specl_viewng_dscnt_cn}, #{fre_specl_viewng_price}, #{rm_cn}
             )
     </insert>
-	
+
+    <!-- 영화관 -->
+    <select id="selectCultureMovieInfoPKCnt" resultType="Integer">
+        SELECT COUNT(*) FROM culture_movie_info WHERE movie_id = #{movie_id}
+    </select>
+
+    <select id="selectCultureMovieInfo" resultType="com.tech.seoul.culture.models.CultureMovieInfoDto">
+        SELECT
+            movie_id, lclas_nm, mlsfc_nm, poi_nm, bhf_nm, asstn_nm, cl_nm, ctprvn_nm,
+            signgu_nm, rdnmadr_nm, buld_no, lc_lo, lc_la, origin_nm
+        FROM
+            culture_movie_info
+    </select>
+
+    <insert id="insertCultureMovieInfo" parameterType="com.tech.seoul.culture.models.CultureMovieInfoDto">
+        INSERT INTO culture_movie_info
+            (
+                movie_id, lclas_nm, mlsfc_nm, poi_nm, bhf_nm, asstn_nm, cl_nm, ctprvn_nm,
+                signgu_nm, rdnmadr_nm, buld_no, lc_lo, lc_la, origin_nm
+            )
+        VALUE
+            (
+                #{movie_id}, #{lclas_nm}, #{mlsfc_nm}, #{poi_nm}, #{bhf_nm}, #{asstn_nm}, #{cl_nm}, #{ctprvn_nm},
+                #{signgu_nm}, #{rdnmadr_nm}, #{buld_no}, #{lc_lo}, #{lc_la}, #{origin_nm}
+            )
+    </insert>
+
 </mapper>

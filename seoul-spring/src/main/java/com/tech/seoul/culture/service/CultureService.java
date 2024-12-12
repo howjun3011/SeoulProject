@@ -1,13 +1,18 @@
 package com.tech.seoul.culture.service;
 
+import java.net.URI;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import com.tech.seoul.culture.models.*;
-import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 
 import org.springframework.web.client.RestTemplate;
@@ -27,6 +32,7 @@ public class CultureService {
 	public List<CultureBookLibraryDto> selectCultureBookLibraryService() {return cultureDao.selectCultureBookLibrary();}
 	public List<CultureMuseumInfoDto> selectCultureMuseumInfoService() {return cultureDao.selectCultureMuseumInfo();}
 	public List<CultureArtMuseumInfoDto> selectCultureArtMuseumInfoService() {return cultureDao.selectCultureArtMuseumInfo();}
+	public List<CultureMovieInfoDto> selectCultureMovieInfoService() {return cultureDao.selectCultureMovieInfo();}
 
 
 	// DB Insert
@@ -263,6 +269,37 @@ public class CultureService {
 		System.out.println("Complete All");
 	}
 
+	public void insertCultureMovieInfoService(HashMap<String, Object>[] maps) {
+		System.out.println("Start");
+		for (HashMap<String, Object> map : maps) {
+			Integer cnt = cultureDao.selectCultureMovieInfoPKCnt(map.get("ID").toString());
+
+			if (cnt == 0 && map.get("CTPRVN_NM").toString().equals("서울특별시")) {
+				CultureMovieInfoDto cultureMovieInfoDto = new CultureMovieInfoDto();
+
+				cultureMovieInfoDto.setMovie_id(map.get("ID").toString());
+				cultureMovieInfoDto.setLclas_nm(map.get("LCLAS_NM").toString());
+				cultureMovieInfoDto.setMlsfc_nm(map.get("MLSFC_NM").toString());
+				cultureMovieInfoDto.setPoi_nm(map.get("POI_NM").toString());
+				cultureMovieInfoDto.setBhf_nm(map.get("BHF_NM").toString());
+				cultureMovieInfoDto.setAsstn_nm(map.get("ASSTN_NM").toString());
+				cultureMovieInfoDto.setCl_nm(map.get("CL_NM").toString());
+				cultureMovieInfoDto.setCtprvn_nm(map.get("CTPRVN_NM").toString());
+				cultureMovieInfoDto.setSigngu_nm(map.get("SIGNGU_NM").toString());
+				cultureMovieInfoDto.setRdnmadr_nm(map.get("RDNMADR_NM").toString());
+				cultureMovieInfoDto.setBuld_no(map.get("BULD_NO").toString());
+				cultureMovieInfoDto.setLc_lo(map.get("LC_LO").toString());
+				cultureMovieInfoDto.setLc_la(map.get("LC_LA").toString());
+				cultureMovieInfoDto.setOrigin_nm(map.get("ORIGIN_NM").toString());
+
+				cultureDao.insertCultureMovieInfo(cultureMovieInfoDto);
+
+				System.out.println("Complete Inserting Movie Data");
+			}
+		}
+		System.out.println("Complete All");
+	}
+
 
 	// OPEN API를 활용해 획득한 XML 데이터 JSON으로 변환하는 함수
 	public String getXmlToJsonService(String url) throws Exception {
@@ -279,5 +316,43 @@ public class CultureService {
 		String json = jsonMapper.writeValueAsString(node);
 
 		return json;
+	}
+
+	public Map<String, Object> getXmlToJsonMapService(String url) throws Exception {
+		// 스트링의 의도치 않은 변환 가능성 제거
+		URI uri = new URI(url);
+
+		// OPEN API를 활용해 xml 데이터 획득
+		RestTemplate restTemplate = new RestTemplate();
+		ResponseEntity<Map<String, Object>> response = restTemplate.exchange(uri, HttpMethod.GET, null, new ParameterizedTypeReference<Map<String, Object>>() {});
+
+		return response.getBody();
+	}
+
+
+	// Google Place 사용 함수
+	public ResponseEntity<?> getCulturalMovieDetailInfoService(String name, String address, String apiKey) throws Exception {
+		// [ Text Search API로 place_id 검색 ]
+		String query = URLEncoder.encode(name+" "+address, StandardCharsets.UTF_8);
+		String textSearchUrl = "https://maps.googleapis.com/maps/api/place/textsearch/json?language=ko&query="+query+"&key="+apiKey;
+
+		RestTemplate restTemplate = new RestTemplate();
+		ResponseEntity<Map<String, Object>> response = restTemplate.exchange(new URI(textSearchUrl), HttpMethod.GET, null, new ParameterizedTypeReference<Map<String, Object>>() {});
+		Map<String, Object> textSearchResult = response.getBody();
+
+		// 데이터가 존재하는지 확인 후 place_id 추출
+		List<Map<String,Object>> results = (List<Map<String,Object>>) textSearchResult.get("results");
+		if (results.isEmpty()) {
+			return ResponseEntity.status(HttpStatus.NOT_FOUND).body("No match found");
+		}
+
+		String placeId = (String) results.get(0).get("place_id");
+
+		// [ Place Details API로 상세 정보 획득 ]
+		String detailUrl = "https://maps.googleapis.com/maps/api/place/details/json?language=ko&place_id="+placeId+"&key="+apiKey;
+		response = restTemplate.exchange(new URI(detailUrl), HttpMethod.GET, null, new ParameterizedTypeReference<Map<String, Object>>() {});
+		Map<String, Object> detailResult = response.getBody();
+
+		return ResponseEntity.ok(detailResult);
 	}
 }
