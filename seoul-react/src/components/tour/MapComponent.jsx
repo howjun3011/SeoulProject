@@ -13,8 +13,8 @@ function MapComponent() {
   const [isMapLoaded, setIsMapLoaded] = useState(false); // 지도 로드 상태
   const [tourInfos, setTourInfos] = useState([]); // 현재 표시된 관광지 정보
 
-  // 클러스터 마커를 위한 상태
-  const [clusters, setClusters] = useState([]);
+  // 클러스터 마커를 위한 useRef
+  const clustersRef = useRef([]); // 클러스터를 저장하는 Ref 객체
 
   // 클러스터 팝업 상태
   const [clusterPopup, setClusterPopup] = useState({ visible: false, tours: [], position: null });
@@ -98,7 +98,7 @@ function MapComponent() {
   }, []);
 
   /**
-   * 관광지 정보를 가져와 마커를 업데이트합니다.
+   * 관광지 정보를 가져와 마커와 클러스터를 업데이트합니다.
    */
   const fetchTourInfo = async (centerLat, centerLng) => {
     try {
@@ -116,6 +116,13 @@ function MapComponent() {
         marker.setMap(null);
         markersRef.current.delete(key);
       });
+
+      // 기존 클러스터 제거
+      clustersRef.current.forEach((cluster) => {
+        cluster.marker.setMap(null);
+        cluster.overlay.setMap(null);
+      });
+      clustersRef.current = [];
 
       // 중복 제거: title과 좌표를 기준으로 중복된 항목 필터링
       const uniqueTours = response.data.filter((tour, index, self) =>
@@ -209,7 +216,8 @@ function MapComponent() {
         }
       });
 
-      setClusters(clusterData); // 클러스터 상태 업데이트
+      // 클러스터 상태 업데이트 (useRef 사용)
+      clustersRef.current = clusterData;
 
       // 관광지 정보를 상태에 저장
       setTourInfos(uniqueToursWithKeys);
@@ -741,7 +749,7 @@ function MapComponent() {
         className="navigate-pet-button"
         style={{ position: 'absolute', top: '60px', left: '10px', zIndex: 5 }}
       >
-        애견동반지 보기
+        반려동물 동반 여행지 보기
       </button>
 
       {/* 클러스터 팝업 */}
@@ -807,7 +815,13 @@ function MapComponent() {
       {/* 상시 관광지 정보 모달창 */}
       <div className="persistent-modal">
         <h3>관광지 목록</h3>
-
+        {/* 커스텀 레이아웃 닫기 버튼 */}
+          <button
+            onClick={hideCustomOverlay}
+            className="close-overlay-button xBtn"
+          >
+            X
+          </button>
         {/* 카테고리 탭 추가 */}
         <div className="category-tabs">
           <div className="center-box">

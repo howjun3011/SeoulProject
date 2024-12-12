@@ -154,6 +154,13 @@
     border-color: #999;
 }
 
+.close-overlay-button.xBtn {
+    top: 0;
+    transform: translateY(40%);
+    box-shadow: none;
+    border: 0;
+}
+
 .current-location-button {
     top: 20px;
     right: 20px;

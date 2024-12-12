@@ -1,4 +1,4 @@
-package com.tech.seoul;
+package com.tech.seoul.tour;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
