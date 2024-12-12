@@ -40,4 +40,19 @@
             </choose>
         </if>
     </select>
+    <select id="findPharmacyWithRadius" resultType="com.tech.seoul.health.models.PharmacyDto">
+        SELECT
+        *,
+        (6371 * acos(
+        cos(radians(#{lat})) *
+        cos(radians(pharm_lat)) *
+        cos(radians(pharm_lon) - radians(#{lon})) +
+        sin(radians(#{lat})) *
+        sin(radians(pharm_lat))
+        )) AS distance
+        FROM pharm_info
+        HAVING distance <![CDATA[<=]]> #{radius}
+        ORDER BY distance
+        LIMIT 3;
+    </select>
 </mapper>

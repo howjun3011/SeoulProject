@@ -306,13 +306,15 @@
 
 .hospitalTimeDetail {
     display: flex;
-    align-items: flex-start;
+    align-items: center;
     margin-bottom: 6px;
 }
 
 .sbjDetail {
     display: block;
     padding: 5px;
+    border-bottom: 1px solid #ddd;
+    margin-bottom: 5px;
 }
 
 .hospitalSbjText {
@@ -326,6 +328,7 @@
     margin-top: 10px; /* 리스트 위쪽 간격 */
     padding: 0;
     flex-wrap: wrap;
+    margin-bottom: 10px;
 }
 
 .hospitalSbjItem {
@@ -412,4 +415,59 @@
 .weatherPm10Img img, .weatherPm25Img img {
     width: 45px;
     height: 45px;
+}
+
+.pharmacyText {
+    font-size: 17px;
+}
+
+.nearbyPharmacies {
+    display: flex;
+    flex-direction: column;
+    padding: 5px;
+}
+
+.nearbyPharmacyItem {
+    margin-top: 10px;
+    margin-bottom: 10px;
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    padding: 10px;
+}
+
+.pharmLocation {
+    display: flex;
+    margin-top: 6px;
+    align-items: flex-start;
+    margin-bottom: 6px;
+}
+
+.pharmacyLocationImg {
+    width: 20px;
+    height: 20px;
+    margin-right: 3px;
+}
+
+.pharmacyAddressText {
+    display: flex;
+    font-size: 15px;
+}
+
+.pharmacyCall {
+    display: flex;
+    align-items: center;
+    margin-bottom: 5px;
+}
+
+.pharmacyCallImg {
+    width: 16px;
+    height: 16px;
+    margin-left: 1px;
+    margin-right: 6px;
+    margin-top: 2px;
+}
+
+.pharmacyNumber {
+    display: flex;
+    font-size: 15px;
 }

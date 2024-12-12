@@ -2,6 +2,7 @@ package com.tech.seoul.health.service;
 
 import com.tech.seoul.health.models.HealthDao;
 import com.tech.seoul.health.models.HospitalDto;
+import com.tech.seoul.health.models.PharmacyDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -20,6 +21,12 @@ public class HealthService {
         processSimpleAddress(hospitals); // 간단 주소 생성
 
         return hospitals;
+    }
+
+    public List<PharmacyDto> searchPharmacyByLocation(double lat, double lon, double radius) {
+        List<PharmacyDto> pharmacies = healthDao.findPharmacyWithRadius(lat, lon, radius);
+
+        return pharmacies;
     }
 
     // hosp_sbj 필드를 hosp_sbj_list로 변환하는 메서드
