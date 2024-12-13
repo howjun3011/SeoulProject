@@ -1,4 +1,5 @@
 import styles from '../../../assets/css/culture/CultureMain.module.css';
+import { useState } from 'react';
 
 // 컴포넌트 객체 생성
 import CultureMuseumMain from './CultureMuseumMain';
@@ -22,6 +23,8 @@ function MuseumTabSection({
     clickMarkerBtn,
     detailContents
 }) {
+    const [homeRenderKey, setHomeRenderKey] = useState(0);
+
     const handleSearch = async () => {
         goSearch(`http://api.kcisa.kr/openapi/service/rest/convergence/conver7?keyword=${encodeURIComponent(searchValue)}&serviceKey=${encodeURIComponent(process.env.REACT_APP_SEARCH_MUSEUM_ITEM_KEY)}&numOfRows=50`);
     };
@@ -72,9 +75,9 @@ function MuseumTabSection({
                 >
                     박물관
                 </div>
-                <div className={`${ styles.cultureBookHeaderBtn } ${ styles.flexCenter }`} onClick={() => {setIsClicked(false); setIsSearched(false);}}>홈</div>
+                <div className={`${ styles.cultureBookHeaderBtn } ${ styles.flexCenter }`} onClick={() => {setIsClicked(false); setIsSearched(false); setHomeRenderKey(prev => prev + 1);}}>홈</div>
             </div>
-            { !isClicked && !isSearched && <CultureMuseumMain /> }
+            { !isClicked && !isSearched && <CultureMuseumMain key={homeRenderKey}/> }
             { !isClicked && isSearched && <CultureMuseumSearch museumContents={detailContents} /> }
             { isClicked && currentSubTabType[0] && <CultureMuseumInfo museumContents={detailContents} /> }
             { isClicked && currentSubTabType[1] && <CultureArtMuseumInfo museumContents={detailContents} /> }

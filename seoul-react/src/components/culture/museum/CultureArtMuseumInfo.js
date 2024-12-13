@@ -42,29 +42,24 @@ function CultureArtMuseumInfo(props) {
                         ><path d="M10.2 14.3c.5-1.2.8-2.9.8-4.8H7c0 1.9.4 3.6.8 4.8.2.7.5 1.1.8 1.4.2.3.4.3.4.3s.2 0 .4-.3c.3-.3.5-.7.8-1.4zM16 9.5h-4c-.1 2.7-.6 5-1.4 6.3 2.9-.7 5.2-3.2 5.4-6.3zm0-1h-4c-.1-2.7-.6-5-1.4-6.3 2.9.7 5.2 3.2 5.4 6.3zM7.4 2.2C4.5 2.9 2.2 5.4 2 8.5h4c.1-2.7.6-5 1.4-6.3zM2 9.5h4c.1 2.7.6 5 1.4 6.3-2.9-.7-5.2-3.2-5.4-6.3zM9 2s-.2 0-.4.3c-.3.3-.5.7-.8 1.4C7.4 4.9 7 6.6 7 8.5h4c0-1.9-.4-3.6-.8-4.8-.3-.7-.5-1.1-.8-1.4C9.2 2 9 2 9 2z"
                         ></path>
                         </svg>
-                        <div
-                            style={{
-                            }}
-                        >
-                            {
-                                arr.map((data, index) => {
-                                    return (
-                                        <div
-                                            key={`${data}-${index}`}
-                                            style={{ cursor: 'pointer', marginBottom: '2px' }}
-                                            onClick={() => {
-                                                if (data.includes('http://') || data.includes('https://')) {window.open(data);}
-                                                else {window.open(`https://${data}`)}
-                                            }}
-                                        >
-                                            {
-                                                data.includes('http://') ? data.replace('http://','') :
-                                                data.includes('https://') ? data.replace('https://','') : data
-                                            }
-                                        </div>
-                                    );
-                                })
-                            }
+                        <div>
+                            {arr.map((data, index) => {
+                                return (
+                                    <div
+                                        key={`${data}-${index}`}
+                                        style={{ cursor: 'pointer', marginBottom: '2px' }}
+                                        onClick={() => {
+                                            if (data.includes('http://') || data.includes('https://')) {window.open(data);}
+                                            else {window.open(`https://${data}`)}
+                                        }}
+                                    >
+                                        {
+                                            data.includes('http://') ? data.replace('http://','') :
+                                            data.includes('https://') ? data.replace('https://','') : data
+                                        }
+                                    </div>
+                                );
+                            })}
                         </div>
                     </div>
                     <div

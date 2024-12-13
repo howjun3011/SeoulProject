@@ -9,8 +9,9 @@ function CultureMuseumSearch(props) {
                     ( props.museumContents && props.museumContents.length > 0 ) && props.museumContents.map((data, index) => {
                         return (
                             <div
-                                className={styles.bestsellerFrame}
+                                className={`${styles.bestsellerFrame} ${styles.assetSearchFrame}`}
                                 key={`${data.rn}-${index}`}
+                                onClick={() => {window.open(`${data.url}`)}}
                             >
                                 <div className={styles.bestsellerFrameNo}>{index + 1}.</div>
                                 <div>
@@ -21,7 +22,7 @@ function CultureMuseumSearch(props) {
                                         onError={(e) => {e.target.src = '/images/culture/noImage.png';}}
                                         style={{
                                             width: '80px',
-                                            height: '100px'
+                                            height: '110px'
                                         }}
                                     />
                                 </div>
@@ -29,34 +30,19 @@ function CultureMuseumSearch(props) {
                                     <div className={styles.bestsellerFrameInfoHeader}>
                                         {data.title}
                                     </div>
-                                    <div
-                                        style={{ display: 'flex', marginBottom: '6px', color: '#111', fontSize: '12px', opacity: '0.7' }}
-                                    >
-                                        <div
-                                            style={{
-                                                maxWidth: '250px',
-                                                overflow: 'hidden',
-                                                whiteSpace: 'nowrap',
-                                                textOverflow: 'ellipsis'
-                                            }}
-                                        >
+                                    <div className={styles.commonInfoStyle}>
+                                        <div className={styles.commonEllipsisStyle}>
                                             {data.creator}
                                         </div>
-                                        <span style={{ overflow: 'hidden', whiteSpace: 'nowrap', textOverflow: 'ellipsis', width: '50%' }}>
+                                        <span className={styles.commonEllipsisStyleNoMax}>
                                             &nbsp;| {data.temporal || '내용없음'} | {data.spatial}
                                         </span>
                                     </div>
-                                    <div className={styles.bestsellerFrameInfoDetail} style={{ lineHeight: '15px' }}>
-                                        <div
-                                            style={{ overflow: 'hidden', whiteSpace: 'nowrap', textOverflow: 'clip', cursor: 'pointer' }}
-                                            onClick={() => {window.open(`${data.url}`)}}
-                                        >
-                                            {`1. ${ data.url && (data.url.replace("https://","").replace("http://","") || '링크 없음') }`}
-                                        </div>
-                                        <div>{`2. 자원의 물리적(물질적) 상태: ${data.medium || '내용 없음'}`}</div>
-                                        <div>{`3. 자원에 대한 권리: ${data.rights || '내용 없음'}`}</div>
-                                        <div style={{ overflow: 'hidden', whiteSpace: 'nowrap', textOverflow: 'ellipsis' }}>
-                                            {`4. 내용: ${data.description || data.extent || '없음'}`}
+                                    <div className={styles.bestsellerFrameInfoDetail} style={{ lineHeight: '18px' }}>
+                                        <div>{`1. 자원의 물리적(물질적) 상태: ${data.medium || '내용 없음'}`}</div>
+                                        <div>{`2. 자원에 대한 권리: ${data.rights || '내용 없음'}`}</div>
+                                        <div className={styles.commonEllipsisStyleNoMax}>
+                                            {`3. 내용: ${data.description || data.extent || '없음'}`}
                                         </div>
                                     </div>
                                 </div>

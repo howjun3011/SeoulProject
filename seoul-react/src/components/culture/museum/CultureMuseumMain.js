@@ -8,26 +8,31 @@ function CultureMuseumMain(props) {
     const [museumExhibitions, setMuseumExhibitions] = useState([]);
     const [artMuseumExhibitions, setArtMuseumExhibitions] = useState([]);
 
+    // HTML 태그 제거 및 HTML 엔티티 제거 함수
+    const cleanText = (text = '') => text.replace(/<[^>]*>/g, '').replace(/&[^;\s]+;/g, '');
+
     useEffect(() => {
+        if (!exhibitionData.body) return;
+
         // 버퍼 생성
         const x = [];
         const y = [];
 
         // 전시 정보로부터 각각 원하는 정보 획득
-        if (exhibitionData.body) {
-            exhibitionData.body.items.item.map((data, index) => {
-                if ((data.CNTC_INSTT_NM.includes('대한민국역사박물관') ||
-                    data.CNTC_INSTT_NM.includes('국립박물관문화재단') ||
-                    data.EVENT_SITE.includes('아시아문화박물관')) &&
-                    data.PERIOD.includes('2024')) {
-                    x.push(data);
-                } else if (data.CNTC_INSTT_NM.includes('미술관') && data.PERIOD.includes('2024')) {
-                    y.push(data);
-                }
-            })
-            setMuseumExhibitions(x);
-            setArtMuseumExhibitions(y);
-        }
+        exhibitionData.body.items.item.forEach((data) => {
+            const isMuseum = (data.CNTC_INSTT_NM.includes('대한민국역사박물관') ||
+                              data.CNTC_INSTT_NM.includes('국립박물관문화재단') ||
+                              data.EVENT_SITE.includes('아시아문화박물관')) &&
+                              data.PERIOD.includes('2024');
+
+            const isArtMuseum = data.CNTC_INSTT_NM.includes('미술관') && data.PERIOD.includes('2024');
+
+            if (isMuseum) x.push(data);
+            if (isArtMuseum) y.push(data);
+        });
+
+        setMuseumExhibitions(x);
+        setArtMuseumExhibitions(y);
     },[exhibitionData]);
 
     return (
@@ -38,8 +43,9 @@ function CultureMuseumMain(props) {
                     exhibitionData.body && museumExhibitions.map((data, index) => {
                         return (
                             <div
-                                className={styles.bestsellerFrame}
+                                className={`${styles.bestsellerFrame} ${styles.assetSearchFrame}`}
                                 key={ `${data.CNTC_INSTT_NM}-${index}` }
+                                onClick={() => {window.open(`${data.URL}`)}}
                             >
                                 <div className={styles.bestsellerFrameNo}>{index + 1}.</div>
                                 <div>
@@ -48,7 +54,7 @@ function CultureMuseumMain(props) {
                                         alt={data.TITLE}
                                         style={{
                                             width: '80px',
-                                            height: '100px'
+                                            height: '110px'
                                         }}
                                     />
                                 </div>
@@ -56,29 +62,14 @@ function CultureMuseumMain(props) {
                                     <div className={styles.bestsellerFrameInfoHeader}>
                                         {data.TITLE}
                                     </div>
-                                    <div
-                                        style={{ display: 'flex', marginBottom: '6px', color: '#111', fontSize: '12px', opacity: '0.7' }}
-                                    >
-                                        <div
-                                            style={{
-                                                maxWidth: '140px',
-                                                overflow: 'hidden',
-                                                whiteSpace: 'nowrap',
-                                                textOverflow: 'ellipsis'
-                                            }}
-                                        >
+                                    <div className={styles.commonInfoStyle}>
+                                        <div className={styles.commonEllipsisStyle}>
                                             {data.CNTC_INSTT_NM}
                                         </div>&nbsp;| {data.PERIOD}
                                     </div>
                                     <div className={styles.bestsellerFrameInfoDetail} style={{ lineHeight: '17px' }}>
-                                        <div
-                                            style={{ overflow: 'hidden', whiteSpace: 'nowrap', textOverflow: 'clip', cursor: 'pointer', marginLeft: '1px' }}
-                                            onClick={() => {window.open(`${data.URL}`)}}
-                                        >
-                                            {`1. ${data.URL.replace("https://","")}`}
-                                        </div>
-                                        <div>{`2. 위치: ${data.EVENT_SITE}`}</div>
-                                        <div>{`3. ${data.DESCRIPTION.replace(/<[^>]*>/g, '').replace(/&[^;\s]+;/g, '') || "상세페이지 확인"}`}</div>
+                                        <div className={styles.commonEllipsisStyleNoMax}>{`1. 위치: ${data.EVENT_SITE || '내용 없음'}`}</div>
+                                        <div>{`2. ${cleanText(data.DESCRIPTION) || "상세페이지 확인"}`}</div>
                                     </div>
                                 </div>
                             </div>
@@ -92,8 +83,9 @@ function CultureMuseumMain(props) {
                     exhibitionData.body && artMuseumExhibitions.map((data, index) => {
                         return (
                             <div
-                                className={styles.bestsellerFrame}
+                                className={`${styles.bestsellerFrame} ${styles.assetSearchFrame}`}
                                 key={ `${data.CNTC_INSTT_NM}-${index}` }
+                                onClick={() => {window.open(`${data.URL}`)}}
                             >
                                 <div className={styles.bestsellerFrameNo}>{index + 1}.</div>
                                 <div>
@@ -111,33 +103,14 @@ function CultureMuseumMain(props) {
                                     <div className={styles.bestsellerFrameInfoHeader}>
                                         {data.TITLE}
                                     </div>
-                                    <div
-                                        style={{ display: 'flex', marginBottom: '6px', color: '#111', fontSize: '12px', opacity: '0.7' }}
-                                    >
-                                        <div
-                                            style={{
-                                                maxWidth: '140px',
-                                                overflow: 'hidden',
-                                                whiteSpace: 'nowrap',
-                                                textOverflow: 'ellipsis'
-                                            }}
-                                        >
+                                    <div className={styles.commonInfoStyle}>
+                                        <div className={styles.commonEllipsisStyle}>
                                             {data.CONTRIBUTOR}
                                         </div>&nbsp;| {data.PERIOD}
                                     </div>
                                     <div className={styles.bestsellerFrameInfoDetail} style={{ lineHeight: '17px' }}>
-                                        <div
-                                            style={{ overflow: 'hidden', whiteSpace: 'nowrap', textOverflow: 'clip', cursor: 'pointer', marginLeft: '1px' }}
-                                            onClick={() => {window.open(`${data.URL}`)}}
-                                        >
-                                            {`1. ${data.URL.replace("https://","")}`}
-                                        </div>
-                                        <div
-                                            style={{ overflow: 'hidden', whiteSpace: 'nowrap', textOverflow: 'clip', cursor: 'pointer', marginLeft: '1px' }}
-                                        >
-                                            {`2. 위치: ${data.EVENT_SITE}, 작가: ${data.AUTHOR}`}
-                                        </div>
-                                        <div>{`3. ${data.DESCRIPTION.replace(/<[^>]*>/g, '').replace(/&[^;\s]+;/g, '') || "상세페이지 확인"}`}</div>
+                                        <div className={styles.commonEllipsisStyleNoMax}>{`1. 위치: ${data.EVENT_SITE}, 작가: ${data.AUTHOR}`}</div>
+                                        <div>{`2. ${cleanText(data.DESCRIPTION) || "상세페이지 확인"}`}</div>
                                     </div>
                                 </div>
                             </div>

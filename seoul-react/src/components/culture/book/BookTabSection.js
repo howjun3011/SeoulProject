@@ -1,4 +1,5 @@
 import styles from '../../../assets/css/culture/CultureMain.module.css';
+import { useState } from 'react';
 
 // 컴포넌트 객체 생성
 import CultureBookMain from './CultureBookMain';
@@ -22,6 +23,8 @@ function BookTabSection({
     clickMarkerBtn,
     detailContents
 }) {
+    const [homeRenderKey, setHomeRenderKey] = useState(0);
+
     const handleSearch = async () => {
         goSearch(`http://localhost:9002/seoul/culture/getNationalLibrarySearch?kwd=${encodeURIComponent(searchValue)}`);
     };
@@ -72,9 +75,9 @@ function BookTabSection({
                 >
                     서점
                 </div>
-                <div className={`${ styles.cultureBookHeaderBtn } ${ styles.flexCenter }`} onClick={() => {setIsClicked(false); setIsSearched(false);}}>홈</div>
+                <div className={`${ styles.cultureBookHeaderBtn } ${ styles.flexCenter }`} onClick={() => {setIsClicked(false); setIsSearched(false); setHomeRenderKey(prev => prev + 1);}}>홈</div>
             </div>
-            { !isClicked && !isSearched && <CultureBookMain /> }
+            { !isClicked && !isSearched && <CultureBookMain key={homeRenderKey}/> }
             { !isClicked && isSearched && <CultureBookSearch bookContents={detailContents} /> }
             { isClicked && currentSubTabType[0] && <CultureBooKStore bookContents={detailContents} /> }
             { isClicked && currentSubTabType[1] && <CultureBookLibrary bookContents={detailContents} /> }
