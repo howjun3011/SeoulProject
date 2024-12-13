@@ -83,11 +83,11 @@ function CommonMap(props) {
             {/* 마커 */}
             {/* showCurrentLocationMarker가 true일 때만 마커를 렌더링 */}
             { showCurrentLocationMarker && (
-                <MapMarker position={{ lat: location.latitude, lng: location.longitude }}></MapMarker>
+                <MapMarker position={{ lat: location.latitude, lng: location.longitude }} zIndex='1000'></MapMarker>
             ) }
             {/* showCurrentLocationOverlay가 true일 때만 오버레이를 렌더링 */}
             { showCurrentLocationOverlay && (
-                <CustomOverlayMap position={{ lat: location.latitude, lng: location.longitude }}>
+                <CustomOverlayMap position={{ lat: location.latitude, lng: location.longitude }} zIndex='1000'>
                     <div className={`${commons.overlay} ${commons.flexCenter}`}>{mapName}</div>
                 </CustomOverlayMap>
             ) }
