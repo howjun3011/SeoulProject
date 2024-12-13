@@ -41,7 +41,7 @@ function CultureSpaceInfo(props) {
         );
     } else {
         return (
-            props.spaceContents && props.spaceContents !== undefined && <div className={ `${styles.cultureBookStoreContainer}` }>
+            props.spaceContents && props.spaceContents.place_id && <div className={ `${styles.cultureBookStoreContainer}` }>
                 <div className={ `${styles.cultureBookStoreFrame}` } style={{ overflow: 'scroll', opacity: '1' }}>
                     <div className={ `${styles.cultureBookStoreHeader}` }>
                         {`${props.spaceContents.cl_nm} (${props.spaceContents.business_status === "OPERATIONAL" ? '운영중' : '운영중지'})`}

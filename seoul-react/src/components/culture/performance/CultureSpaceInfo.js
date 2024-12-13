@@ -2,7 +2,7 @@ import styles from '../../../assets/css/culture/CultureMain.module.css';
 
 function CultureSpaceInfo(props) {
     return (
-        props.spaceContents !== undefined && props.spaceContents !== null && <div className={ `${styles.cultureBookStoreContainer}` }>
+        props.spaceContents && props.spaceContents.seq && <div className={ `${styles.cultureBookStoreContainer}` }>
             <div className={ `${styles.cultureBookStoreFrame}` } style={{ overflow: 'scroll', opacity: '1' }}>
                 <div className={ `${styles.cultureBookStoreHeader}` }>
                     {`${props.spaceContents.culClName} (${props.spaceContents.culGrpName})`}

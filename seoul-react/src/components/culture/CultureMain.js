@@ -16,7 +16,6 @@ import PerformanceTabSection from './performance/PerformanceTabSection';
 
 function CultureMain() {
     // 카카오 맵 기본 설정
-    const { kakao } = window;
     const [map, setMap] = useState();
     const [markers, setMarkers] = useState([]);
     const [overlayZIndex, setOverlayZIndex] = useState(1);
@@ -359,7 +358,7 @@ function OverLay({ marker, onClick }) {
     return (
         <div
             className={styles.overlaybox}
-            style={{ filter: filterStyle }}
+            style={{ filter: filterStyle, backgroundSize: marker.movie_id !== undefined ? '120px 120px' : '100px 120px', width: marker.movie_id !== undefined ? '120px' : '100px' }}
             onClick={onClick}
         >
             <div className={`${styles.boxtitle} ${styles.flexCenter}`}>{title}</div>
