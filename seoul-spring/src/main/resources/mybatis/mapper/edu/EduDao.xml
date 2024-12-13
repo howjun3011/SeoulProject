@@ -34,7 +34,7 @@
 					 		knn.class_count_special >= 1
 					 	</when>
 					 	<when test="filter == 'endTime'" >
-					 		CAST(SUBSTRING(kas.end_time,1,2) AS UNSIGNED) >= 19
+					 		CAST(SUBSTRING(kas.end_time,1,2) AS UNSIGNED) >= 20
 					 	</when>
 					 	<otherwise>
 					 		1=1
@@ -263,6 +263,8 @@
 				 		</when>
 				 		<when test="filter == 'bringCenter'" >
 				 			kbc.service_type = '우리동네키움센터'
+				 			OR kbc.service_type = '거점형키움센터'
+				 			OR kbc.service_type = '융합형키움센터'
 				 		</when>
 				 		<otherwise>
 					 		1=1
@@ -336,8 +338,12 @@
 		) uni
 	</select>
 	
-	<select id="selectCenterInfo" resultType="com.tech.seoul.edu.models.KidsLocalCenterDetailDto">
+	<select id="localCenterInfo" resultType="com.tech.seoul.edu.models.KidsLocalCenterDetailDto">
 		SELECT * FROM kids_local_center
+		WHERE center_name = #{center_name} AND address LIKE CONCAT('%', #{address}, '%')
+	</select>
+	<select id="bringCenterInfo" resultType="com.tech.seoul.edu.models.KidsBringCenterDetailDto">
+		SELECT * FROM kids_bring_center
 		WHERE center_name = #{center_name} AND address LIKE CONCAT('%', #{address}, '%')
 	</select>
 	

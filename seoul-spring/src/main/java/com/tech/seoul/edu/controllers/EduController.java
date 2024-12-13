@@ -2,6 +2,7 @@ package com.tech.seoul.edu.controllers;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -61,9 +62,9 @@ public class EduController {
 		return kinderInfoService.DetailInfo(request);
 	}
 	@GetMapping("/eduLocalCenterInfo")
-	public KidsLocalCenterDetailDto eduLocalCenterInfo(
+	public ResponseEntity<?> eduLocalCenterInfo(
 			HttpServletRequest request){
-		return localCenterInfoService.DetailInfo(request);
+		return ResponseEntity.ok(localCenterInfoService.DetailInfo(request));
 	}
 	@GetMapping("/eduPlayInfo")
 	public PlayDetailInfoDto eduPlayInfo(

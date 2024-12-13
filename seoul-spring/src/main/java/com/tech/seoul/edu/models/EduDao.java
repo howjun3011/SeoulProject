@@ -31,7 +31,10 @@ public interface EduDao {
 			@Param("areas") String[] areas,
 			@Param("start") int start,
 			@Param("end") int end);
-	public KidsLocalCenterDetailDto selectCenterInfo(
+	public KidsLocalCenterDetailDto localCenterInfo(
+			@Param("center_name") String center_name,
+			@Param("address") String address);
+	public KidsBringCenterDetailDto bringCenterInfo(
 			@Param("center_name") String center_name,
 			@Param("address") String address);
 	
