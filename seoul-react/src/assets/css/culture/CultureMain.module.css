@@ -12,6 +12,10 @@
 .overlaybox .boxtitle {width: 100%; padding: 10px 0 5px 0; color: #fff; font-size: 15px; font-weight: 400;}
 .overlaybox .overlayContent {position: relative; width: 85%; height: 55%; padding: 5px; background: #666565; border-radius: 3px; color: #fff; line-height: 1; font-size: 13px; line-height: 16px; white-space: normal; word-wrap: break-word;}
 
+.commonInfoStyle {display: flex; margin-bottom: 6px; color: #111; font-size: 12px; opacity: 0.7;}
+.commonEllipsisStyleNoMax {overflow: hidden; white-space: nowrap; text-overflow: ellipsis;}
+.commonEllipsisStyle {max-width: 140px; overflow: hidden; white-space: nowrap; text-overflow: ellipsis;}
+
 .cultureBookSearch {position: absolute; left: 24px; z-index: 2000; width: 55%; height: 50%; border: 1.6px solid #ccc; border-radius: 18px;}
 .searchBtn {margin-top: 2.5px; background-color: transparent; border: none; opacity: 0.7;}
 .searchBtn:hover {opacity: 0.4;}
@@ -20,6 +24,8 @@
 
 .cultureBookHeader {position: absolute; display: flex; flex-direction: row-reverse; align-items: center; gap: 15px; width: 100%; height: 60px;}
 .cultureBookHeaderBtn {z-index: 2000; padding: 5px 10px; border: 1px solid #e2e2e2; font-size: 10px; font-weight: 400; letter-spacing: 0.1px; opacity: 0.9; cursor: pointer; user-select: none;}
+.cultureBookHeaderBtn:hover {background-color: #e2e2e2;}
+.cultureBookHeaderBtn:active {background-color: #ccc;}
 .cultureBookMain {display: flex; flex-direction: column; align-items: center; padding-bottom: 70px;}
 .bestsellerHeader {width: 94%; padding: 70px 0 15px 9px; color: #353535; font-size: 19px; font-weight: 500; letter-spacing: 0.1px; opacity: 0.9;}
 .bestsellerContainer {width: 92%; height: 370px; padding: 20px 10px; border: 1px solid #e2e2e2; border-radius: 4px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); user-select: none; overflow-y: auto; scroll-behavior: smooth;}
@@ -42,5 +48,5 @@
 .cultureBookStoreInfo {line-height: 20px; white-space: normal; word-wrap: break-word;}
 
 .cultureAssetFileName:hover {font-weight: 600;}
-.assetSearchFrame {padding: 4px; border-radius: 4px;}
+.assetSearchFrame {padding: 5px 4px; border-radius: 4px;}
 .assetSearchFrame:hover {background: #e2e2e2; cursor: pointer;}

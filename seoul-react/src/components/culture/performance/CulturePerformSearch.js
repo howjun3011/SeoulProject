@@ -39,17 +39,8 @@ function CulturePerformSearch(props) {
                                     <div className={styles.bestsellerFrameInfoHeader}>
                                         {data.prfnm}
                                     </div>
-                                    <div
-                                        style={{ display: 'flex', marginBottom: '6px', color: '#111', fontSize: '12px', opacity: '0.7' }}
-                                    >
-                                        <div
-                                            style={{
-                                                maxWidth: '250px',
-                                                overflow: 'hidden',
-                                                whiteSpace: 'nowrap',
-                                                textOverflow: 'ellipsis'
-                                            }}
-                                        >
+                                    <div className={styles.commonInfoStyle}>
+                                        <div className={styles.commonEllipsisStyleNoMax} style={{ width: '100%' }}>
                                             {data.fcltynm}
                                         </div>
                                     </div>

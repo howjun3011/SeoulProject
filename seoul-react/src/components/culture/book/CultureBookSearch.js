@@ -9,41 +9,28 @@ function CultureBookSearch(props) {
                     ( props.bookContents && props.bookContents.length > 0 ) && props.bookContents.map((data, index) => {
                         return (
                             <div
-                                className={styles.bestsellerFrame}
+                                className={`${styles.bestsellerFrame} ${styles.assetSearchFrame}`}
                                 key={data.id}
+                                style={{marginBottom: '10px'}}
+                                onClick={() => {window.open(`https://www.nl.go.kr/${data.detail_link}`)}}
                             >
                                 <div className={styles.bestsellerFrameNo}>{index + 1}.</div>
                                 <div className={styles.bestsellerFrameInfo} style={{ paddingLeft: '0', height: '128px' }}>
-                                    <div className={styles.bestsellerFrameInfoHeader}>
+                                    <div className={`${styles.bestsellerFrameInfoHeader} ${styles.commonEllipsisStyleNoMax}`}>
                                         {data.title_info}
                                     </div>
-                                    <div
-                                        style={{ display: 'flex', marginBottom: '6px', color: '#111', fontSize: '12px', opacity: '0.7' }}
-                                    >
-                                        <div
-                                            style={{
-                                                maxWidth: '250px',
-                                                overflow: 'hidden',
-                                                whiteSpace: 'nowrap',
-                                                textOverflow: 'ellipsis'
-                                            }}
-                                        >
-                                            {data.author_info}
+                                    <div className={styles.commonInfoStyle}>
+                                        <div className={styles.commonEllipsisStyleNoMax}>
+                                            {data.author_info || '내용없음'}
                                         </div>
-                                        <span style={{ overflow: 'hidden', whiteSpace: 'nowrap', textOverflow: 'ellipsis', width: '50%' }}>
-                                            &nbsp;| {data.pub_info} | {data.pub_year_info}년
+                                        <span className={styles.commonEllipsisStyleNoMax}>
+                                            &nbsp;| {data.pub_info} | {data.pub_year_info}
                                         </span>
                                     </div>
-                                    <div className={styles.bestsellerFrameInfoDetail} style={{ lineHeight: '15px' }}>
-                                        <div
-                                            style={{ overflow: 'hidden', whiteSpace: 'nowrap', textOverflow: 'clip', cursor: 'pointer' }}
-                                            onClick={() => {window.open(`https://www.nl.go.kr/${data.detail_link}`)}}
-                                        >
-                                            {`1. https://www.nl.go.kr/${data.detail_link}`}
-                                        </div>
-                                        <div>{`2. 분류: ${data.type_name} ${data.kdc_name_1s}`}</div>
-                                        <div>{`3. 저작권: ${data.lic_text}`}</div>
-                                        <div>{`4. 위치: ${data.manage_name} ${data.place_info}`}</div>
+                                    <div className={styles.bestsellerFrameInfoDetail} style={{ lineHeight: '18px' }}>
+                                        <div>{`1. 분류: ${data.type_name} ${data.kdc_name_1s}`}</div>
+                                        <div>{`2. 저작권: ${data.lic_text}`}</div>
+                                        <div>{`3. 위치: ${data.manage_name} ${data.place_info}`}</div>
                                     </div>
                                 </div>
                             </div>

@@ -12,6 +12,9 @@ function CultureBooKMain(props) {
     // 베스트 셀러 정보 획득하는 함수
     const bestsellerDatas = GetFetch(`http://localhost:9002/seoul/culture/getBestsellerData`);
 
+    // HTML 태그 제거 및 HTML 엔티티 제거 함수
+    const cleanText = (text = '') => text.replace(/<[^>]*>/g, '').replace(/&[^;\s]+;/g, '');
+
     return (
         <div className={styles.cultureBookMain}>
             <div className={styles.bestsellerHeader}>국립중앙도서관 사서추천도서</div>
@@ -19,10 +22,7 @@ function CultureBooKMain(props) {
                 {
                     nationalLibraryData.list !== undefined && nationalLibraryData.list.map((data, index) => {
                         return (
-                            <div
-                                className={styles.bestsellerFrame}
-                                key={data.item.recomNo}
-                            >
+                            <div className={styles.bestsellerFrame} key={data.item.recomNo}>
                                 <div className={styles.bestsellerFrameNo}>{index + 1}.</div>
                                 <div>
                                     <img
@@ -38,21 +38,12 @@ function CultureBooKMain(props) {
                                     <div className={styles.bestsellerFrameInfoHeader}>
                                         {data.item.recomtitle}
                                     </div>
-                                    <div
-                                        style={{ display: 'flex', marginBottom: '6px', color: '#111', fontSize: '12px', opacity: '0.7' }}
-                                    >
-                                        <div
-                                            style={{
-                                                maxWidth: '140px',
-                                                overflow: 'hidden',
-                                                whiteSpace: 'nowrap',
-                                                textOverflow: 'ellipsis'
-                                            }}
-                                        >
+                                    <div className={styles.commonInfoStyle}>
+                                        <div className={styles.commonEllipsisStyle}>
                                             {data.item.recomauthor}
                                         </div>&nbsp;| {data.item.recompublisher} | {data.item.publishYear}년
                                     </div>
-                                    <div className={styles.bestsellerFrameInfoDetail}>{data.item.recomcontens.replace(/<[^>]*>/g, '').replace(/&[^;\s]+;/g, '')}</div>
+                                    <div className={styles.bestsellerFrameInfoDetail}>{cleanText(data.item.recomcontens)}</div>
                                 </div>
                             </div>
                         );
@@ -64,30 +55,18 @@ function CultureBooKMain(props) {
                 {
                     recommendationData.response !== undefined && recommendationData.response.body.items.item.map((data, index) => {
                         return (
-                            <div
-                                className={styles.bestsellerFrame}
-                                key={data.rn}
-                            >
+                            <div className={styles.bestsellerFrame} key={data.rn} style={{marginBottom: '25px'}}>
                                 <div className={styles.bestsellerFrameNo}>{index + 1}.</div>
                                 <div className={styles.bestsellerFrameInfo} style={{ paddingLeft: '0', height: '128px' }}>
                                     <div className={styles.bestsellerFrameInfoHeader}>
                                         {data.title}
                                     </div>
-                                    <div
-                                        style={{ display: 'flex', marginBottom: '6px', color: '#111', fontSize: '12px', opacity: '0.7' }}
-                                    >
-                                        <div
-                                            style={{
-                                                maxWidth: '250px',
-                                                overflow: 'hidden',
-                                                whiteSpace: 'nowrap',
-                                                textOverflow: 'ellipsis'
-                                            }}
-                                        >
+                                    <div className={styles.commonInfoStyle}>
+                                        <div className={styles.commonEllipsisStyle} style={{maxWidth: '250px'}}>
                                             {data.rights}
-                                        </div>&nbsp;| { data.issuedDate !== null && new Date(data.issuedDate.replace('KST ','')).getFullYear() }년 { data.issuedDate !== null && String(new Date(data.issuedDate.replace('KST ','')).getMonth()).padStart(2,'0') }월
+                                        </div>&nbsp;| { data.issuedDate ? `${ new Date(data.issuedDate.replace('KST ','')).getFullYear() }년 ${ String(new Date(data.issuedDate.replace('KST ','')).getMonth()).padStart(2,'0') }월` : '내용없음' }
                                     </div>
-                                    <div className={styles.bestsellerFrameInfoDetail}>{ ( data.description !== undefined && data.description !== null) && data.description.replace(/<[^>]*>/g, '').replace(/&[^;\s]+;/g, '') }</div>
+                                    <div className={styles.bestsellerFrameInfoDetail}>{ data.description && cleanText(data.description) }</div>
                                 </div>
                             </div>
                         );
@@ -99,10 +78,7 @@ function CultureBooKMain(props) {
                 {
                     bestsellerDatas.map((data, index) => {
                         return (
-                            <div
-                                className={styles.bestsellerFrame}
-                                key={data.seq_no}
-                            >
+                            <div className={styles.bestsellerFrame} key={data.seq_no}>
                                 <div className={styles.bestsellerFrameNo}>{data.rank_co}.</div>
                                 <div>
                                     <img
@@ -118,19 +94,10 @@ function CultureBooKMain(props) {
                                     <div className={styles.bestsellerFrameInfoHeader}>
                                         {data.book_title_nm}
                                     </div>
-                                    <div
-                                        style={{ display: 'flex', marginBottom: '6px', color: '#111', fontSize: '12px', opacity: '0.7' }}
-                                    >
-                                        <div
-                                            style={{
-                                                maxWidth: '140px',
-                                                overflow: 'hidden',
-                                                whiteSpace: 'nowrap',
-                                                textOverflow: 'ellipsis'
-                                            }}
-                                        >
+                                    <div className={styles.commonInfoStyle}>
+                                        <div className={styles.commonEllipsisStyle}>
                                             {data.authr_nm}
-                                        </div>&nbsp;| {data.publisher_nm} | {data.pblicte_de.substring(0,4)}년 {data.pblicte_de.substring(5,7)}월
+                                        </div>&nbsp;| {data.publisher_nm} | { data.pblicte_de ? `${data.pblicte_de.substring(0,4)}년 ${data.pblicte_de.substring(5,7)}월` : '내용없음'}
                                     </div>
                                     <div className={styles.bestsellerFrameInfoDetail}>{data.book_intrcn_cn}</div>
                                 </div>

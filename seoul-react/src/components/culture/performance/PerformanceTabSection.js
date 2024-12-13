@@ -1,4 +1,5 @@
 import styles from '../../../assets/css/culture/CultureMain.module.css';
+import { useState } from 'react';
 
 // 컴포넌트 객체 생성
 import CultureSpaceMain from './CultureSpaceMain';
@@ -18,11 +19,14 @@ function PerformanceTabSection({
     setSearchPlaceholder,
     searchPlaceholderName,
     searchValue,
+    setSearchValue,
     saveSearchValue,
     goSearch,
     clickMarkerBtn,
     detailContents
 }) {
+    const [homeRenderKey, setHomeRenderKey] = useState(0);
+
     const handleSearch = async () => {
         if (currentSubTabType[0]) {
             goSearch(`http://localhost:9002/seoul/culture/getCulturalPerformanceInfo?q=${encodeURIComponent(searchValue)}`);
@@ -31,16 +35,18 @@ function PerformanceTabSection({
         }
     };
     const handleLibraryClick = () => {
-        setCurrentSubTabType([false,true]);
-        setIsClicked(false);
         setIsSearched(false);
+        setIsClicked(false);
+        setCurrentSubTabType([false,true]);
+        setSearchValue('');
         setSearchPlaceholder(searchPlaceholderName[4]);
         clickMarkerBtn(`http://localhost:9002/seoul/culture/getMovieInfo`);
     };
     const handleBookStoreClick = () => {
-        setCurrentSubTabType([true,false]);
-        setIsClicked(false);
         setIsSearched(false);
+        setIsClicked(false);
+        setCurrentSubTabType([true,false]);
+        setSearchValue('');
         setSearchPlaceholder(searchPlaceholderName[3]);
         clickMarkerBtn(`http://localhost:9002/seoul/culture/getCulturalSpaceInfo`);
     };
@@ -82,9 +88,9 @@ function PerformanceTabSection({
                 >
                     공연장
                 </div>
-                <div className={`${ styles.cultureBookHeaderBtn } ${ styles.flexCenter }`} onClick={() => {setIsClicked(false); setIsSearched(false);}}>홈</div>
+                <div className={`${ styles.cultureBookHeaderBtn } ${ styles.flexCenter }`} onClick={() => {setIsClicked(false); setIsSearched(false); setHomeRenderKey(prev => prev + 1);}}>홈</div>
             </div>
-            { !isClicked && !isSearched && <CultureSpaceMain /> }
+            { !isClicked && !isSearched && <CultureSpaceMain key={homeRenderKey}/> }
             { !isClicked && isSearched && currentSubTabType[0] && <CulturePerformSearch spaceContents={detailContents} /> }
             { !isClicked && isSearched && currentSubTabType[1] && <CultureMovieSearch spaceContents={detailContents} /> }
             { isClicked && currentSubTabType[0] && <CultureSpaceInfo spaceContents={detailContents} /> }

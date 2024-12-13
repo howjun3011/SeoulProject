@@ -1,4 +1,5 @@
 import styles from '../../../assets/css/culture/CultureMain.module.css';
+import { useState } from 'react';
 
 // 컴포넌트 객체 생성
 import CultureAssetsMain from './CultureAssetsMain';
@@ -21,8 +22,11 @@ function CulturalAssetsTabSection({
     clickMarkerBtn,
     detailContents,
     map,
-    setMarkers
+    setMarkers,
+    setRenderKey
 }) {
+    const [homeRenderKey, setHomeRenderKey] = useState(0);
+
     const handleSearch = async () => {
         goSearch(`http://localhost:9002/seoul/culture/getCulturalAssetsSearch?name=${encodeURIComponent(searchValue)}`);
     };
@@ -86,10 +90,10 @@ function CulturalAssetsTabSection({
                 >
                     국보
                 </div>
-                <div className={`${ styles.cultureBookHeaderBtn } ${ styles.flexCenter }`} onClick={() => {setIsClicked(false); setIsSearched(false);}}>홈</div>
+                <div className={`${ styles.cultureBookHeaderBtn } ${ styles.flexCenter }`} onClick={() => {setIsClicked(false); setIsSearched(false); setHomeRenderKey(prev => prev + 1);}}>홈</div>
             </div>
-            { !isClicked && !isSearched && <CultureAssetsMain /> }
-            { !isClicked && isSearched && <CultureAssetsSearch assetContents={detailContents} map={map} setMarkers={(data) => {setMarkers(data)}} key={detailContents.length} /> }
+            { !isClicked && !isSearched && <CultureAssetsMain key={homeRenderKey}/> }
+            { !isClicked && isSearched && <CultureAssetsSearch assetContents={detailContents} map={map} setMarkers={setMarkers} setRenderKey={setRenderKey}/> }
             { isClicked && <CultureAssetsInfo assetContents={detailContents} /> }
         </>
     );

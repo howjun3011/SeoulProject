@@ -8,7 +8,7 @@ function CultureAssetsSearch(props) {
             <div className={styles.bestsellerContainer} style={{ height: '600px' }}>
                 {
                     ( props.assetContents && props.assetContents.length > 0 ) && props.assetContents.map((data, index) => {
-                        return (<CultureAssetsDetailSearch key={index} data={data} map={props.map} index={index} setMarkers={() => {props.setMarkers([data])}} />);
+                        return (<CultureAssetsDetailSearch key={`${data.sn}-${data.no}-${index}`} data={data} map={props.map} index={index} setMarkers={props.setMarkers} setRenderKey={props.setRenderKey} />);
                     })
                 }
             </div>
@@ -26,7 +26,8 @@ function CultureAssetsDetailSearch(props) {
                 key={`${props.data.sn}-${props.data.no}-${props.index}`}
                 onClick={() => {
                     props.map.setCenter(new window.kakao.maps.LatLng(Number(props.data.latitude),Number(props.data.longitude)));
-                    props.setMarkers();
+                    props.setMarkers([props.data]);
+                    props.setRenderKey(prev => prev + 1);
                 }}
             >
                 <div className={styles.bestsellerFrameNo}>{props.index + 1}.</div>
@@ -45,30 +46,21 @@ function CultureAssetsDetailSearch(props) {
                     <div className={styles.bestsellerFrameInfoHeader}>
                         {detailData.item.ccbaMnm1}
                     </div>
-                    <div
-                        style={{ display: 'flex', marginBottom: '6px', color: '#111', fontSize: '12px', opacity: '0.7', width: '300px' }}
-                    >
-                        <div
-                            style={{
-                                maxWidth: '300px',
-                                overflow: 'hidden',
-                                whiteSpace: 'nowrap',
-                                textOverflow: 'ellipsis'
-                            }}
-                        >
+                    <div className={styles.commonInfoStyle} style={{ width: '300px' }}>
+                        <div className={styles.commonEllipsisStyle} style={{ maxWidth: '300px' }}>
                             {detailData.item.ccmaName}
                         </div>
-                        <span style={{ overflow: 'hidden', whiteSpace: 'nowrap', textOverflow: 'ellipsis', width: '90%' }}>
+                        <span className={styles.commonEllipsisStyleNoMax}>
                             &nbsp;| {detailData.item.ccceName || '내용없음'} | {`${detailData.item.ccbaAsdt.slice(0,4)}년 ${detailData.item.ccbaAsdt.slice(4,6)}월 ${detailData.item.ccbaAsdt.slice(6)}일`}
                         </span>
                     </div>
                     <div className={styles.bestsellerFrameInfoDetail} style={{ lineHeight: '15px' }}>
                         <div>{`1. 분류: ${detailData.item.gcodeName} - ${detailData.item.bcodeName || '내용 없음'} - ${detailData.item.mcodeName || '내용 없음'} - ${detailData.item.scodeName || '내용 없음'}`}</div>
                         <div>{`2. 수량: ${detailData.item.ccbaQuan || '내용 없음'}`}</div>
-                        <div style={{ overflow: 'hidden', whiteSpace: 'nowrap', textOverflow: 'ellipsis' }}>
+                        <div className={styles.commonEllipsisStyleNoMax}>
                             {`3. 소재지: ${detailData.item.ccbaLcad || '내용 없음'}`}
                         </div>
-                        <div style={{ overflow: 'hidden', whiteSpace: 'nowrap', textOverflow: 'ellipsis' }}>
+                        <div className={styles.commonEllipsisStyleNoMax}>
                             {`4. 내용: ${detailData.item.content || '없음'}`}
                         </div>
                     </div>

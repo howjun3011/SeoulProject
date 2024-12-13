@@ -16,6 +16,7 @@ import PerformanceTabSection from './performance/PerformanceTabSection';
 
 function CultureMain() {
     // 카카오 맵 기본 설정
+    const { kakao } = window;
     const [map, setMap] = useState();
     const [markers, setMarkers] = useState([]);
     const [overlayZIndex, setOverlayZIndex] = useState(1);
@@ -29,6 +30,10 @@ function CultureMain() {
     // 서브탭 클릭 이벤트 처리
     const [currentSubTabType, setCurrentSubTabType] = useState([true, false]);
     const [isSearched, setIsSearched] = useState(false);
+    const [renderKey, setRenderKey] = useState(0);
+
+    // 클러스터 변환시 리렌더링 처리
+    const markerClusterKey = `${markers.length}-${renderKey}`;
 
     // 마커 처리 함수
     async function clickMarkerBtn(url) {
@@ -37,6 +42,9 @@ function CultureMain() {
         if (x !== undefined && x.item) {setMarkers(x.item);}
         else if (x !== undefined && x.body) {setMarkers(x.body.items.item);}
         else if (x !== undefined) {setMarkers(x);}
+
+        // 마커 클러스터 렌더링
+        setRenderKey(prev => prev + 1);
     }
 
     // 마커 정보에 따라 lat, lng, key를 반환하는 함수
@@ -57,12 +65,17 @@ function CultureMain() {
             // 박물관
             lat = marker.fclty_la;
             lng = marker.fclty_lo;
-            uniqueKey = `marker-museum-${marker.id}-${index}`;
+
+            if (currentSubTabType[0]) {uniqueKey = `marker-museum-${marker.id}-${index}`;}
+            else if (currentSubTabType[1]) {uniqueKey = `marker-art-${marker.id}-${index}`;}
         } else if (currentTabType[2]) {
             // 문화재
             lat = marker.latitude;
             lng = marker.longitude;
-            uniqueKey = `marker-heritage-${marker.ccbaCpno}-${index}`;
+
+            if (currentSubTabType[0]) {uniqueKey = `marker-heritage-${marker.ccbaCpno}-${index}`;}
+            else if (currentSubTabType[1]) {uniqueKey = `marker-treasure-${marker.ccbaCpno}-${index}`;}
+            else if (currentSubTabType[2]) {uniqueKey = `marker-site-${marker.ccbaCpno}-${index}`;}
         } else if (currentTabType[3] && currentSubTabType[0]) {
             // 공연 - 전시공간
             lat = marker.gpsY;
@@ -108,26 +121,37 @@ function CultureMain() {
     const saveSearchValue = (event) => {setSearchValue(event.target.value);}
 
     async function goSearch(url) {
+        if(searchValue === '') {alert('검색어를 입력하세요.'); return;}
+        
         const x = await getData(url);
-        if (x.result) {setDetailContents(x.result.item);}
-        else if (x.response) {setDetailContents(x.response.body.items.item);}
-        else if (x.item) {setDetailContents(x.item);}
-        else if (x.db) {setDetailContents(x.db);}
-        else if (x.movieListResult) {setDetailContents(x.movieListResult.movieList);}
+
+        if (x.result) {checkArray(x.result.item);}
+        else if (x.response) {checkArray(x.response.body.items.item);}
+        else if (x.item) {checkArray(x.item);}
+        else if (x.db) {checkArray(x.db);}
+        else if (x.movieListResult) {checkArray(x.movieListResult.movieList);}
+        else {alert('검색 결과가 없습니다.'); return;}
+
         setIsSearched(true);
         setIsClicked(false);
     }
 
+    function checkArray(x) {
+        if (Array.isArray(x)) {setDetailContents(x)}
+        else {setDetailContents([x])}
+    }
+
     return (
         <div className={ styles.cultureContainer }>
-            <CommonMap key={markers.length} setMap={ setMap } mapLevel={ 4 }>
+            <CommonMap setMap={ setMap } mapLevel={ 4 }>
                 <MarkerClusterer
+                    key={markerClusterKey}
                     averageCenter={true}
                     minLevel={6}
                     gridSize={120}
                     minClusterSize={1}
                 >
-                    {markers.length > 0 && markers.map((marker, index) => {
+                    {markers.map((marker, index) => {
                         // CustomOverlayMap z-index 설정
                         let customOverlayMap = null;
 
@@ -170,9 +194,9 @@ function CultureMain() {
                                             setCurrentTabType(temp);
 
                                             // 공통 초기화
+                                            setIsSearched(false);
                                             setIsClicked(false);
                                             setSearchPlaceholder(searchPlaceholderName[index]);
-                                            setIsSearched(false);
                                             setSearchValue('');
 
                                             // 각각의 탭에 따라 마커 설정
@@ -242,6 +266,7 @@ function CultureMain() {
                             isSearched={isSearched}
                             map={map}
                             setMarkers={setMarkers}
+                            setRenderKey={setRenderKey}
                         />
                     )}
                     {currentTabType[3] && (
@@ -254,6 +279,7 @@ function CultureMain() {
                             setSearchPlaceholder={setSearchPlaceholder}
                             searchPlaceholderName={searchPlaceholderName}
                             searchValue={searchValue}
+                            setSearchValue={setSearchValue}
                             saveSearchValue={saveSearchValue}
                             goSearch={goSearch}
                             clickMarkerBtn={clickMarkerBtn}
