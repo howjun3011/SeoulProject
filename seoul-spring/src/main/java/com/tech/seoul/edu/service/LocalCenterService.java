@@ -26,13 +26,15 @@ public class LocalCenterService {
 		String query = request.getParameter("query");
 		String areas = request.getParameter("areas");
 		String[] areas_array = areas.split(",");
+		String filters = request.getParameter("filters");
+		String[] filters_array = filters.split(",");
 		
 		if (searchVO == null) {
 		    searchVO = new EduSearchVO();
 		}
 		
 		int total = 0;
-		total = eduDao.localCenterNameCnt(query, areas_array);
+		total = eduDao.localCenterNameCnt(filters_array, query, areas_array);
 		String strPage = request.getParameter("page");
 		if(strPage == null || strPage.isEmpty()) {
  			strPage="1";
@@ -45,7 +47,7 @@ public class LocalCenterService {
 		int rowStart = searchVO.getRowStart();
 		int rowEnd = searchVO.getRowEnd();
 		List<KidsLocalCenterNameDto> items =
-				eduDao.localCenterName(query, areas_array,(rowStart-1),8);
+				eduDao.localCenterName(filters_array, query, areas_array,(rowStart-1),8);
 		return new PageInfoDto<>(items,total,searchVO);
 	}
 }

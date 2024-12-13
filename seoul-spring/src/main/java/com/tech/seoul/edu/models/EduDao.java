@@ -9,10 +9,12 @@ import org.apache.ibatis.annotations.Param;
 public interface EduDao {
 	public int KindergartenNameCnt(
 			@Param("query") String query,
-			@Param("areas") String[] areas );
+			@Param("areas") String[] areas,
+			@Param("filters") String[] filters );
 	public List<KindergartenNameDto> KindergartenName(
 			@Param("query") String query,
 			@Param("areas") String[] areas,
+			@Param("filters") String[] filters,
 			@Param("start") int start,
 			@Param("end") int end);
 	public KinderDetailInfoDto selectKinderInfo(
@@ -20,14 +22,19 @@ public interface EduDao {
 			@Param("address") String address);
 	
 	public int localCenterNameCnt(
+			@Param("filters") String[] filters,
 			@Param("query") String query,
 			@Param("areas") String[] areas );
 	public List<KidsLocalCenterNameDto> localCenterName(
+			@Param("filters") String[] filters,
 			@Param("query") String query,
 			@Param("areas") String[] areas,
 			@Param("start") int start,
 			@Param("end") int end);
-	public KidsLocalCenterDetailDto selectCenterInfo(
+	public KidsLocalCenterDetailDto localCenterInfo(
+			@Param("center_name") String center_name,
+			@Param("address") String address);
+	public KidsBringCenterDetailDto bringCenterInfo(
 			@Param("center_name") String center_name,
 			@Param("address") String address);
 	

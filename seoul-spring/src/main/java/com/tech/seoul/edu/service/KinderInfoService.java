@@ -17,8 +17,8 @@ public class KinderInfoService {
 	
 	public KinderDetailInfoDto DetailInfo(
 			HttpServletRequest request) {
-		String kindergarten_name = request.getParameter("kinderName");
-		String address = request.getParameter("kinderAddress");
+		String kindergarten_name = request.getParameter("selectName");
+		String address = request.getParameter("selectAddress");
 		KinderDetailInfoDto kinderInfo = 
 				eduDao.selectKinderInfo(kindergarten_name, address);
 		return kinderInfo;

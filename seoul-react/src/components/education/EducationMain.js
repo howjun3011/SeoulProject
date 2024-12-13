@@ -77,12 +77,12 @@ const Pagination = ({ currentPage, totalPages, onPageChange }) => {
     );
 };
 
-function KindergartenList({currentTabType, results, error, page, setPage, totalPages, fetchData, query, areas, onSelect }) {
+function KindergartenList({selectedFilters, currentTabType, results, error, page, setPage, totalPages, fetchData, query, areas, onSelect }) {
 
     // 페이지 변경 핸들러
     const handlePageChange = (newPage) => {
         setPage(newPage);
-        fetchData(query, areas, newPage);
+        fetchData(selectedFilters, query, areas, newPage);
     };
     const kinder = (item, index) =>{
         if(currentTabType?.[0]){
@@ -148,7 +148,7 @@ function KindergartenList({currentTabType, results, error, page, setPage, totalP
     );
 }
 
-function EduSearchBox({setPage, setMarkers, setSelectedDetailInfo, onSearch, selectedItems, setSelectedItems, error, query, setQuery, setResults, setError }){
+function EduSearchBox({selectedFilters, setSelectedFilters, currentTabType, setPage, setMarkers, setSelectedDetailInfo, onSearch, selectedItems, setSelectedItems, error, query, setQuery, setResults, setError }){
 
     const options = [
         "강남구", "강동구", "강북구", "강서구", "관악구", "광진구", "구로구",
@@ -168,8 +168,102 @@ function EduSearchBox({setPage, setMarkers, setSelectedDetailInfo, onSearch, sel
             return;
         }
         const updatedItems = [...selectedItems, value];
+        setPage(1);
         setSelectedItems(updatedItems);
-        onSearch(query, updatedItems);
+    };
+    const handleFilterChange = (event) => {
+        
+        const value = event.target.value;
+        let updatedFilters = [...selectedFilters];
+        if(updatedFilters.includes(value)){
+            updatedFilters = updatedFilters.filter(filter => filter !== value);
+        } else {
+            updatedFilters.push(value);
+        }
+        setPage(1);
+        setSelectedFilters(updatedFilters);
+    }
+    const filtering = () => {
+        if(currentTabType[0]) {
+            return <>
+                <label className={styles.filter_label}>
+                    <input 
+                        type="checkbox" 
+                        name="filters" 
+                        value="bus" 
+                        onChange={handleFilterChange}
+                        checked={selectedFilters.includes("bus")}
+                    />
+                    버스운행
+                </label>
+                <label className={styles.filter_label}>
+                    <input 
+                        type="checkbox" 
+                        name="filters" 
+                        value="special" 
+                        onChange={handleFilterChange}
+                        checked={selectedFilters.includes("special")}
+                    />
+                    특수학급
+                </label>
+                <label className={styles.filter_label}>
+                    <input 
+                        type="checkbox" 
+                        name="filters" 
+                        value="endTime" 
+                        onChange={handleFilterChange}
+                        checked={selectedFilters.includes("endTime")}
+                    />
+                    20시이상
+                </label>
+            </>
+        } else if(currentTabType[1]) {
+            return <>
+                <label className={styles.filter_label}>
+                    <input 
+                        type="checkbox" 
+                        name="filters" 
+                        value="localCenter" 
+                        onChange={handleFilterChange}
+                        checked={selectedFilters.includes("localCenter")}
+                    />
+                    지역아동센터
+                </label>
+                <label className={styles.filter_label}>
+                    <input 
+                        type="checkbox" 
+                        name="filters" 
+                        value="bringCenter" 
+                        onChange={handleFilterChange}
+                        checked={selectedFilters.includes("bringCenter")}
+                    />
+                    키움센터
+                </label>
+            </>
+        } else if(currentTabType[2]) {
+            return <>
+                <label className={styles.filter_label}>
+                    <input 
+                        type="checkbox" 
+                        name="filters" 
+                        value="kidsCafe" 
+                        onChange={handleFilterChange}
+                        checked={selectedFilters.includes("kidsCafe")}
+                    />
+                    서울형 키즈카페
+                </label>
+                <label className={styles.filter_label}>
+                    <input 
+                        type="checkbox" 
+                        name="filters" 
+                        value="facility" 
+                        onChange={handleFilterChange}
+                        checked={selectedFilters.includes("facility")}
+                    />
+                    유원시설
+                </label>
+            </>
+        };
     };
 
     const handleRemove = (item) => {
@@ -202,6 +296,7 @@ function EduSearchBox({setPage, setMarkers, setSelectedDetailInfo, onSearch, sel
     
     const handleQueryChange = (event) => {
         setQuery(event.target.value);
+        setPage(1)
     };
 
     return (
@@ -219,12 +314,15 @@ function EduSearchBox({setPage, setMarkers, setSelectedDetailInfo, onSearch, sel
                         className={styles.searchInput}
                         name="searchQuery"
                         id="searchQuery"
-                        placeholder="검색어 입력"
+                        placeholder="시설이름 입력"
                         value={query}
                         onChange={handleQueryChange}
                     />
                     <input className={styles.searchBtn} type="submit" value="검색" />
                 </form>
+            </div>
+            <div className={styles.filterBox}>
+                {filtering()}
             </div>
             <div className={styles.selectedItems}>
                 {selectedItems.map((item, index) => (
@@ -369,7 +467,6 @@ function Infotab({currentTabType, searchInfo, isVisible, setIsVisible }) {
             },
         },
     };
-    console.log("searchInfo 인포탭", searchInfo);
     const kinder = () =>{
         if(currentTabType?.[0]) {
             return(
@@ -488,60 +585,168 @@ function Infotab({currentTabType, searchInfo, isVisible, setIsVisible }) {
             </>
             )
         } else if(currentTabType?.[1]) {
-            return(
-                <>
-                <div className={styles.infoBackground1}>
-                    <button
-                        type="button"
-                        className={styles.closeInfoButton}
-                        onClick={() => closeInfoButton()}
-                    >
-                        x
-                    </button>
-                    <div className={styles.infoBaseBox}>
-                        <div className={styles.infoBaseTitle}>
-                            <h2 className={styles.semiTitle}>
-                                기본정보
-                            </h2>
-                            <ul className={styles.infoBaseUl}>
-                                <li className={styles.infoBaseLi}>
-                                    <i>센터이름</i>
-                                    <span><a href={"https://search.naver.com/search.naver?where=nexearch&sm=top_hty&fbm=0&ie=utf8&query="+searchInfo.center_name} target="_blank" rel="noopener noreferrer">{searchInfo.center_name}</a></span>
-                                </li>
-                                <li className={styles.infoBaseLi}>
-                                    <i>주소</i>
-                                    <span>{searchInfo.address}</span>
-                                </li>
-                                <li className={styles.infoBaseLi}>
-                                    <i>전화번호</i>
-                                    <span>{searchInfo.tel}</span>
-                                </li>
-                                <li className={styles.infoBaseLi}>
-                                    <i>연령층</i>
-                                    <span>{searchInfo.age_range}</span>
-                                </li>
-                                <li className={styles.infoBaseLi}>
-                                    <i>사용료</i>
-                                    <span>{searchInfo.price}</span>
-                                </li>
-                                <li className={styles.infoBaseLi}>
-                                    <i>학기중</i>
-                                    <span>{searchInfo.format_regular}</span>
-                                </li>
-                                <li className={styles.infoBaseLi}>
-                                    <i>방학중</i>
-                                    <span>{searchInfo.format_vacation}</span>
-                                </li>
-                                <li className={styles.infoBaseLi}>
-                                    <i>토요일</i>
-                                    <span>{searchInfo.format_saturday}</span>
-                                </li>
-                            </ul>
+            if(searchInfo?.body?.service_type === "지역아동센터"){
+                return(
+                    <>
+                    <div className={styles.infoBackground1_1}>
+                        <button
+                            type="button"
+                            className={styles.closeInfoButton}
+                            onClick={() => closeInfoButton()}
+                        >
+                            x
+                        </button>
+                        <div className={styles.infoBaseBox}>
+                            <div className={styles.infoBaseTitle}>
+                                <h2 className={styles.semiTitle}>
+                                    기본정보
+                                </h2>
+                                <ul className={styles.infoBaseUl}>
+                                    <li className={styles.infoBaseLi}>
+                                        <i>센터이름</i>
+                                        <span><a href={"https://search.naver.com/search.naver?where=nexearch&sm=top_hty&fbm=0&ie=utf8&query="+searchInfo.body.center_name} target="_blank" rel="noopener noreferrer">
+                                            {searchInfo.body.center_name}
+                                        </a></span>
+                                    </li>
+                                    <li className={styles.infoBaseLi}>
+                                        <i>주소</i>
+                                        <span>{searchInfo.body.address}</span>
+                                    </li>
+                                    <li className={styles.infoBaseLi}>
+                                        <i>전화번호</i>
+                                        <span>{searchInfo.body.tel}</span>
+                                    </li>
+                                    <li className={styles.infoBaseLi}>
+                                        <i>연령층</i>
+                                        <span>{searchInfo.body.age_range}</span>
+                                    </li>
+                                    <li className={styles.infoBaseLi}>
+                                        <i>사용료</i>
+                                        <span>{searchInfo.body.price}</span>
+                                    </li>
+                                    <li className={styles.infoBaseLi}>
+                                        <i>학기중</i>
+                                        <span>{searchInfo.body.format_regular}</span>
+                                    </li>
+                                    <li className={styles.infoBaseLi}>
+                                        <i>방학중</i>
+                                        <span>{searchInfo.body.format_vacation}</span>
+                                    </li>
+                                    <li className={styles.infoBaseLi}>
+                                        <i>토요일</i>
+                                        <span>{searchInfo.body.format_saturday}</span>
+                                    </li>
+                                </ul>
+                            </div>
+                            <div className={styles.footBlank}>
+                                <button 
+                                    onClick={() => window.open(
+                                        `https://icare.seoul.go.kr/icare/user/fcltyInfoManage/BD_selectFcltyInfoManage.do?q_fcltyId=${searchInfo.body.facility_id}&q_fclty=1003`, 
+                                        '_blank', 
+                                        'noopener,noreferrer'
+                                    )}
+                                    className={styles.reserveBtn}
+                                >
+                                    이용안내 이동
+                                </button>
+                            </div>
                         </div>
                     </div>
-                </div>
-            </>
-            )
+                </>
+                )
+            } else if(searchInfo?.body?.service_type === "우리동네키움센터"
+                || searchInfo?.body?.service_type === "융합형키움센터"
+                || searchInfo?.body?.service_type === "거점형키움센터"
+            ) {
+                return(
+                    <>
+                    <div className={styles.infoBackground1_2}>
+                        <button
+                            type="button"
+                            className={styles.closeInfoButton}
+                            onClick={() => closeInfoButton()}
+                        >
+                            x
+                        </button>
+                        <div className={styles.infoBaseBox}>
+                            <div className={styles.infoBaseTitle}>
+                                <h2 className={styles.semiTitle}>
+                                    기본정보
+                                </h2>
+                                <ul className={styles.infoBaseUl}>
+                                    <li className={styles.infoBaseLi}>
+                                        <i>센터이름</i>
+                                        <span><a href={"https://search.naver.com/search.naver?where=nexearch&sm=top_hty&fbm=0&ie=utf8&query="+searchInfo.body.center_name} target="_blank" rel="noopener noreferrer">
+                                            {searchInfo.body.center_name}
+                                        </a></span>
+                                    </li>
+                                    <li className={styles.infoBaseLi}>
+                                        <i>주소</i>
+                                        <span>{searchInfo.body.address}</span>
+                                    </li>
+                                    <li className={styles.infoBaseLi}>
+                                        <i>개관일</i>
+                                        <span>{searchInfo.body.start_date}</span>
+                                    </li>
+                                    <li className={styles.infoBaseLi}>
+                                        <i>연령층</i>
+                                        <span>{searchInfo.body.age_range}</span>
+                                    </li>
+                                    <li className={styles.infoBaseLi}>
+                                        <i>월 이용료</i>
+                                        <span>{searchInfo.body.month_price} 원</span>
+                                    </li>
+                                    <li className={styles.infoBaseLi}>
+                                        <i>일 이용료</i>
+                                        <span>{searchInfo.body.day_price} 원</span>
+                                    </li>
+                                    <li className={styles.infoBaseLi}>
+                                        <i>학기중</i>
+                                        <span>{searchInfo.body.format_regular}</span>
+                                    </li>
+                                    <li className={styles.infoBaseLi}>
+                                        <i>방학중</i>
+                                        <span>{searchInfo.body.format_vacation}</span>
+                                    </li>
+                                    <li className={styles.infoBaseLi}>
+                                        <i>재량휴일</i>
+                                        <span>{searchInfo.body.format_discretion}</span>
+                                    </li>
+                                    <li className={styles.infoBaseLi}>
+                                        <i>토요일</i>
+                                        <span>{searchInfo.body.format_saturday}</span>
+                                    </li>
+                                    <li className={styles.infoBaseLi}>
+                                        <i>상시돌봄 정원</i>
+                                        <span>{searchInfo.body.alltime_max_people} 명</span>
+                                    </li>
+                                    <li className={styles.infoBaseLi}>
+                                        <i>일시돌봄 정원</i>
+                                        <span>{searchInfo.body.parttime_max_people} 명</span>
+                                    </li>
+                                    <li className={styles.infoBaseLi}>
+                                        <i>전용면적</i>
+                                        <span>{searchInfo.body.private_area} (㎡)</span>
+                                    </li>
+                                </ul>
+                            </div>
+                            <div className={styles.footBlank}>
+                                <button 
+                                    onClick={() => window.open(
+                                        `https://icare.seoul.go.kr/icare/user/careResve/BD_selectResveStleForm.do?q_fcltyId=${searchInfo.body.facility_id}&q_gubun=1`, 
+                                        '_blank', 
+                                        'noopener,noreferrer'
+                                    )}
+                                    className={styles.reserveBtn}
+                                >
+                                    이용안내 및 예약이동
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </>
+                )
+            }
         } else if(currentTabType?.[2]) {
             return(
                 <>
@@ -646,38 +851,36 @@ function EducationMain() {
     const [selectedDetailInfo, setSelectedDetailInfo] = useState({});
     //인포창 열림,닫힘
     const [isVisible, setIsVisible] = useState(false);
-    
-    const fetchData = async (query, areas, page = 1) => {
+    //검색 필터
+    const [selectedFilters, setSelectedFilters] = useState([]);
+
+    const fetchData = async (filters = [], query, areas, page = 1) => {
+        console.log("검색 진행함.");
         let response;
         try {
+            const params = {
+                query,
+                areas: areas.join(","),
+                page,
+                filters: filters.join(",")
+            };
             if(currentTabType[0]){
-                response = await axios.get('http://localhost:9002/seoul/education/eduGardenSearch', {
-                    params: {
-                        query,
-                        areas: areas.join(","),
-                        page,
-                    },
-                });
-                setResults(response.data);
+                response = await axios.get(
+                    'http://localhost:9002/seoul/education/eduGardenSearch',
+                    { params }
+                );
             } else if(currentTabType[1]) {
-                response = await axios.get('http://localhost:9002/seoul/education/eduLocalCenterSearch', {
-                    params: {
-                        query,
-                        areas: areas.join(","),
-                        page,
-                    },
-                });
-                setResults(response.data);
+                response = await axios.get(
+                    'http://localhost:9002/seoul/education/eduLocalCenterSearch', 
+                    { params }
+                );
             } else if(currentTabType[2]) {
-                response = await axios.get('http://localhost:9002/seoul/education/eduPlaySearch', {
-                    params: {
-                        query,
-                        areas: areas.join(","),
-                        page,
-                    },
-                });
-                setResults(response.data);
+                response = await axios.get(
+                    'http://localhost:9002/seoul/education/eduPlaySearch', 
+                    { params }
+                );
             }
+            setResults(response.data);
             
             // 마커 생성
             let multiMarker;
@@ -701,6 +904,7 @@ function EducationMain() {
                     },
                     content: item.center_name || "오류",
                     category: item.address || "오류",
+                    service_type: item.service_type,
                     index: index
                 }));
             }else if(currentTabType[2]) {
@@ -735,39 +939,43 @@ function EducationMain() {
         setQuery(searchQuery);
         setAreas(selectedAreas);
         setPage(1);
-        fetchData(searchQuery, selectedAreas, 1);
+        fetchData(selectedFilters, searchQuery, selectedAreas, 1);
     };
 
     useEffect(() => {
-        if (areas.length > 0 || query) {
-            fetchData(query, areas, page);
+        if (selectedFilters.length > 0 || areas.length > 0 || query) {
+            fetchData(selectedFilters, query, areas, page);
         }
-    }, [query, areas, page]);
+    }, [selectedFilters, query, areas, page]);
 
     const markerKinderinfo = async (marker) => {
         let response;
         try {
             if(currentTabType[0]){
-                response = await axios.get('http://localhost:9002/seoul/education/eduKinderInfo',{
-                    params: {
-                        kinderName: marker.content,
-                        kinderAddress: marker.category,
-                    },
-                });
+                response = await axios.get(
+                    'http://localhost:9002/seoul/education/eduKinderInfo',
+                    { params: {
+                        selectName: marker.content,
+                        selectAddress: marker.category,
+                    } }
+                );
             } else if(currentTabType[1]){
-                response = await axios.get('http://localhost:9002/seoul/education/eduLocalCenterInfo',{
-                    params: {
-                        centerName: marker.content,
-                        centerAddress: marker.category,
-                    },
-                });
+                response = await axios.get(
+                    'http://localhost:9002/seoul/education/eduLocalCenterInfo',
+                    { params: {
+                        selectName: marker.content,
+                        selectAddress: marker.category,
+                        service_type: marker.service_type,
+                    } }
+                );
             } else if(currentTabType[2]){
-                response = await axios.get('http://localhost:9002/seoul/education/eduPlayInfo',{
-                    params: {
-                        playName: marker.content,
-                        playAddress: marker.category,
-                    },
-                });
+                response = await axios.get(
+                    'http://localhost:9002/seoul/education/eduPlayInfo',
+                    { params: {
+                        selectName: marker.content,
+                        selectAddress: marker.category,
+                    } }
+                );
             }
             setSelectedDetailInfo(response.data);
             setIsVisible(true);
@@ -791,8 +999,10 @@ function EducationMain() {
             },
         });
         setAreas([]);
+        setQuery("");
         setMarkers([]);
         setSelectedDetailInfo({});
+        setSelectedFilters([]);
         setIsVisible(false);
     }
 
@@ -802,7 +1012,6 @@ function EducationMain() {
                 setMap={(map) => { mapRef.current = map; }} 
                 mapLevel={4}
                 // onClick 제거 (오버레이 관련)
-                
             >
                 {markers.map((marker, index) => (
                     <div
@@ -822,6 +1031,9 @@ function EducationMain() {
                         <div
                             className={styles.markerInfo}
                             onClick={() => markerKinderinfo(marker)}
+                            style={{
+                                transform: marker.content.length >= 32 ? 'translateY(-100px)' : 'translateY(-75px)'
+                            }}
                         >
                             <h4>{marker.content}</h4>
                             <p>{marker.category}</p>
@@ -855,6 +1067,9 @@ function EducationMain() {
                 </div>
                 <div className={styles.searchBox}>
                     <EduSearchBox
+                        selectedFilters={selectedFilters}
+                        setSelectedFilters={setSelectedFilters}
+                        currentTabType={currentTabType}
                         setPage={setPage}
                         setMarkers={setMarkers}
                         setSelectedDetailInfo={setSelectedDetailInfo}
@@ -867,6 +1082,7 @@ function EducationMain() {
                         setError={setError}
                     /><br/>
                     <KindergartenList 
+                        selectedFilters={selectedFilters}
                         currentTabType={currentTabType}
                         results={results} 
                         error={error} 

@@ -100,7 +100,7 @@
     color: #111; /* 글씨 색상 */
 }
 .searchBox{
-    height: 50px;
+    height: 80px;
     width:100%;
     margin:10px 0;
     padding: 0 5px;
@@ -111,6 +111,9 @@
     justify-content: center;
     align-items: center;
     margin: 0 auto;
+}
+.searchInput{
+    width: 250px;
 }
 .searchBtn{
     width: 40px;
@@ -146,7 +149,15 @@
     cursor: pointer;
     font-weight: bold;
 }
-
+.filterBox{
+    display: flex;
+    margin: 5px;
+    justify-content: center;
+    align-items: center;
+}
+.filter_label{
+    margin-left: 15px;
+}
 .error {
     color: red;
     margin-top: 10px;
@@ -267,10 +278,26 @@
     scrollbar-width: thin; /* Firefox에서 스크롤바 얇게 */
     scrollbar-color: #cccccc #f0f0f0; /* Firefox 스크롤바 색상 */
 }
- .infoBackground1 {
+ .infoBackground1_1 {
     position: absolute; /* 화면에 고정 위치 */
     width: 600px; /* 가로 크기 */
     height: 45%; /* 세로 크기 */
+    left: 40%; /* 화면의 왼쪽에서 40% 위치 */
+    top: 50%; /* 화면의 세로 중앙 */
+    transform: translate(-50%, -50%); /* 위치를 중앙으로 조정 */
+    background-color: rgba(255, 255, 255); /* 배경 흰색, 약간의 투명도 */
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2); /* 그림자 추가 */
+    border-radius: 3px; /* 모서리 둥글게 */
+    padding: 10px; /* 내부 여백 */
+    overflow-y: auto; /* 내용이 넘치면 스크롤 */
+    z-index: 999999; /* 다른 요소 위로 올라오도록 설정 */
+    scrollbar-width: thin; /* Firefox에서 스크롤바 얇게 */
+    scrollbar-color: #cccccc #f0f0f0; /* Firefox 스크롤바 색상 */
+}
+ .infoBackground1_2 {
+    position: absolute; /* 화면에 고정 위치 */
+    width: 600px; /* 가로 크기 */
+    height: 62%; /* 세로 크기 */
     left: 40%; /* 화면의 왼쪽에서 40% 위치 */
     top: 50%; /* 화면의 세로 중앙 */
     transform: translate(-50%, -50%); /* 위치를 중앙으로 조정 */

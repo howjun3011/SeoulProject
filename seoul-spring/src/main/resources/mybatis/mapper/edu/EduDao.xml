@@ -6,7 +6,7 @@
 	<sql id="includeKinderName" >
 		<choose>
 			<when test="query != null">
-				AND kindergarten_name LIKE CONCAT('%', #{query}, '%')
+				AND knn.kindergarten_name LIKE CONCAT('%', #{query}, '%')
 			</when>
 		</choose>
 	</sql>
@@ -15,7 +15,31 @@
 			<when test="areas != null and areas.length > 0">
 				AND (
 				<foreach item="area" collection="areas" separator=" OR " >
-				 	address LIKE CONCAT('%', #{area},'%')
+				 	knn.address LIKE CONCAT('%', #{area},'%')
+				</foreach>
+				)
+			</when>
+		</choose>
+	</sql>
+	<sql id="includeKinderFilters" >
+		<choose>
+			<when test="filters != null and filters.length > 0">
+				AND (
+				<foreach item="filter" collection="filters" separator=" AND " >
+					<choose>
+					 	<when test="filter == 'bus'" >
+					 		kc.car_check = '운영'
+					 	</when>
+					 	<when test="filter == 'special'" >
+					 		knn.class_count_special >= 1
+					 	</when>
+					 	<when test="filter == 'endTime'" >
+					 		CAST(SUBSTRING(kas.end_time,1,2) AS UNSIGNED) >= 20
+					 	</when>
+					 	<otherwise>
+					 		1=1
+					 	</otherwise>
+					 </choose>
 				</foreach>
 				)
 			</when>
@@ -23,18 +47,25 @@
 	</sql>
 	<select id="KindergartenName" resultType="com.tech.seoul.edu.models.KindergartenNameDto" >
 		SELECT 
-			kindergarten_name,
-			address,
-			y_coordinate,
-			x_coordinate
+			knn.kindergarten_name,
+			knn.address,
+			knn.y_coordinate,
+			knn.x_coordinate
 		FROM
-			kids_normal_now
+			kids_normal_now knn
+		LEFT JOIN
+			kids_car kc ON knn.kindergarten_name = kc.kindergarten_name
+			AND knn.address = kc.address
+		LEFT JOIN
+			kids_after_school kas ON knn.kindergarten_name = kas.kindergarten_name
+			AND knn.address = kas.address
 		WHERE 1=1
 			<include refid="includeKinderName" />
 			<include refid="includeKinderAddress" />
+			<include refid="includeKinderFilters" />
 		ORDER BY 
-			SUBSTRING(address, 1, 8) ASC,
-			x_coordinate
+			SUBSTRING(knn.address, 1, 8),
+			knn.x_coordinate
 		LIMIT #{start}, #{end}
 	</select>
 	
@@ -42,10 +73,17 @@
 		SELECT 
 			COUNT(*)
 		FROM
-			kids_normal_now
+			kids_normal_now knn
+		LEFT JOIN
+			kids_car kc ON knn.kindergarten_name = kc.kindergarten_name
+			AND knn.address = kc.address
+		LEFT JOIN
+			kids_after_school kas ON knn.kindergarten_name = kas.kindergarten_name
+			AND knn.address = kas.address
 		WHERE 1=1
 			<include refid="includeKinderName" />
 			<include refid="includeKinderAddress" />
+			<include refid="includeKinderFilters" />
 	</select>
 	
     <select id="selectKinderInfo" resultType="com.tech.seoul.edu.models.KinderDetailInfoDto">
@@ -161,53 +199,151 @@
             AND knn.address = #{address}
     </select>
     
-    <sql id="includeCenterName" >
+    <sql id="includeLCenterName" >
 		<choose>
 			<when test="query != null">
-				AND center_name LIKE CONCAT('%', #{query}, '%')
+				AND klc.center_name LIKE CONCAT('%', #{query}, '%')
 			</when>
 		</choose>
 	</sql>
-	<sql id="includeCenterAddress" >
+	<sql id="includeLCenterAddress" >
 		<choose>
 			<when test="areas != null and areas.length > 0">
 				AND (
 				<foreach item="area" collection="areas" separator=" OR " >
-				 	address LIKE CONCAT('%', #{area},'%')
+				 	klc.address LIKE CONCAT('%', #{area},'%')
+				</foreach>
+				)
+			</when>
+		</choose>
+		<choose>
+			<when test="filters != null and filters.length > 0">
+				AND (
+				<foreach item="filter" collection="filters" separator=" OR " >
+				 	<choose>
+				 		<when test="filter == 'localCenter'" >
+				 			klc.service_type = '지역아동센터'
+				 		</when>
+				 		<when test="filter == 'bringCenter'" >
+				 			klc.service_type = '우리동네키움센터'
+				 		</when>
+				 		<otherwise>
+					 		1=1
+					 	</otherwise>
+				 	</choose>
 				</foreach>
 				)
 			</when>
 		</choose>
 	</sql>
+    <sql id="includeBCenterName" >
+		<choose>
+			<when test="query != null">
+				AND kbc.center_name LIKE CONCAT('%', #{query}, '%')
+			</when>
+		</choose>
+	</sql>
+	<sql id="includeBCenterAddress" >
+		<choose>
+			<when test="areas != null and areas.length > 0">
+				AND (
+				<foreach item="area" collection="areas" separator=" OR " >
+				 	kbc.address LIKE CONCAT('%', #{area},'%')
+				</foreach>
+				)
+			</when>
+		</choose>
+		<choose>
+			<when test="filters != null and filters.length > 0">
+				AND (
+				<foreach item="filter" collection="filters" separator=" OR " >
+				 	<choose>
+				 		<when test="filter == 'localCenter'" >
+				 			kbc.service_type = '지역아동센터'
+				 		</when>
+				 		<when test="filter == 'bringCenter'" >
+				 			kbc.service_type = '우리동네키움센터'
+				 			OR kbc.service_type = '거점형키움센터'
+				 			OR kbc.service_type = '융합형키움센터'
+				 		</when>
+				 		<otherwise>
+					 		1=1
+					 	</otherwise>
+				 	</choose>
+				</foreach>
+				)
+			</when>
+		</choose>
+	</sql>
+	
 	<select id="localCenterName" resultType="com.tech.seoul.edu.models.KidsLocalCenterNameDto" >
+		SELECT *
+		FROM (
 		SELECT 
-			center_name,
-			address,
-			y_coordinate,
-			x_coordinate
-		FROM
-			kids_local_center
-		WHERE 1=1
-			<include refid="includeCenterName" />
-			<include refid="includeCenterAddress" />
-		ORDER BY 
-			SUBSTRING(address, 1, 8) ASC,
+			klc.center_name as center_name,
+		    klc.address as address,
+		    klc.service_type as service_type,
+		    klc.x_coordinate as x_coordinate,
+		    klc.y_coordinate as y_coordinate
+		FROM 
+			kids_local_center klc
+		WHERE
+			1=1
+			<include refid="includeLCenterName" />
+			<include refid="includeLCenterAddress" />
+		
+		UNION ALL
+		
+		SELECT 
+			kbc.center_name as center_name, 
+		    kbc.address as address,
+		    kbc.service_type as service_type,
+		    kbc.x_coordinate as x_coordinate,
+		    kbc.y_coordinate as y_coordinate
+		FROM 
+			kids_bring_center kbc
+		WHERE
+			1=1
+			<include refid="includeBCenterName" />
+			<include refid="includeBCenterAddress" />
+		) uni
+		ORDER BY
+			SUBSTRING(address, 1, 8),
 			x_coordinate
 		LIMIT #{start}, #{end}
 	</select>
 	
 	<select id="localCenterNameCnt" resultType="int" >
-		SELECT 
-			COUNT(*)
-		FROM
-			kids_local_center
-		WHERE 1=1
-			<include refid="includeCenterName" />
-			<include refid="includeCenterAddress" />
+		SELECT count(*)
+		FROM (
+		SELECT
+		    klc.service_type as service_type
+		FROM 
+			kids_local_center klc
+		WHERE
+			1=1
+			<include refid="includeLCenterName" />
+			<include refid="includeLCenterAddress" />
+		
+		UNION ALL
+		
+		SELECT
+		    kbc.service_type as service_type
+		FROM 
+			kids_bring_center kbc
+		WHERE
+			1=1
+			<include refid="includeBCenterName" />
+			<include refid="includeBCenterAddress" />
+		) uni
 	</select>
 	
-	<select id="selectCenterInfo" resultType="com.tech.seoul.edu.models.KidsLocalCenterDetailDto">
+	<select id="localCenterInfo" resultType="com.tech.seoul.edu.models.KidsLocalCenterDetailDto">
 		SELECT * FROM kids_local_center
+		WHERE center_name = #{center_name} AND address LIKE CONCAT('%', #{address}, '%')
+	</select>
+	<select id="bringCenterInfo" resultType="com.tech.seoul.edu.models.KidsBringCenterDetailDto">
+		SELECT * FROM kids_bring_center
 		WHERE center_name = #{center_name} AND address LIKE CONCAT('%', #{address}, '%')
 	</select>
 	
@@ -245,7 +381,7 @@
 			<include refid="includePlayName" />
 			<include refid="includePlayAddress" />
 		ORDER BY 
-			SUBSTRING(address, 1, 8) ASC,
+			SUBSTRING(address, 1, 8),
 			x_coordinate
 		LIMIT #{start}, #{end}
 	</select>
