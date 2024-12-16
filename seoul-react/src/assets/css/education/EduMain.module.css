@@ -244,6 +244,13 @@
     white-space: normal; /* 공백에서 줄바꿈을 허용 */
     word-break: keep-all; /* 단어 단위로 줄바꿈 (단어가 너무 길면 전체 단어 줄바꿈) */
     overflow-wrap: break-word; /* 긴 단어 줄바꿈 */
+    transition: transform  0.2s ease; /* 애니메이션 부드럽게 적용 */
+    transform-origin: center; /* 확대 기준을 가운데로 설정 */
+}
+
+/* 마우스를 올렸을 때 (hover) 스타일 */
+.markerInfo:hover {
+    border: 2px solid #555;
 }
 
 .marker-container {

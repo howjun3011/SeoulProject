@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useState, useRef, useCallback} from 'react';
 import { MapMarker, CustomOverlayMap } from "react-kakao-maps-sdk"; // CustomOverlayMap 제거
 import SideTab from '../common/SideTab';
 import CommonMap from '../common/CommonMap';
@@ -242,7 +242,7 @@ function EduSearchBox({selectedFilters, setSelectedFilters, currentTabType, setP
             </>
         } else if(currentTabType[2]) {
             return <>
-                <label className={styles.filter_label}>
+                {/* <label className={styles.filter_label}>
                     <input 
                         type="checkbox" 
                         name="filters" 
@@ -261,7 +261,7 @@ function EduSearchBox({selectedFilters, setSelectedFilters, currentTabType, setP
                         checked={selectedFilters.includes("facility")}
                     />
                     유원시설
-                </label>
+                </label> */}
             </>
         };
     };
@@ -385,6 +385,9 @@ function Infotab({currentTabType, searchInfo, isVisible, setIsVisible }) {
         ],
         
     ];
+    const rowSum = chartData.map(row =>
+        row.reduce((sum,value) => sum + (parseFloat(value) || 0), 0)
+    );
     
     const chartLabels = [
         ["만 3세반","만 4세반","만 5세반","혼합반","특수학급"],
@@ -393,10 +396,10 @@ function Infotab({currentTabType, searchInfo, isVisible, setIsVisible }) {
         ["교실면적", "실내체육장","보건/위생공간","조리/급식실","기타공간"],
     ];
     const chartLabel =[
-        "학급수(개)",
-        "유아수(명)",
-        "교사당/학급당 유아수(명)",
-        "면적(㎡)",
+        "학급수 ( 총 " + rowSum[0] + " 학급 )",
+        "유아수 ( 총 " + rowSum[1] + " 명 )",
+        "교사당/학급당 유아수 (명)",
+        "면적 ( 총 " + rowSum[3] + " ㎡ )",
     ];
     const rowSums = chartData.map(row => 
         row.reduce((sum, value) => sum + (value || 0), 0) // null이나 undefined를 0으로 처리
@@ -467,6 +470,7 @@ function Infotab({currentTabType, searchInfo, isVisible, setIsVisible }) {
             },
         },
     };
+
     const kinder = () =>{
         if(currentTabType?.[0]) {
             return(
@@ -829,7 +833,7 @@ function Infotab({currentTabType, searchInfo, isVisible, setIsVisible }) {
 function EducationMain() {
     const mapRef = useRef(null);
     const [markers, setMarkers] = useState([]);
-    const educationCategories = ["유치원", "돌봄시설", "놀이시설"];
+    const educationCategories = ["유치원", "돌봄시설", "서울형 키즈카페"];
     const [currentTabType, setCurrentTabType] = useState([true, false, false]);
     //검색어
     const [query, setQuery] = useState("");
@@ -853,9 +857,8 @@ function EducationMain() {
     const [isVisible, setIsVisible] = useState(false);
     //검색 필터
     const [selectedFilters, setSelectedFilters] = useState([]);
-
-    const fetchData = async (filters = [], query, areas, page = 1) => {
-        console.log("검색 진행함.");
+    //
+    const fetchData = useCallback(async (filters = [], query, areas, page = 1) => {
         let response;
         try {
             const params = {
@@ -933,8 +936,8 @@ function EducationMain() {
             console.error("데이터 로드 오류:", err);
             setError("데이터 불러오기 중 오류 발생");
         }
-    };
-
+    },[currentTabType]);
+    //
     const handleSearch = (searchQuery, selectedAreas) => {
         setQuery(searchQuery);
         setAreas(selectedAreas);
@@ -946,8 +949,8 @@ function EducationMain() {
         if (selectedFilters.length > 0 || areas.length > 0 || query) {
             fetchData(selectedFilters, query, areas, page);
         }
-    }, [selectedFilters, query, areas, page]);
-
+    }, [selectedFilters, query, areas, page, fetchData]);
+    //selectedFilters, query, areas, page
     const markerKinderinfo = async (marker) => {
         let response;
         try {
