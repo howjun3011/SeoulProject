@@ -10,6 +10,7 @@ import { Chart as ChartJS, ArcElement, Tooltip, Legend, BarElement, CategoryScal
 // Chart.js 요소
 ChartJS.register(ArcElement, Tooltip, Legend, BarElement, CategoryScale, LinearScale);
 
+//페이징 처리
 const Pagination = ({ currentPage, totalPages, onPageChange }) => {
     if (totalPages <= 1) return null;
 
@@ -77,6 +78,7 @@ const Pagination = ({ currentPage, totalPages, onPageChange }) => {
     );
 };
 
+// 검색 리스트
 function KindergartenList({selectedFilters, currentTabType, results, error, page, setPage, totalPages, fetchData, query, areas, onSelect }) {
 
     // 페이지 변경 핸들러
@@ -124,7 +126,7 @@ function KindergartenList({selectedFilters, currentTabType, results, error, page
 
     return (
         <div className={styles.kinderResultListBox}>
-            <h3>조회 결과 : {results.total || 0}건</h3>
+            <h3>-조회 결과 : {results.total || 0}건</h3>
             {error && <div className={styles.error}>{error}</div>}
             {results.items && results.items.length > 0 ? (
                 <div className={styles.kinderResultPageing}>
@@ -148,6 +150,7 @@ function KindergartenList({selectedFilters, currentTabType, results, error, page
     );
 }
 
+// 검색 기능
 function EduSearchBox({selectedFilters, setSelectedFilters, currentTabType, setPage, setMarkers, setSelectedDetailInfo, onSearch, selectedItems, setSelectedItems, error, query, setQuery, setResults, setError }){
 
     const options = [
@@ -182,8 +185,25 @@ function EduSearchBox({selectedFilters, setSelectedFilters, currentTabType, setP
         }
         setPage(1);
         setSelectedFilters(updatedFilters);
+
+        if(updatedFilters.length === 0
+            && query === ""
+            && selectedItems.length ===0
+        ) {
+            setResults({
+                items: [],
+                total: 0,
+                searchVO: {
+                    totPage: 1,
+                },
+            });
+            setMarkers([]);
+            setSelectedDetailInfo({});
+            setError("");
+        }
     }
     const filtering = () => {
+        
         if(currentTabType[0]) {
             return <>
                 <label className={styles.filter_label}>
@@ -270,7 +290,9 @@ function EduSearchBox({selectedFilters, setSelectedFilters, currentTabType, setP
         const updatedItems = selectedItems.filter((selected) => selected !== item);
         setSelectedItems(updatedItems);
         setPage(1);
-        if (updatedItems.length === 0) {
+        if (updatedItems.length === 0 
+            && selectedFilters.length === 0 
+            && query === "") {
             // 선택된 지역이 없을 때 결과 초기화 및 에러 메시지 설정
             setResults({
                 items: [],
@@ -281,11 +303,7 @@ function EduSearchBox({selectedFilters, setSelectedFilters, currentTabType, setP
             });
             setMarkers([]);
             setSelectedDetailInfo({});
-            setError("지역선택 또는 검색어를 입력하세요.");
-        } else if (query !== "") {
-            // 남아있는 지역이 있고 검색어가 존재할 때 검색 결과 갱신
-            onSearch(query, updatedItems);
-            setError(""); // 에러 메시지 초기화
+            setError("");
         }
     };
     
@@ -324,7 +342,10 @@ function EduSearchBox({selectedFilters, setSelectedFilters, currentTabType, setP
             <div className={styles.filterBox}>
                 {filtering()}
             </div>
-            <div className={styles.selectedItems}>
+            <div 
+                className={styles.selectedItems}
+                style={currentTabType[2] ? { marginTop: '31px' } : {}}
+            >
                 {selectedItems.map((item, index) => (
                     <div key={index} className={styles.selectedItem}>
                         {item}
@@ -343,6 +364,7 @@ function EduSearchBox({selectedFilters, setSelectedFilters, currentTabType, setP
     );
 }
 
+// 세부정보
 function Infotab({currentTabType, searchInfo, isVisible, setIsVisible }) {
 
     const closeInfoButton = () => {
@@ -491,7 +513,17 @@ function Infotab({currentTabType, searchInfo, isVisible, setIsVisible }) {
                             <ul className={styles.infoBaseUl}>
                                 <li className={styles.infoBaseLi}>
                                     <i>유치원이름</i>
-                                    <span><a href={"https://search.naver.com/search.naver?where=nexearch&sm=top_hty&fbm=0&ie=utf8&query="+searchInfo.kindergarten_name} target="_blank" rel="noopener noreferrer">{searchInfo.kindergarten_name}</a></span>
+                                    <span><a href={"https://search.naver.com/search.naver?where=nexearch&sm=top_hty&fbm=0&ie=utf8&query="+searchInfo.kindergarten_name} target="_blank" rel="noopener noreferrer">
+                                        {searchInfo.kindergarten_name}
+                                    </a></span>
+                                </li>
+                                <li className={styles.infoBaseLi}>
+                                    <i>주소</i>
+                                    <span>{searchInfo.address}</span>
+                                </li>
+                                <li className={styles.infoBaseLi}>
+                                    <i>설립유형</i>
+                                    <span>{searchInfo.kindergarten_type}</span>
                                 </li>
                                 <li className={styles.infoBaseLi}>
                                     <i>전화번호</i>
@@ -520,10 +552,6 @@ function Infotab({currentTabType, searchInfo, isVisible, setIsVisible }) {
                                 <li className={styles.infoBaseLi}>
                                     <i>관할기관</i>
                                     <span>{searchInfo.office_education}</span>
-                                </li>
-                                <li className={styles.infoBaseLi}>
-                                    <i>주소</i>
-                                    <span>{searchInfo.address}</span>
                                 </li>
                                 <li className={styles.infoBaseLi}>
                                     <i>홈페이지</i>
@@ -830,6 +858,7 @@ function Infotab({currentTabType, searchInfo, isVisible, setIsVisible }) {
     return kinder();
 }
 
+// 메인창
 function EducationMain() {
     const mapRef = useRef(null);
     const [markers, setMarkers] = useState([]);
@@ -857,10 +886,20 @@ function EducationMain() {
     const [isVisible, setIsVisible] = useState(false);
     //검색 필터
     const [selectedFilters, setSelectedFilters] = useState([]);
-    //
+    // 요청중단컨트롤러
+    const abortControllerRef = useRef(null);
+
     const fetchData = useCallback(async (filters = [], query, areas, page = 1) => {
-        let response;
+        
+        //이전 요청이 진행중이면 중단.
+        if(abortControllerRef.current) {
+            abortControllerRef.current.abort();
+        }
+        //새로운 abort컨트롤러 생성
+        const controller = new AbortController();
+        abortControllerRef.current = controller;
         try {
+            let response;
             const params = {
                 query,
                 areas: areas.join(","),
@@ -870,17 +909,17 @@ function EducationMain() {
             if(currentTabType[0]){
                 response = await axios.get(
                     'http://localhost:9002/seoul/education/eduGardenSearch',
-                    { params }
+                    { params, signal: controller.signal }
                 );
             } else if(currentTabType[1]) {
                 response = await axios.get(
                     'http://localhost:9002/seoul/education/eduLocalCenterSearch', 
-                    { params }
+                    { params, signal: controller.signal }
                 );
             } else if(currentTabType[2]) {
                 response = await axios.get(
                     'http://localhost:9002/seoul/education/eduPlaySearch', 
-                    { params }
+                    { params, signal: controller.signal }
                 );
             }
             setResults(response.data);
@@ -933,9 +972,15 @@ function EducationMain() {
             };
             setError("");
         } catch (err) {
+            // 요청이 중단된 경우
+            if (err.name === 'CanceledError') {
+                console.log("요청이 취소되었습니다.");
+                return;
+            }
             console.error("데이터 로드 오류:", err);
             setError("데이터 불러오기 중 오류 발생");
         }
+        console.log("-------   검색 진행됨");
     },[currentTabType]);
     //
     const handleSearch = (searchQuery, selectedAreas) => {
@@ -945,12 +990,29 @@ function EducationMain() {
         fetchData(selectedFilters, searchQuery, selectedAreas, 1);
     };
 
+    const prevTabTypeRef = useRef(currentTabType);
+
     useEffect(() => {
-        if (selectedFilters.length > 0 || areas.length > 0 || query) {
-            fetchData(selectedFilters, query, areas, page);
+        const isTabTypeChanged = prevTabTypeRef.current !== currentTabType;
+        prevTabTypeRef.current = currentTabType;
+
+        if (isTabTypeChanged) {
+            // currentTabType이 변경된 경우 즉시 fetchData 호출
+            if (selectedFilters.length > 0 || areas.length > 0 || query) {
+                fetchData(selectedFilters, query, areas, page);
+            }
+        } else {
+            // currentTabType 외의 조건이 변경된 경우 200ms 딜레이
+            const delayTime = setTimeout(() => {
+                if (selectedFilters.length > 0 || areas.length > 0 || query) {
+                    fetchData(selectedFilters, query, areas, page);
+                }
+            }, 200);
+
+            return () => clearTimeout(delayTime);
         }
-    }, [selectedFilters, query, areas, page, fetchData]);
-    //selectedFilters, query, areas, page
+    }, [selectedFilters, query, areas, page, fetchData, currentTabType]);
+    
     const markerKinderinfo = async (marker) => {
         let response;
         try {
@@ -983,7 +1045,6 @@ function EducationMain() {
             setSelectedDetailInfo(response.data);
             setIsVisible(true);
             setError("");
-            console.log("setSelectedDetailInfo", setSelectedDetailInfo);
         } catch (err) {
             console.error("데이터 로드 오류:", err);
             setError("데이터 불러오기 중 오류 발생");
@@ -1001,7 +1062,8 @@ function EducationMain() {
                 totPage: 1,
             },
         });
-        setAreas([]);
+        //setAreas([]);
+        setPage(1);
         setQuery("");
         setMarkers([]);
         setSelectedDetailInfo({});
@@ -1034,9 +1096,6 @@ function EducationMain() {
                         <div
                             className={styles.markerInfo}
                             onClick={() => markerKinderinfo(marker)}
-                            style={{
-                                transform: marker.content.length >= 32 ? 'translateY(-100px)' : 'translateY(-75px)'
-                            }}
                         >
                             <h4>{marker.content}</h4>
                             <p>{marker.category}</p>
