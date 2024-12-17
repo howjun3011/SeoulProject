@@ -6,13 +6,13 @@ import CommonMap from '../common/CommonMap';
 import { MapMarker, CustomOverlayMap } from "react-kakao-maps-sdk";
 
 function ExerciseMain() {
-    const tabNames = ['수영', '축구', '테니스', '배드민턴', '기타'];
-    const [currentTabType, setCurrentTabType] = useState([true, false, false, false, false]);
+    const tabNames = ["수영","테니스","축구","족구","골프","배드민턴","풋살","게이트볼"];
+    const [currentTabType, setCurrentTabType] = useState(Array(tabNames.length).fill(false));
     const [currentType, setCurrentType] = useState('수영');
     const [facilities, setFacilities] = useState([]);
     const [currentLat, setCurrentLat] = useState(37.55576761);
     const [currentLng, setCurrentLng] = useState(126.97209840);
-    const [radius, setRadius] = useState(3);
+    const [radius, setRadius] = useState(5);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [modalData, setModalData] = useState(null);
     
@@ -150,13 +150,37 @@ function ExerciseMain() {
         fetchWeather();
     }, []);
 
-    const handleMarkerClick = (facility) => {
-        setIsModalOpen(true);
-        setModalData(null);
+    const roundLatLot = (lat, lot) => {
+        const rlat = Math.round(lat * 1000)/1000;
+        const rlot = Math.round(lot * 1000)/1000;
+        return `${rlat},${rlot}`;
+    };
+
+    // 위치별로 그룹화 (소수점 3자리 기준)
+    const groupedByLocation = {};
+    facilities.forEach(item => {
+        const key = roundLatLot(item.lat, item.lot);
+        if (!groupedByLocation[key]) {
+            groupedByLocation[key] = [];
+        }
+        groupedByLocation[key].push(item);
+    });
+
+    const handleMarkerClick = (key) => {
+        const [lat, lot] = key.split(',').map(Number);
+        axios.get('http://localhost:9002/seoul/exercise/details', {
+            params: { lat, lot, exerciseType: currentType }
+        })
+        .then(res => {
+            setModalData(res.data);
+            setIsModalOpen(true);
+        })
+        .catch(err => console.error(err));
     };
 
     const closeModal = () => {
         setIsModalOpen(false);
+        setModalData(null);
     };
 
     // 날씨 상세 모달 닫기
@@ -244,34 +268,27 @@ function ExerciseMain() {
                     setCurrentLng(lng);
                 }}
             >
-                {facilities.map((facility) => (
-                    <div key={facility.exercise_num}>
-                        <MapMarker 
-                            position={{ lat: facility.latitude, lng: facility.longitude }} 
-                            onClick={() => handleMarkerClick(facility)}
+                {Object.keys(groupedByLocation).map(key => {
+                    const [lat, lot] = key.split(',').map(Number);
+                    return (
+                        <MapMarker
+                            key={key}
+                            position={{ lat, lng: lot }}
+                            onClick={() => handleMarkerClick(key)}
                         />
-                        <CustomOverlayMap 
-                            position={{ lat: facility.latitude, lng: facility.longitude }}
-                            yAnchor={1.8}
-                        >
-                            <div className={styles.markerInfoWindow}>
-                                <h4>{facility.facility_name}</h4>
-                                <p>{facility.address}</p>
-                            </div>
-                        </CustomOverlayMap>
-                    </div>
-                ))}
+                    );
+                })}
             </CommonMap>
 
             <SideTab>
                 <div className={styles.exerciseFrame}>
-                    <div className={styles.exerciseHeader}>
+                    <div className={styles.exerciseHeaderGrid}>
                         {tabNames.map((tabName, index) => (
                             <div
                                 key={tabName}
                                 className={`${styles.exerciseHeaderCompontent} ${styles.flexCenter} ${currentTabType[index] ? styles.active : ''}`}
                                 onClick={() => {
-                                    let temp = [false, false, false, false, false];
+                                    let temp = Array(tabNames.length).fill(false);
                                     temp[index] = true;
                                     setCurrentTabType(temp);
                                     setCurrentType(tabName);
@@ -282,15 +299,75 @@ function ExerciseMain() {
                         ))}
                     </div>
                     <div className={styles.facilityList}>
-                        {facilities.map((facility) => (
-                            <div key={facility.exercise_num} className={styles.facilityItem}>
-                                <h4>{facility.facility_name}</h4>
-                                <p>{facility.address}</p>
+                        {facilities.map((item, idx) => (
+                            <div 
+                                key={idx} 
+                                className={styles.facilityItem}
+                                onClick={() => {
+                                    axios.get('http://localhost:9002/seoul/exercise/details', {
+                                        params: { lat: item.lat, lot: item.lot, exerciseType: currentType }
+                                    })
+                                    .then(res => {
+                                        setModalData(res.data);
+                                        setIsModalOpen(true);
+                                    })
+                                    .catch(err => console.error(err));
+                                }}
+                            >
+                                <div className={styles.facilityItemWrapper}>
+                                    <div className={styles.facilityImageWrapper}>
+                                        {item.imgFileUrlAddr && (
+                                            <img 
+                                                src={item.imgFileUrlAddr} 
+                                                alt={item.rsrcNm} 
+                                                className={styles.facilityImage}
+                                            />
+                                        )}
+                                    </div>
+                                    <div className={styles.facilityInfoWrapper}>
+                                        <div className={styles.facilityName}>{item.rsrcNm}</div>
+                                        <div className={styles.facilityAddr}>{item.addr}</div>
+                                    </div>
+                                </div>
                             </div>
                         ))}
                     </div>
                 </div>
             </SideTab>
+
+
+            {/* 기존 시설 정보 모달 */}
+            {isModalOpen && (
+                <div className={styles.modalBackdrop} onClick={closeModal}>
+                    <div className={styles.modalContent} onClick={(e) => e.stopPropagation()}>
+                        <button className={styles.closeButton} onClick={closeModal}>X</button>
+                        <h3>시설 상세 정보</h3>
+                        {modalData && modalData.length > 0 ? (
+                            <div>
+                                {modalData.map((detail, index) => (
+                                    <div key={index} className={styles.modalDetailItem}>
+                                        {detail.imgFileUrlAddr && (
+                                            <img 
+                                                src={detail.imgFileUrlAddr} 
+                                                alt={detail.rsrcNm} 
+                                                className={styles.modalImage}
+                                            />
+                                        )}
+                                        <div className={styles.modalDetailName}>
+                                            <a href={detail.instUrlAddr} target="_blank" rel="noopener noreferrer">
+                                                {detail.rsrcNm}
+                                            </a>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        ) : (
+                            <p>일치하는 시설 정보가 없습니다.</p>
+                        )}
+                    </div>
+                </div>
+            )}
+
 
             {weatherData && (
                 <div className={styles.weatherContainer} onClick={handleWeatherContainerClick}>
@@ -299,21 +376,6 @@ function ExerciseMain() {
                         <span>{weatherData.sky}</span>
                     </div>
                     <div className={styles.weatherRecommendation}>{recommendation}</div>
-                </div>
-            )}
-
-            {/* 기존 시설 정보 모달 */}
-            {isModalOpen && (
-                <div className={styles.modalBackdrop} onClick={closeModal}>
-                    <div className={styles.modalContent} onClick={(e) => e.stopPropagation()}>
-                        <button className={styles.closeButton} onClick={closeModal}>X</button>
-                        <h3>시설 정보</h3>
-                        {modalData ? (
-                            <div>{modalData}</div>
-                        ) : (
-                            <p>Loading...</p>
-                        )}
-                    </div>
                 </div>
             )}
 
