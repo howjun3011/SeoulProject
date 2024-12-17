@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.tech.seoul.exercise.models.ExerciseDetailDao">
+
+    <!-- radius 내 데이터 가져오기 -->
+    <!-- exerciseType이 빈문자열("")이면 전체, 아니면 rsrcNm LIKE '%exerciseType%' -->
+    <select id="getExerciseDetailByRadius" resultType="com.tech.seoul.exercise.models.ExerciseDetailDto">
+        SELECT addr, instUrlAddr, imgFileUrlAddr, lat, lot, rsrcNm,
+               (6371 * ACOS(
+                   COS(RADIANS(#{latitude})) * COS(RADIANS(lat)) * COS(RADIANS(lot) - RADIANS(#{longitude}))
+                   + SIN(RADIANS(#{latitude})) * SIN(RADIANS(lat))
+               )) AS distance
+        FROM exercise_all
+        WHERE (#{exerciseType} = '' OR rsrcNm LIKE CONCAT('%', #{exerciseType}, '%'))
+        HAVING distance &lt; #{radius}
+        ORDER BY distance ASC
+    </select>
+
+    <!-- 특정 위치(소수점 3자리 반올림)와 일치하는 항목 조회 -->
+	<select id="getExerciseDetailByLatLong" resultType="com.tech.seoul.exercise.models.ExerciseDetailDto">
+	    SELECT addr, instUrlAddr, imgFileUrlAddr, lat, lot, rsrcNm
+	    FROM exercise_all
+	    WHERE ROUND(lat,3) = ROUND(#{lat},3)
+	      AND ROUND(lot,3) = ROUND(#{lot},3)
+	      AND (#{exerciseType} = '' OR rsrcNm LIKE CONCAT('%', #{exerciseType}, '%'))
+	</select>
+
+</mapper>
