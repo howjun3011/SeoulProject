@@ -1,25 +1,26 @@
 .flexCenter {
-    display: flex; 
-    justify-content: center; 
+    display: flex;
+    justify-content: center;
     align-items: center;
 }
 
+/* 전체 컨테이너 */
 .exerciseContainer {
     position: relative;
     width: 100%;
     height: 100%;
-    background-color: #fff; /* 바깥쪽 배경을 흰색으로 */
+    background-color: #fff; /* 기본 배경 흰색 */
 }
 
+/* 사이드탭 영역 */
 .exerciseFrame {
     width: 100%;
     height: 100%;
     padding: 20px;
     box-sizing: border-box;
-    background-color: #fff; /* 바탕 흰색 */
-    border-radius: 0; /* 둥글기 제거 */
-    box-shadow: none; /* 그림자 제거로 깔끔하게 */
-
+    background-color: #fff;
+    border-radius: 0;
+    box-shadow: none;
     display: flex;
     flex-direction: column;
 }
@@ -29,10 +30,9 @@
     justify-content: space-around;
     align-items: center;
     width: 100%;
-    height: 50px; 
-    margin-bottom: 20px; 
-    border-bottom: 1px solid #eee; /* 아주 얇은 선으로만 구분, 필요 없으면 제거 가능 */
-    
+    height: 50px;
+    margin-bottom: 20px;
+    border-bottom: 1px solid #eee;
     flex-shrink: 0;
     background-color: #fff;
 }
@@ -49,7 +49,7 @@
     display: flex;
     justify-content: center;
     align-items: center;
-    border-right: none; /* 오른쪽 경계선 제거 */
+    border-right: none;
     transition: background-color 0.3s, font-weight 0.3s;
     background-color: #fff;
 }
@@ -59,11 +59,11 @@
 }
 
 .exerciseHeaderCompontent:hover {
-    background-color: #f0f0f0; /* 약간의 변화만 */
+    background-color: #f0f0f0;
 }
 
 .exerciseHeaderCompontent.active {
-    background-color: #ccc; /* 선택된 탭은 약간의 회색 정도, 원한다면 완전한 흰색 유지 가능 */
+    background-color: #ccc;
     font-weight: 600;
     color: #000;
 }
@@ -72,10 +72,8 @@
     flex: 1;
     display: flex;
     flex-direction: column;
-    gap: 15px; 
+    gap: 15px;
     padding: 10px 0;
-    border-top: none; /* 상단 테두리 제거 */
-    
     overflow-y: auto;
     scrollbar-width: thin;
     scrollbar-color: #aaa #f9f9f9;
@@ -96,16 +94,14 @@
 
 .facilityItem {
     padding: 15px;
-    border: none; /* 테두리 제거 */
-    border-radius: 0; /* 둥글기 제거 */
-    background-color: #fff; 
-    box-shadow: none; /* 그림자 제거 */
+    background-color: #fff;
+    box-shadow: none;
     transition: transform 0.2s, box-shadow 0.2s;
 }
 
 .facilityItem:hover {
     transform: translateY(-3px);
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* hover 시에만 약한 그림자 */
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .facilityItem h4 {
@@ -120,16 +116,17 @@
     margin: 3px 0;
 }
 
+/* 지도 마커 정보창 스타일 */
 .markerInfoWindow {
     background-color: #fff;
     padding: 8px 10px;
-    border-radius: 10px;  /* 둥글기 제거 */
-    box-shadow: none;  /* 그림자 제거 */
+    border-radius: 10px;
+    box-shadow: none;
     display: inline-block;
     word-wrap: break-word;
     font-size: 13px;
     color: #333;
-    border: none; /* 테두리 제거 */
+    border: none;
 }
 
 .markerInfoWindow h4 {
@@ -141,4 +138,151 @@
 
 .markerInfoWindow p {
     margin: 3px 0;
+}
+
+/* 모달 스타일 */
+.modalBackdrop {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.modalContent {
+    background: white;
+    padding: 20px;
+    border-radius: 10px;
+    width: 600px; /* 모달 너비 고정 */
+    max-width: 90%;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+    position: relative;
+    text-align: left;
+}
+
+.closeButton {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: none;
+    border: none;
+    font-size: 18px;
+    cursor: pointer;
+}
+
+.apiDetails {
+    margin-top: 20px;
+    text-align: left;
+    max-height: 300px;
+    width: 100%; 
+    overflow-x: auto; /* 가로 스크롤은 여기서 발생 */
+    overflow-y: hidden;
+    font-size: 14px;
+    background-color: #f9f9f9;
+    padding: 10px;
+    border-radius: 5px;
+    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
+
+    display: inline-flex;
+    flex-direction: row;
+    gap: 10px;
+    white-space: nowrap; /* 줄바꿈 없이 가로로 나열 */
+}
+
+.apiDetails pre {
+    margin: 0;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+}
+
+/* 날씨 정보 컨테이너 */
+.weatherContainer {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    background-color: rgba(255, 255, 255, 0.9);
+    padding: 10px 15px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    font-size: 14px;
+    font-weight: bold;
+    color: #333;
+    z-index: 9999;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer; /* 클릭 가능하도록 설정 */
+    transition: background-color 0.3s ease;
+}
+
+.weatherContainer:hover {
+    background-color: rgba(230, 230, 230, 0.9);
+}
+
+/* 기온 및 상태 */
+.weatherTemperature {
+    display: flex;
+    align-items: center;
+}
+
+.weatherTemperature span {
+    font-size: 16px;
+    font-weight: bold;
+    margin-right: 10px;
+}
+
+.weatherTemperature .weatherSky {
+    font-size: 14px;
+    color: #555;
+}
+
+/* 추천 메시지 */
+.weatherRecommendation {
+    margin-left: auto;
+    font-size: 14px;
+    color: #007BFF;
+    font-weight: bold;
+}
+
+.forecastBlock {
+    background-color: #fff;
+    border-radius: 8px;
+    padding: 15px;
+    min-width: 200px; /* 내용이 줄바꿈되지 않도록 충분히 넓게 */
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    text-align: center;
+    display: inline-block; 
+    vertical-align: top; 
+    white-space: normal; 
+}
+
+.forecastBlock h4 {
+    font-size: 14px;
+    margin-bottom: 8px;
+    font-weight: bold;
+    color: #333;
+}
+
+.forecastBlock p {
+    margin: 5px 0;
+    font-size: 13px;
+    color: #555;
+}
+
+.apiDetails::-webkit-scrollbar {
+    height: 8px; /* 가로 스크롤바 높이 지정 */
+}
+
+.apiDetails::-webkit-scrollbar-thumb {
+    background-color: #aaa;
+    border-radius: 4px;
+}
+
+.apiDetails::-webkit-scrollbar-track {
+    background-color: #f9f9f9;
 }
