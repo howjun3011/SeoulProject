@@ -47,6 +47,13 @@
     margin-bottom: 20px;
 }
 
+.dividerLine {
+    width: 100%;
+    height: 1px;
+    background-color: #ccc;
+    margin-bottom: 15px; 
+}
+
 .exerciseHeaderCompontent {
     width: 100%;
     height: 100%;
@@ -176,6 +183,32 @@
     margin: 3px 0;
 }
 
+.modalDetailTextWrapper {
+    display: flex;
+    flex-direction: column;
+    margin-left: 10px;
+}
+
+.modalButtonGroup {
+    margin-top: 10px;
+    display: flex;
+    gap: 10px;
+}
+
+.actionButton {
+    background-color: #007BFF;
+    border: none;
+    color: #fff;
+    padding: 5px 8px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 13px;
+}
+
+.actionButton:hover {
+    background-color: #0056b3;
+}
+
 /* 모달 스타일 */
 .modalBackdrop {
     position: fixed;
@@ -211,32 +244,81 @@
     cursor: pointer;
 }
 
+.modalIframe {
+    width: 100%;
+    height: 500px;
+    border: none;
+    border-radius: 8px;
+}
+
+.bookingContainer {
+    display: flex;
+    flex-direction: column;
+}
+
+.backButton {
+    align-self: flex-start;
+    margin-bottom: 10px;
+    cursor: pointer;
+    background: #007BFF;
+    color: #fff;
+    border: none;
+    padding: 5px 10px;
+    border-radius: 4px;
+}
+.backButton:hover {
+    background: #0056b3;
+}
+
 /* 모달 내 detail item 스타일 */
 .modalDetailItem {
     display: flex;
     align-items: center;
-    margin-bottom: 15px;
+    padding: 15px 0;
+    cursor: pointer;
+    position: relative;
+}
+
+.modalDetailItem:not(:last-child) {
+    border-bottom: 1px solid #eee;
+}
+
+.modalDetailItem:hover {
+    background-color: #f9f9f9;
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.05);
 }
 
 .modalImage {
-    width: 100px;
-    height: 100px;
+    width: 60px;
+    height: 60px;
     object-fit: cover;
     border-radius: 8px;
-    margin-right: 10px;
+    margin-right: 15px;
+}
+
+.modalDetailTextWrapper {
+    display: flex;
+    flex-direction: column;
 }
 
 .modalDetailName {
     font-size: 14px;
     font-weight: bold;
-    color: #007BFF;
+    color: #333;
+    margin-bottom: 5px;
 }
+
 .modalDetailName a {
     text-decoration: none;
     color: inherit;
 }
 .modalDetailName a:hover {
     text-decoration: underline;
+}
+
+.modalDetailAddr {
+    font-size: 12px;
+    color: #555;
 }
 
 /* 가로 스크롤이 필요한 API 디테일 영역(필요 없다면 제거 가능) */
@@ -350,4 +432,36 @@
 
 .apiDetails::-webkit-scrollbar-track {
     background-color: #f9f9f9;
+}
+
+.directionStepsContainer {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.directionStep {
+    background-color: #f1f1f1;
+    padding: 10px 15px;
+    border-radius: 6px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.directionStep h5 {
+    margin: 0 0 5px 0;
+    font-size: 14px;
+    font-weight: bold;
+    color: #333;
+}
+
+.directionStep p {
+    margin: 2px 0;
+    font-size: 13px;
+    color: #555;
+}
+
+.directionStep .busNumber {
+    font-size: 13px;
+    color: #007BFF;
+    font-weight: 500;
 }
