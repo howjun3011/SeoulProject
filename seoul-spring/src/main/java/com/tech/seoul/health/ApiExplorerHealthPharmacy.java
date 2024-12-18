@@ -1,4 +1,4 @@
-package com.tech.seoul;
+package com.tech.seoul.health;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
