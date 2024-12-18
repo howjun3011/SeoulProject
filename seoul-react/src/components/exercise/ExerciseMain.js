@@ -3,19 +3,19 @@ import axios from 'axios';
 import styles from '../../assets/css/exercise/ExerciseMain.module.css';
 import SideTab from '../common/SideTab';
 import CommonMap from '../common/CommonMap';
-import { MapMarker, CustomOverlayMap } from "react-kakao-maps-sdk";
+import { MapMarker } from "react-kakao-maps-sdk";
 
 function ExerciseMain() {
     const tabNames = ["수영","테니스","축구","족구","골프","배드민턴","풋살","게이트볼"];
     const [currentTabType, setCurrentTabType] = useState(Array(tabNames.length).fill(false));
     const [currentType, setCurrentType] = useState('수영');
     const [facilities, setFacilities] = useState([]);
-    const [currentLat, setCurrentLat] = useState(37.55576761);
-    const [currentLng, setCurrentLng] = useState(126.97209840);
-    const [radius, setRadius] = useState(5);
+    const [currentLat, setCurrentLat] = useState(37.481855);
+    const [currentLng, setCurrentLng] = useState(126.897324);
+    const [radius, setRadius] = useState(4);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [modalData, setModalData] = useState(null);
-    
+
     // 날씨 관련
     const [weatherData, setWeatherData] = useState(null);
     const [recommendation, setRecommendation] = useState('');
@@ -23,6 +23,19 @@ function ExerciseMain() {
     // 날씨 상세 모달 상태
     const [isWeatherModalOpen, setIsWeatherModalOpen] = useState(false);
     const [weatherModalData, setWeatherModalData] = useState(null);
+
+    // 예약페이지 및 길찾기 페이지 상태
+    const [showBooking, setShowBooking] = useState(false);
+    const [bookingUrl, setBookingUrl] = useState('');
+    const [showRoute, setShowRoute] = useState(false);
+    const [routeUrl, setRouteUrl] = useState('');
+
+    // Directions steps 상태 (경로 상세 정보)
+    const [directionSteps, setDirectionSteps] = useState([]);
+    const [directionError, setDirectionError] = useState(null);
+
+    const embedApiKey = process.env.REACT_APP_GOOGLEMAPS_EMBED_KEY;
+    const backendUrl = process.env.REACT_APP_BACKEND_URL;
 
     useEffect(() => {
         if (navigator.geolocation) {
@@ -174,6 +187,10 @@ function ExerciseMain() {
         .then(res => {
             setModalData(res.data);
             setIsModalOpen(true);
+            setShowBooking(false);
+            setShowRoute(false);
+            setDirectionSteps([]);
+            setDirectionError(null);
         })
         .catch(err => console.error(err));
     };
@@ -181,6 +198,10 @@ function ExerciseMain() {
     const closeModal = () => {
         setIsModalOpen(false);
         setModalData(null);
+        setShowBooking(false);
+        setShowRoute(false);
+        setDirectionSteps([]);
+        setDirectionError(null);
     };
 
     // 날씨 상세 모달 닫기
@@ -205,7 +226,6 @@ function ExerciseMain() {
             for (const t of officialTimes) {
                 if (currentHour >= t) chosenHour = t;
             }
-            // chosenHour는 현재시간 이전에 발표된 가장 최근 발표 시간
             let baseTime = String(chosenHour).padStart(2, '0') + '00';
 
             const nx = 58;
@@ -226,8 +246,6 @@ function ExerciseMain() {
 
             if (json.response && json.response.body && json.response.body.items) {
                 const items = json.response.body.items.item;
-                // console.log(items); // 디버그용
-
                 const forecastData = {};
                 items.forEach(item => {
                     const key = `${item.fcstDate}${item.fcstTime}`;
@@ -238,7 +256,6 @@ function ExerciseMain() {
                 });
 
                 const sortedKeys = Object.keys(forecastData).sort();
-                // 가까운 시간부터 8개 (약 24시간치) 데이터
                 const shortTermForecasts = sortedKeys.slice(0, 8).map(key => {
                     return {
                         dateTime: key,
@@ -257,6 +274,30 @@ function ExerciseMain() {
         fetchShortForecast().then(() => {
             setIsWeatherModalOpen(true);
         });
+    };
+
+    // Directions API를 사용하여 경로 정보 가져오는 함수 (백엔드 서버 이용)
+    const fetchDirections = async (destinationLat, destinationLng) => {
+        try {
+            setDirectionError(null);
+            setDirectionSteps([]);
+            // 백엔드 서버에 Directions 요청
+            const currentLat = 37.481855;
+            const currentLng = 126.897324;
+            const url = `http://localhost:9002/seoul/exercise/directions?originLat=${currentLat}&originLng=${currentLng}&destLat=${destinationLat}&destLng=${destinationLng}&mode=transit`;
+            const res = await axios.get(url);
+            const data = res.data;
+
+            if(data.status === "OK") {
+                const steps = data.routes[0].legs[0].steps;
+                setDirectionSteps(steps);
+            } else {
+                setDirectionError(`경로 정보를 가져올 수 없습니다: ${data.status}`);
+            }
+        } catch (err) {
+            setDirectionError('경로 정보를 가져오는 중 에러가 발생했습니다.');
+            console.error(err);
+        }
     };
 
     return (
@@ -298,6 +339,9 @@ function ExerciseMain() {
                             </div>
                         ))}
                     </div>
+
+                    <div className={styles.dividerLine}></div>
+
                     <div className={styles.facilityList}>
                         {facilities.map((item, idx) => (
                             <div 
@@ -310,6 +354,10 @@ function ExerciseMain() {
                                     .then(res => {
                                         setModalData(res.data);
                                         setIsModalOpen(true);
+                                        setShowBooking(false);
+                                        setShowRoute(false);
+                                        setDirectionSteps([]);
+                                        setDirectionError(null);
                                     })
                                     .catch(err => console.error(err));
                                 }}
@@ -335,39 +383,133 @@ function ExerciseMain() {
                 </div>
             </SideTab>
 
-
-            {/* 기존 시설 정보 모달 */}
+            {/* 시설 정보 모달 */}
             {isModalOpen && (
                 <div className={styles.modalBackdrop} onClick={closeModal}>
                     <div className={styles.modalContent} onClick={(e) => e.stopPropagation()}>
                         <button className={styles.closeButton} onClick={closeModal}>X</button>
-                        <h3>시설 상세 정보</h3>
-                        {modalData && modalData.length > 0 ? (
+                        <h4>시설 상세 정보</h4>
+                        <br/>
+
+                        {/* 버튼 영역: 예약하기 / 길찾기 */}
+                        {!showBooking && !showRoute && (
+                            <h4>예약하기 또는 길찾기를 선택하세요.</h4>
+                        )}
+
+                        {showBooking && (
+                            <div className={styles.bookingContainer}>
+                                <button className={styles.backButton} onClick={() => {setShowBooking(false); setShowRoute(false);}}>← 목록으로</button>
+                                {bookingUrl ? (
+                                    <iframe
+                                        src={bookingUrl}
+                                        className={styles.modalIframe}
+                                        title="예약 페이지"
+                                    />
+                                ) : (
+                                    <p>예약 페이지를 불러오지 못했습니다.</p>
+                                )}
+                            </div>
+                        )}
+
+                        {modalData && modalData.length > 0 && !showBooking && !showRoute && (
                             <div>
-                                {modalData.map((detail, index) => (
-                                    <div key={index} className={styles.modalDetailItem}>
-                                        {detail.imgFileUrlAddr && (
-                                            <img 
-                                                src={detail.imgFileUrlAddr} 
-                                                alt={detail.rsrcNm} 
-                                                className={styles.modalImage}
+                                {modalData.map((detail, index) => {
+                                    // 지도용 Embed API URL
+                                    const currentLat = 37.481855;
+                                    const currentLng = 126.897324;
+                                    const directionEmbedUrl = `https://www.google.com/maps/embed/v1/directions?key=${embedApiKey}&origin=${currentLat},${currentLng}&destination=${detail.lat},${detail.lot}&mode=transit`;
+                                    
+                                    return (
+                                        <div 
+                                            key={index} 
+                                            className={styles.modalDetailItem}
+                                        >
+                                            {detail.imgFileUrlAddr && (
+                                                <img 
+                                                    src={detail.imgFileUrlAddr} 
+                                                    alt={detail.rsrcNm} 
+                                                    className={styles.modalImage}
+                                                />
+                                            )}
+                                            <div className={styles.modalDetailTextWrapper}>
+                                                <div className={styles.modalDetailName}>{detail.rsrcNm}</div>
+                                                <div className={styles.modalDetailAddr}>{detail.addr}</div>
+                                                <div className={styles.modalButtonGroup}>
+                                                    <button className={styles.actionButton} onClick={() => {
+                                                        if(detail.instUrlAddr) {
+                                                            setBookingUrl(detail.instUrlAddr);
+                                                            setShowBooking(true);
+                                                            setShowRoute(false);
+                                                        }
+                                                    }}>예약하기</button>
+                                                    <button className={styles.actionButton} onClick={() => {
+                                                        setRouteUrl(directionEmbedUrl);
+                                                        setShowRoute(true);
+                                                        setShowBooking(false);
+                                                        // 경로 정보 가져오기
+                                                        fetchDirections(detail.lat, detail.lot);
+                                                    }}>길찾기</button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    );
+                                })}
+                            </div>
+                        )}
+
+                        {showRoute && (
+                            <div className={styles.bookingContainer}>
+                                <button className={styles.backButton} onClick={() => {
+                                    setShowRoute(false);
+                                    setShowBooking(false);
+                                    setDirectionSteps([]);
+                                    setDirectionError(null);
+                                }}>← 목록으로</button>
+                                {routeUrl ? (
+                                    <div style={{display: 'flex', gap: '20px'}}>
+                                        {/* 지도 영역 */}
+                                        <div style={{width: '60%', marginRight: '10px'}}>
+                                            <iframe
+                                                src={routeUrl}
+                                                className={styles.modalIframe}
+                                                title="길찾기 페이지"
                                             />
-                                        )}
-                                        <div className={styles.modalDetailName}>
-                                            <a href={detail.instUrlAddr} target="_blank" rel="noopener noreferrer">
-                                                {detail.rsrcNm}
-                                            </a>
+                                        </div>
+
+                                        {/* 단계별 안내 표시 영역 */}
+                                        <div style={{width: '40%', maxHeight: '500px', overflowY: 'auto'}}>
+                                            <h4 style={{marginBottom: '15px', color: '#333'}}>경로 안내</h4>
+                                            {directionError && <p style={{color: 'red'}}>{directionError}</p>}
+                                            {!directionError && directionSteps.length > 0 ? (
+                                                <div className={styles.directionStepsContainer}>
+                                                    {directionSteps.map((step, i) => (
+                                                        <div key={i} className={styles.directionStep}>
+                                                            <h5>Step {i + 1}</h5>
+                                                            <div dangerouslySetInnerHTML={{__html: step.html_instructions}} />
+                                                            <p>거리: {step.distance.text}, 시간: {step.duration.text}</p>
+                                                            {step.transit_details && (
+                                                                <p className={styles.busNumber}>버스 번호: {step.transit_details.line.short_name || step.transit_details.line.name}</p>
+                                                            )}
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                            ) : (
+                                                !directionError && <p>경로 정보를 불러오는 중...</p>
+                                            )}
                                         </div>
                                     </div>
-                                ))}
+                                ) : (
+                                    <p>길찾기 페이지를 불러오지 못했습니다.</p>
+                                )}
                             </div>
-                        ) : (
+                        )}
+
+                        {!showBooking && !showRoute && (!modalData || modalData.length === 0) && (
                             <p>일치하는 시설 정보가 없습니다.</p>
                         )}
                     </div>
                 </div>
             )}
-
 
             {weatherData && (
                 <div className={styles.weatherContainer} onClick={handleWeatherContainerClick}>
@@ -389,10 +531,6 @@ function ExerciseMain() {
                             <div className={styles.apiDetails}>
                                 {weatherModalData.map((forecast, idx) => {
                                     const hoursAfter = 3 * (idx + 1);  
-                                    const date = forecast.dateTime.slice(0,8);
-                                    const time = forecast.dateTime.slice(8,10) + ':' + forecast.dateTime.slice(10,12);
-
-                                    // T3H는 3시간 단위 기온
                                     return (
                                         <div className="forecastBlock" key={idx}>
                                             <h4>{hoursAfter}시간 후</h4>
