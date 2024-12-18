@@ -1,4 +1,4 @@
-package com.tech.seoul;
+package com.tech.seoul.health;
 
 import java.io.*;
 import java.net.HttpURLConnection;

@@ -8,7 +8,6 @@ function WeatherInfo() {
     useEffect(() => {
         const fetchWeather = async () => {
             try {
-                // 서비스 키 (이미 인코딩된 형태)
                 const serviceKey = 'yS7P3EDpV941DaSS0Kr%2B9FWPTS03AjXqaKoV89OHZjKVuRgXnQwngjiestfD%2BtV8YWmVMqK2DSwkQlxUZK0jJw%3D%3D';
 
                 // 현재 시간 가져오기 (날씨용)
@@ -48,7 +47,6 @@ function WeatherInfo() {
 
                 const weatherResponse = await fetch(weatherUrl);
                 const weatherJson = await weatherResponse.json(); // 바로 JSON으로 변환
-                // console.log('기상청 데이터:', weatherJson); // JSON 데이터를 출력
 
                 if (weatherJson.response && weatherJson.response.body && weatherJson.response.body.items && weatherJson.response.body.items.item) {
                     const items = weatherJson.response.body.items.item;
@@ -107,7 +105,7 @@ function WeatherInfo() {
                     let dustJson;
                     try {
                         dustJson = JSON.parse(responseText);
-                        // console.log('미세먼지 API JSON 응답:', dustJson);
+                        console.log('미세먼지 API JSON 응답:', dustJson);
                     } catch (e) {
                         console.error("응답을 JSON으로 파싱하지 못했습니다. 응답 내용:", responseText);
                         throw new Error("미세먼지 API 응답이 JSON 형식이 아님");

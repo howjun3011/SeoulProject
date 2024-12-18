@@ -9,22 +9,21 @@ import WeatherInfo from "./WeatherInfo";
 function HealthMain() {
     const [searchKeyword, setSearchKeyword] = useState(""); // 검색어 입력 상태
     const [debouncedKeyword, setDebouncedKeyword] = useState(""); // 디바운스 처리된 검색어
-    const [hospitalList, setHospitalList] = useState([]); // 검색된 병원 리스트
-    const [markers, setMarkers] = useState([]); // 지도에 표시할 마커 리스트
-    const [map, setMap] = useState(null); // 지도 객체 상태
-    const [userLocation, setUserLocation] = useState(null); // 사용자 현재 위치
-    const [currentCenter, setCurrentCenter] = useState(null); // 지도의 현재 중심 좌표
-    const [selectedMarker, setSelectedMarker] = useState(null); // 선택된 마커 정보
-    const [isManualSelection, setIsManualSelection] = useState(false); // 수동으로 지도 이동했는지 여부
-    const [isSbjFilterOpen, setIsSbjFilterOpen] = useState(false); // 진료과목 필터 드롭다운 열림 상태
-    const [isWeekFilterOpen, setIsWeekFilterOpen] = useState(false); // 주말/공휴일 필터 드롭다운 열림 상태
     const [selectedSbjFilter, setSelectedSbjFilter] = useState('전체'); // 진료과목 선택된 필터 값
     const [sujFilterButtonText, setSujFilterButtonText] = useState('진료과목'); // 진료과목 필터 버튼에 표시될 텍스트
     const [selectedWeekFilter, setSelectedWeekFilter] = useState('전체'); // 주말/공휴일 선택된 필터 값
     const [weekFilterButtonText, setWeekFilterButtonText] = useState('주말/공휴일'); // 주말/공휴일 필터 버튼에 표시될 텍스트
+    const [hospitalList, setHospitalList] = useState([]); // 검색된 병원 리스트
+    const [pharmacyMarkers, setPharmacyMarkers] = useState([]); // 선택된 병원 주변 약국 정보
+    const [userLocation, setUserLocation] = useState(null); // 사용자 현재 위치
+    const [currentCenter, setCurrentCenter] = useState(null); // 지도의 현재 중심 좌표
+    const [map, setMap] = useState(null); // 지도 객체 상태
+    const [markers, setMarkers] = useState([]); // 지도에 표시할 마커 리스트
+    const [selectedMarker, setSelectedMarker] = useState(null); // 선택된 마커 정보
+    const [isManualSelection, setIsManualSelection] = useState(false); // 수동으로 지도 이동했는지 여부
+    const [isSbjFilterOpen, setIsSbjFilterOpen] = useState(false); // 진료과목 필터 드롭다운 열림 상태
+    const [isWeekFilterOpen, setIsWeekFilterOpen] = useState(false); // 주말/공휴일 필터 드롭다운 열림 상태
     const [selectedHospitalDetail, setSelectedHospitalDetail] = useState(null); // 선택된 병원 상세 정보
-    const [pharmacyMarkers, setPharmacyMarkers] = useState([]);
-    const [selectedPharmacyMarker, setSelectedPharmacyMarker] = useState(null);
 
     // 사용자 현재 위치 가져오기
     // 컴포넌트가 마운트될 때 사용자의 현재 위치를 가져와서 userLocation과 currentCenter를 설정하고, 현재 위치를 표시하는 마커 추가
