@@ -534,7 +534,7 @@ function ExerciseMain() {
                                     return (
                                         <div className="forecastBlock" key={idx}>
                                             <h4>{hoursAfter}시간 후</h4>
-                                            <p>기온: {forecast.data.T3H ? forecast.data.T3H + '℃' : 'N/A'}</p>
+                                            <p>기온: {forecast.data.TMP ? forecast.data.TMP + '℃' : 'N/A'}</p>
                                             <p>강수확률: {forecast.data.POP ? forecast.data.POP + '%' : 'N/A'}</p>
                                         </div>
                                     );
